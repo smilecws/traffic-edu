@@ -135,6 +135,81 @@ class Question {
     );
   }
 
+  /// 새 평탄형 (questions_kor.json) — 최상위 List, 항목 스키마는 다음과 같다:
+  /// `{ page_number, question_number, question, choices: {"1":..,"2":..,..},
+  ///   answers: [int(1-based)], explanation, image: [paths]?,
+  ///   image_explanation: [string]?, explanation_image: [paths]?, video: path? }`
+  /// `category` 가 없으므로 `video`/`image` 유무에서 파생한다.
+  factory Question.fromFlatExport(Map<String, dynamic> json, int id) {
+    final question = (json['question'] ?? '').toString();
+
+    final choicesRaw = (json['choices'] as Map?) ?? const {};
+    final entries = choicesRaw.entries
+        .map((e) => MapEntry(int.tryParse(e.key.toString()) ?? 0, e.value))
+        .toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+    final options = entries.map((e) => (e.value ?? '').toString()).toList();
+
+    final answersRaw = json['answers'];
+    final correctIndices = answersRaw is List
+        ? answersRaw.map((e) => (e as num).toInt() - 1).toList(growable: false)
+        : const <int>[];
+
+    final explanation = (json['explanation'] ?? '').toString();
+
+    final imageRaw = json['image'];
+    final mainImages = imageRaw is List
+        ? imageRaw.map(normalizeQuestionImageUri).whereType<String>().toList()
+        : const <String>[];
+    final explanationImageRaw = json['explanation_image'];
+    final explanationImages = explanationImageRaw is List
+        ? explanationImageRaw
+            .map(normalizeQuestionImageUri)
+            .whereType<String>()
+            .toList()
+        : const <String>[];
+    final imageUris = <String>[...mainImages, ...explanationImages];
+
+    final captionsRaw = json['image_explanation'];
+    final captionLines = captionsRaw is List
+        ? captionsRaw
+            .map((e) => e.toString().trim())
+            .where((s) => s.isNotEmpty)
+            .toList()
+        : const <String>[];
+    final captionText =
+        captionLines.isEmpty ? '' : captionLines.map((l) => '■ $l').join('\n');
+    final captionAnchor = mainImages.isNotEmpty
+        ? mainImages.first
+        : (explanationImages.isNotEmpty ? explanationImages.first : null);
+
+    final videoUri = normalizeQuestionVideoUri(json['video']);
+
+    final String category;
+    if (videoUri != null) {
+      category = '동영상 문제';
+    } else if (mainImages.isNotEmpty) {
+      category = '표지 및 상황문제';
+    } else {
+      category = '말문제';
+    }
+
+    return Question(
+      id: id,
+      question: question,
+      options: options,
+      correctIndices: correctIndices,
+      explanation: explanation,
+      imageUris: imageUris,
+      imageCaptionsByUri: {
+        if (captionText.isNotEmpty && captionAnchor != null)
+          captionAnchor: captionText,
+      },
+      category: category,
+      videoUri: videoUri,
+    );
+  }
+
   /// `assets/questions.json` 형식 (pages[].problems[])
   factory Question.fromPdfProblemsExport(Map<String, dynamic> json, int id) {
     final problemArea = (json['problem_area'] as Map?) ?? const {};

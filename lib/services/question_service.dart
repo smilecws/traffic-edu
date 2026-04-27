@@ -52,27 +52,32 @@ class QuestionService {
     }
 
     final String jsonString = await rootBundle.loadString(path);
-    final Map<String, dynamic> data = jsonDecode(jsonString);
+    final dynamic data = jsonDecode(jsonString);
 
-    if (data['questions'] != null) {
-      return (data['questions'] as List).length;
+    if (data is List) {
+      return data.length;
     }
-    if (data['pages'] != null) {
-      var n = 0;
-      for (final page in data['pages'] as List) {
-        final pageMap = page as Map<String, dynamic>;
-        final qs = pageMap['questions'] as List?;
-        if (qs != null) {
-          n += qs.length;
-          continue;
-        }
-        final problems = pageMap['problems'] as List? ?? const [];
-        n += problems.length;
+    if (data is Map<String, dynamic>) {
+      if (data['questions'] != null) {
+        return (data['questions'] as List).length;
       }
-      return n;
+      if (data['pages'] != null) {
+        var n = 0;
+        for (final page in data['pages'] as List) {
+          final pageMap = page as Map<String, dynamic>;
+          final qs = pageMap['questions'] as List?;
+          if (qs != null) {
+            n += qs.length;
+            continue;
+          }
+          final problems = pageMap['problems'] as List? ?? const [];
+          n += problems.length;
+        }
+        return n;
+      }
     }
     throw FormatException(
-      '문제 JSON: 최상위에 "questions" 또는 "pages" 배열이 필요합니다.',
+      '문제 JSON: 최상위가 List 이거나, "questions"/"pages" 배열이 있어야 합니다.',
     );
   }
 
@@ -84,10 +89,18 @@ class QuestionService {
 
     final String jsonString = await rootBundle.loadString(path);
     _loadedAssetPath = path;
-    final Map<String, dynamic> data = jsonDecode(jsonString);
+    final dynamic data = jsonDecode(jsonString);
     final List<Question> list = [];
 
-    if (data['questions'] != null) {
+    if (data is List) {
+      var fallbackId = 0;
+      for (final e in data) {
+        final m = Map<String, dynamic>.from(e as Map);
+        final qn = (m['question_number'] as num?)?.toInt();
+        list.add(Question.fromFlatExport(m, qn ?? fallbackId));
+        fallbackId++;
+      }
+    } else if (data is Map<String, dynamic> && data['questions'] != null) {
       var i = 0;
       for (final e in data['questions'] as List) {
         final m = Map<String, dynamic>.from(e as Map);
@@ -95,7 +108,7 @@ class QuestionService {
         list.add(Question.fromJson(m));
         i++;
       }
-    } else if (data['pages'] != null) {
+    } else if (data is Map<String, dynamic> && data['pages'] != null) {
       var id = 0;
       for (final page in data['pages'] as List) {
         final pageMap = page as Map<String, dynamic>;
@@ -118,7 +131,7 @@ class QuestionService {
       }
     } else {
       throw FormatException(
-        '문제 JSON: 최상위에 "questions" 또는 "pages" 배열이 필요합니다.',
+        '문제 JSON: 최상위가 List 이거나, "questions"/"pages" 배열이 있어야 합니다.',
       );
     }
 

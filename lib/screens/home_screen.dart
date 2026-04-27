@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../app_settings_scope.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme_colors.dart';
 import 'study_screen.dart';
 import 'written_exam_menu_screen.dart';
@@ -6,9 +8,34 @@ import 'written_exam_menu_screen.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  Future<void> _confirmRevokeConsent(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final scope = AppSettingsScope.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.revokeConsentDialogTitle),
+        content: Text(l10n.revokeConsentDialogBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.revokeConsentCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.revokeConsentConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await scope.revokeConsent();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: colors.background,
       body: SafeArea(
@@ -17,31 +44,55 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'KOREAN DRIVING',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.5,
-                  color: colors.primaryDark,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '초심찾기 도로교통법',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: colors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                '무엇을 할까요?',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: colors.textSecondary,
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'KOREAN DRIVING',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.5,
+                            color: colors.primaryDark,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '초심찾기 도로교통법',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: colors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '무엇을 할까요?',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert, color: colors.textSecondary),
+                    onSelected: (value) {
+                      if (value == 'revoke') _confirmRevokeConsent(context);
+                    },
+                    itemBuilder: (ctx) => [
+                      PopupMenuItem<String>(
+                        value: 'revoke',
+                        child: Text(l10n.menuRevokeConsent),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               const SizedBox(height: 32),
               _HomeMenuCard(

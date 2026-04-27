@@ -1059,6 +1059,42 @@ class AppLocalizations {
         'zh': 'Google 登录失败,请重试。',
         'vi': 'Đăng nhập Google thất bại. Vui lòng thử lại.',
       });
+
+  String get menuRevokeConsent => _t({
+        'ko': '개인정보 동의 철회',
+        'en': 'Revoke privacy consent',
+        'zh': '撤回个人信息同意',
+        'vi': 'Rút lại đồng ý quyền riêng tư',
+      });
+
+  String get revokeConsentDialogTitle => _t({
+        'ko': '동의를 철회하시겠습니까?',
+        'en': 'Revoke consent?',
+        'zh': '撤回同意?',
+        'vi': 'Rút lại đồng ý?',
+      });
+
+  String get revokeConsentDialogBody => _t({
+        'ko': '저장된 동의 기록과 로그인이 삭제됩니다. 다시 사용하려면 동의 절차를 다시 거쳐야 합니다.',
+        'en':
+            'Saved consent and sign-in will be removed. You will need to consent again to use the app.',
+        'zh': '将删除已保存的同意记录和登录信息,再次使用前需要重新同意。',
+        'vi': 'Sẽ xoá đồng ý đã lưu và phiên đăng nhập. Bạn sẽ phải đồng ý lại để dùng tiếp.',
+      });
+
+  String get revokeConsentConfirm => _t({
+        'ko': '철회',
+        'en': 'Revoke',
+        'zh': '撤回',
+        'vi': 'Rút lại',
+      });
+
+  String get revokeConsentCancel => _t({
+        'ko': '취소',
+        'en': 'Cancel',
+        'zh': '取消',
+        'vi': 'Huỷ',
+      });
 }
 
 class _AppLocalizationsDelegate

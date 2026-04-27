@@ -110,6 +110,7 @@ Widget wrapForGolden(
     setLocale: (_) {},
     themeMode: themeMode,
     setThemeMode: (_) {},
+    revokeConsent: () async {},
     child: MaterialApp(
       debugShowCheckedModeBanner: false,
       locale: locale,

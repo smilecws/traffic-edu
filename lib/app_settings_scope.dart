@@ -7,12 +7,14 @@ class AppSettingsScope extends InheritedWidget {
     required this.setLocale,
     required this.themeMode,
     required this.setThemeMode,
+    required this.revokeConsent,
     required super.child,
   });
 
   final void Function(Locale locale) setLocale;
   final ThemeMode themeMode;
   final void Function(ThemeMode mode) setThemeMode;
+  final Future<void> Function() revokeConsent;
 
   static AppSettingsScope of(BuildContext context) {
     final scope =

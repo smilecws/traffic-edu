@@ -70,22 +70,23 @@ class _QuizAppState extends State<QuizApp> {
       return;
     }
 
-    // 동의 기록 있음 → 자동 로그인 시도해서 fresh idToken 으로 app_launch 로깅.
+    // 동의 기록은 PIPA 동의의 증거 그 자체 — silent sign-in 결과와 무관하게
+    // 즉시 통과시킨다. 웹 GIS 는 third-party cookie 차단/세션 만료로 silent 가
+    // 자주 null 반환하는데, 그때마다 동의 화면을 다시 띄우면 UX 가 망가진다.
+    setState(() => _authState = _AuthState.ready);
+    // ignore: discarded_futures
+    _attemptLaunchLog(consent);
+  }
+
+  /// 자동 로그인이 되면 app_launch 로깅 + 큐 flush. 실패해도 게이트는 막지 않는다.
+  Future<void> _attemptLaunchLog(ConsentRecord consent) async {
     GoogleSignInAccount? account;
     try {
       account = await GoogleAuthService.signInSilently();
     } catch (_) {
-      account = null;
-    }
-    if (!mounted) return;
-
-    if (account == null) {
-      // 토큰 만료 / 철회 → 다시 동의 받기.
-      setState(() => _authState = _AuthState.needConsent);
       return;
     }
-
-    setState(() => _authState = _AuthState.ready);
+    if (account == null) return;
     // ignore: discarded_futures
     AccessLogService.flushPending();
     // ignore: discarded_futures
@@ -118,6 +119,17 @@ class _QuizAppState extends State<QuizApp> {
     if (mounted) setState(() => _themeMode = mode);
   }
 
+  Future<void> _revokeConsent() async {
+    await ConsentService.clear();
+    try {
+      await GoogleAuthService.signOut();
+    } catch (_) {
+      // signOut 실패는 무시 — 로컬 동의 기록 삭제만으로도 게이트는 다시 뜬다.
+    }
+    if (!mounted) return;
+    setState(() => _authState = _AuthState.needConsent);
+  }
+
   Widget _resolveHome() {
     switch (_authState) {
       case _AuthState.loading:
@@ -135,6 +147,7 @@ class _QuizAppState extends State<QuizApp> {
       setLocale: _setLocale,
       themeMode: _themeMode,
       setThemeMode: _setThemeMode,
+      revokeConsent: _revokeConsent,
       child: MaterialApp(
         title: '운전면허 학과시험 1000제',
         debugShowCheckedModeBanner: false,

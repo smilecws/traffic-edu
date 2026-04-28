@@ -19,7 +19,6 @@ import '../services/wrong_note_service.dart';
 import '../theme/app_theme_colors.dart';
 import '../utils/subcategory_ui.dart';
 import 'disqualification_detail_screen.dart';
-import 'exam_guide_screen.dart';
 import 'mock_exam_history_screen.dart';
 import 'quiz_screen.dart';
 import 'stats_screen.dart';
@@ -783,61 +782,6 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        // 메인 화면은 탭과 1:1로 매칭되지 않으므로 선택 강조를 두지 않습니다.
-        currentIndex: 0,
-        selectedItemColor: context.appColors.textSecondary,
-        unselectedItemColor: context.appColors.textSecondary,
-        selectedFontSize: 11.5,
-        unselectedFontSize: 11.5,
-        onTap: (i) {
-          if (i == 0) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ExamGuideScreen(),
-              ),
-            );
-            return;
-          }
-          if (i == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const PreparationGuideScreen(),
-              ),
-            );
-            return;
-          }
-          if (i == 2) {
-            ExamGuideScreen.openEducationSchedulePage(context);
-            return;
-          }
-          if (i == 3) {
-            ExamGuideScreen.openSchedulePage(context);
-            return;
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.format_list_numbered_rounded),
-            label: l10n.navExamOrder,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.checklist_outlined),
-            label: l10n.navPrep,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.school_outlined),
-            label: l10n.navEduSchedule,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.event_available_outlined),
-            label: l10n.navTestSchedule,
-          ),
-        ],
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../app_settings_scope.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme_colors.dart';
+import 'exam_guide_screen.dart';
 import 'study_screen.dart';
 import 'written_exam_menu_screen.dart';
 
@@ -39,7 +40,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: colors.background,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,7 +121,51 @@ class HomeScreen extends StatelessWidget {
                   );
                 },
               ),
-              const Spacer(),
+              const SizedBox(height: 16),
+              _HomeMenuCard(
+                icon: Icons.format_list_numbered_rounded,
+                title: l10n.navExamOrder,
+                subtitle: l10n.homeMenuExamOrderSub,
+                filled: false,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ExamGuideScreen(),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _HomeMenuCard(
+                icon: Icons.checklist_outlined,
+                title: l10n.navPrep,
+                subtitle: l10n.homeMenuPrepSub,
+                filled: false,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const PreparationGuideScreen(),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _HomeMenuCard(
+                icon: Icons.school_outlined,
+                title: l10n.navEduSchedule,
+                subtitle: l10n.homeMenuEduScheduleSub,
+                filled: false,
+                onTap: () =>
+                    ExamGuideScreen.openEducationSchedulePage(context),
+              ),
+              const SizedBox(height: 16),
+              _HomeMenuCard(
+                icon: Icons.event_available_outlined,
+                title: l10n.navTestSchedule,
+                subtitle: l10n.homeMenuTestScheduleSub,
+                filled: false,
+                onTap: () => ExamGuideScreen.openSchedulePage(context),
+              ),
             ],
           ),
         ),

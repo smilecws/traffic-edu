@@ -360,6 +360,34 @@ class AppLocalizations {
         'vi': 'Lịch thi',
       });
 
+  String get homeMenuExamOrderSub => _t({
+        'ko': '응시 절차를 한 번에 정리',
+        'en': 'Steps to take the exam',
+        'zh': '考试流程一览',
+        'vi': 'Quy trình dự thi',
+      });
+
+  String get homeMenuPrepSub => _t({
+        'ko': '시험 당일 챙길 준비물',
+        'en': 'What to bring on test day',
+        'zh': '考试当天必带物品',
+        'vi': 'Đồ cần mang ngày thi',
+      });
+
+  String get homeMenuEduScheduleSub => _t({
+        'ko': '도로교통공단 외부 페이지',
+        'en': 'Opens external KoROAD page',
+        'zh': '跳转至韩国道路交通公团',
+        'vi': 'Mở trang KoROAD',
+      });
+
+  String get homeMenuTestScheduleSub => _t({
+        'ko': '도로교통공단 외부 페이지',
+        'en': 'Opens external KoROAD page',
+        'zh': '跳转至韩国道路交通公团',
+        'vi': 'Mở trang KoROAD',
+      });
+
   String get languageSheetTitle => _t({
         'ko': '언어',
         'en': 'Language',

@@ -20,7 +20,8 @@ class AccessLogConfig {
       '235879380962-vsi45gcttfi270pqbgvem6n8fp27di8v.apps.googleusercontent.com';
 
   /// 동의 스키마 버전. PIPA 고지 문구 변경 시 +1 → 기존 동의 무효화 후 재동의.
-  static const int consentVersion = 1;
+  /// v2: 한국도로교통공단 제3자 제공 고지 추가 + 수집·이용 동의와 분리.
+  static const int consentVersion = 2;
 
   static bool get isConfigured => endpoint.isNotEmpty && webClientId.isNotEmpty;
 }

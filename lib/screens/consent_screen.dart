@@ -27,7 +27,8 @@ class _ConsentScreenState extends State<ConsentScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   GoogleSignInAccount? _account;
-  bool _agreed = false;
+  bool _collectionAgreed = false;
+  bool _thirdPartyAgreed = false;
   bool _signingIn = false;
   bool _submitting = false;
   bool _authReady = false;
@@ -87,7 +88,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
   Future<void> _handleAgree() async {
     if (_account == null) return;
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    if (!_agreed) return;
+    if (!_collectionAgreed || !_thirdPartyAgreed) return;
 
     setState(() => _submitting = true);
     final name = _nameController.text.trim();
@@ -139,7 +140,8 @@ class _ConsentScreenState extends State<ConsentScreen> {
     final colors = context.appColors;
     final l10n = AppLocalizations.of(context);
     final canSubmit = _account != null &&
-        _agreed &&
+        _collectionAgreed &&
+        _thirdPartyAgreed &&
         _nameController.text.trim().isNotEmpty &&
         !_submitting;
 
@@ -164,13 +166,22 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  _NoticeBox(
-                    children: [
-                      _NoticeLine(text: l10n.consentPurpose),
-                      _NoticeLine(text: l10n.consentItems),
-                      _NoticeLine(text: l10n.consentRetention),
-                      _NoticeLine(text: l10n.consentRightToRefuse),
-                    ],
+                  _PrivacyTableSection(
+                    title: l10n.consentCollectionTitle,
+                    rows: l10n.consentCollectionRows,
+                  ),
+                  const SizedBox(height: 16),
+                  _PrivacyTableSection(
+                    title: l10n.consentThirdPartyTitle,
+                    rows: l10n.consentThirdPartyRows,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    l10n.consentRightToRefuse,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colors.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: 24),
                   _GoogleSignInRow(
@@ -208,12 +219,27 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   ),
                   const SizedBox(height: 8),
                   CheckboxListTile(
-                    value: _agreed,
+                    value: _collectionAgreed,
                     onChanged: (_account == null || _submitting)
                         ? null
-                        : (v) => setState(() => _agreed = v ?? false),
+                        : (v) =>
+                            setState(() => _collectionAgreed = v ?? false),
                     title: Text(
-                      l10n.consentAgreeCheckbox,
+                      l10n.consentCollectionAgreeCheckbox,
+                      style: TextStyle(color: colors.textPrimary),
+                    ),
+                    activeColor: colors.primary,
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                  ),
+                  CheckboxListTile(
+                    value: _thirdPartyAgreed,
+                    onChanged: (_account == null || _submitting)
+                        ? null
+                        : (v) =>
+                            setState(() => _thirdPartyAgreed = v ?? false),
+                    title: Text(
+                      l10n.consentThirdPartyAgreeCheckbox,
                       style: TextStyle(color: colors.textPrimary),
                     ),
                     activeColor: colors.primary,
@@ -266,65 +292,81 @@ class _ConsentScreenState extends State<ConsentScreen> {
   }
 }
 
-class _NoticeBox extends StatelessWidget {
-  const _NoticeBox({required this.children});
+class _PrivacyTableSection extends StatelessWidget {
+  const _PrivacyTableSection({required this.title, required this.rows});
 
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colors.surfaceCard,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.borderLight),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: children,
-      ),
-    );
-  }
-}
-
-class _NoticeLine extends StatelessWidget {
-  const _NoticeLine({required this.text});
-
-  final String text;
+  final String title;
+  final List<({String label, String value})> rows;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 6, right: 8),
-            child: Container(
-              width: 4,
-              height: 4,
-              decoration: BoxDecoration(
-                color: colors.primaryDark,
-                shape: BoxShape.circle,
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: colors.textPrimary,
             ),
           ),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: 13,
-                height: 1.5,
-                color: colors.textPrimary,
+        ),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border.all(color: colors.borderLight),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Table(
+              columnWidths: const {
+                0: IntrinsicColumnWidth(),
+                1: FlexColumnWidth(),
+              },
+              border: TableBorder.symmetric(
+                inside: BorderSide(color: colors.borderLight, width: 0.5),
               ),
+              children: [
+                for (final row in rows)
+                  TableRow(
+                    children: [
+                      Container(
+                        color: colors.chipBg,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                        child: Text(
+                          row.label,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: colors.textPrimary,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        color: colors.surfaceWhite,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                        child: Text(
+                          row.value,
+                          style: TextStyle(
+                            fontSize: 13,
+                            height: 1.5,
+                            color: colors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

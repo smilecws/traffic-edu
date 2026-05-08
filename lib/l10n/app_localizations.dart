@@ -948,29 +948,67 @@ class AppLocalizations {
         'vi': 'Đồng ý thu thập thông tin',
       });
 
-  String get consentPurpose => _t({
-        'ko': '수집 목적: 앱 사용자 통계',
-        'en': 'Purpose: App usage statistics',
-        'zh': '收集目的:应用使用统计',
-        'vi': 'Mục đích: Thống kê người dùng',
+  // 수집·이용 / 제3자 제공 표 (현재 ko 만 작성, 다른 언어는 ko 폴백).
+
+  String get consentCollectionTitle => _t({
+        'ko': '개인정보 수집·이용 안내',
       });
 
-  String get consentItems => _t({
-        'ko': '수집 항목: 이름(직접 입력), 이메일(Google 계정), Google 식별자(sub), 접속 일시, 플랫폼',
-        'en': 'Items: name (entered), email (Google), Google ID (sub), access time, platform',
-        'zh': '收集项目:姓名(自行输入)、邮箱(Google)、Google 标识(sub)、访问时间、平台',
-        'vi': 'Mục: tên (nhập tay), email (Google), Google ID (sub), thời gian truy cập, nền tảng',
+  List<({String label, String value})> get consentCollectionRows => [
+        (
+          label: _t({'ko': '수집 항목'}),
+          value: _t({
+            'ko': '이름, 이메일(Google), Google 식별자(sub), 접속 일시, 플랫폼',
+          }),
+        ),
+        (
+          label: _t({'ko': '수집 목적'}),
+          value: _t({
+            'ko': '앱 이용자 실적 집계 및 한국도로교통공단 제출 자료 작성',
+          }),
+        ),
+        (
+          label: _t({'ko': '수집·이용 근거'}),
+          value: _t({'ko': '정보주체의 동의'}),
+        ),
+        (
+          label: _t({'ko': '보유기간'}),
+          value: _t({'ko': '수집일로부터 1년 후 삭제'}),
+        ),
+      ];
+
+  String get consentThirdPartyTitle => _t({
+        'ko': '개인정보 제3자 제공 내역',
       });
 
-  String get consentRetention => _t({
-        'ko': '보유 기간: 앱 삭제 또는 본인 요청 시까지',
-        'en': 'Retention: until app deletion or your request',
-        'zh': '保留期限:卸载应用或本人请求时止',
-        'vi': 'Lưu trữ: đến khi gỡ ứng dụng hoặc theo yêu cầu',
-      });
+  List<({String label, String value})> get consentThirdPartyRows => [
+        (
+          label: _t({'ko': '제공받는 기관'}),
+          value: _t({'ko': '한국도로교통공단'}),
+        ),
+        (
+          label: _t({'ko': '제공 목적'}),
+          value: _t({
+            'ko': '본 웹 애플리케이션 이용자 실적 근거 자료 제출',
+          }),
+        ),
+        (
+          label: _t({'ko': '제공 항목'}),
+          value: _t({'ko': '이름'}),
+        ),
+        (
+          label: _t({'ko': '제공 근거'}),
+          value: _t({'ko': '정보주체의 동의'}),
+        ),
+        (
+          label: _t({'ko': '보유·이용기간'}),
+          value: _t({'ko': '공단 자체 정책에 따름'}),
+        ),
+      ];
 
   String get consentRightToRefuse => _t({
-        'ko': '동의를 거부할 수 있으며, 거부 시 앱을 사용할 수 없습니다.',
+        'ko':
+            '동의를 거부할 권리가 있으며, 거부 시 앱을 사용할 수 없습니다.',
         'en': 'You may refuse; refusing means the app cannot be used.',
         'zh': '您有权拒绝同意,拒绝后无法使用本应用。',
         'vi': 'Bạn có thể từ chối; nếu từ chối, ứng dụng không khả dụng.',
@@ -1025,11 +1063,12 @@ class AppLocalizations {
         'vi': 'Tên không quá 30 ký tự.',
       });
 
-  String get consentAgreeCheckbox => _t({
-        'ko': '위 사항에 모두 동의합니다.',
-        'en': 'I agree to all of the above.',
-        'zh': '我同意以上所有事项。',
-        'vi': 'Tôi đồng ý với toàn bộ nội dung trên.',
+  String get consentCollectionAgreeCheckbox => _t({
+        'ko': '[필수] 개인정보 수집·이용에 동의합니다.',
+      });
+
+  String get consentThirdPartyAgreeCheckbox => _t({
+        'ko': '[필수] 개인정보 제3자 제공(한국도로교통공단)에 동의합니다.',
       });
 
   String get consentAgreeButton => _t({

@@ -12,12 +12,12 @@
 
 ### ADR-002: 상태 관리 라이브러리 미도입
 **결정**: Provider / Riverpod / Bloc / GetX 도입 안 함. `StatefulWidget` + `setState` + `InheritedWidget`(`AppSettingsScope`) 만 사용.
-**이유**: 현재 범위에서 공유 상태는 (locale, themeMode) 뿐. 퀴즈 세션 상태는 한 스크린 안에서만 살아 있고, 도메인 상태는 SharedPreferences 가 소스 오브 트루스. 라이브러리 추가 비용이 가치를 초과.
+**이유**: 현재 범위에서 공유 상태는 (locale, themeMode, authState) 뿐. 퀴즈 세션 상태는 한 스크린 안에서만 살아 있고, 도메인 상태는 SharedPreferences 가 소스 오브 트루스. 라이브러리 추가 비용이 가치를 초과.
 **트레이드오프**: 화면 간 이동 후 카운트 재조회가 수동(`await _loadCounts()`). 실시간 반응형이 필요한 화면이 늘면 재평가.
 
 ### ADR-003: SharedPreferences 단일 저장소
 **결정**: 모든 영속 데이터를 `shared_preferences` 에 저장한다. SQLite / Hive / Isar 미도입.
-**이유**: 저장 대상은 (a) 정수 ID 집합, (b) 소규모 JSON(<80 건 이력, ~1,000 키 통계) 뿐. 쿼리가 필요 없고 앱 시작 시 일괄 로드 비용이 미미.
+**이유**: 저장 대상은 (a) 정수 ID 집합, (b) 소규모 JSON(<80 건 이력, ~1,000 키 통계, PIPA 동의 기록 1건) 뿐. 쿼리가 필요 없고 앱 시작 시 일괄 로드 비용이 미미.
 **트레이드오프**: 10MB 수준을 넘어가면 성능 저하 — 사용자별 누적 통계가 커지면 Hive/Isar 로 이전 필요. 복잡한 인덱싱/조인 불가.
 
 ### ADR-004: 문제 은행을 에셋 번들로 탑재
@@ -49,3 +49,18 @@
 **결정**: 데모/미리보기는 `flutter build web` → GitHub Pages 자동 배포 (`deploy_github_pages.yml`). 자체 서버/호스팅 미구축.
 **이유**: 공개 데모 URL 이 필요하지만 인증/서버 로직이 없어 정적 호스팅으로 충분. 비용 0, 파이프라인 단순.
 **트레이드오프**: base href 제약, 빌드 산출물 크기, WMV 미지원. 인증/결제를 붙이면 이전 필요.
+
+### ADR-010: PIPA 동의 게이트 + Google Sign-In
+**결정**: 앱 첫 실행 시 Google 로그인 + 이름 입력 + 개인정보 수집·이용 동의를 모두 받아야 진입을 허용한다. 동의 기록은 로컬(`SharedPreferences`)에 저장하고, 게이트 통과 여부는 기록 유무로 판별(silent sign-in 결과와 무관).
+**이유**: 접속 로그(ADR-011)를 Google Sheets 에 기록하려면 사용자 식별자와 동의가 필요. PIPA 요건(목적·항목·보존기간·거부 권리 고지) 준수. silent sign-in 결과로 게이트를 잠그면 third-party cookie 차단이나 세션 만료 시마다 동의 화면이 반복돼 UX 가 손상.
+**트레이드오프**: 데스크톱(Windows/macOS/Linux) 은 `google_sign_in` 미지원이라 게이트를 우회 — 데스크톱에서는 접속 로그도 수집 안 됨. 동의 버전이 올라가면 기존 사용자가 재동의 필요.
+
+### ADR-011: Apps Script Web App 으로 접속 로그 기록
+**결정**: 동의 완료 및 앱 실행 이벤트를 Google Apps Script Web App 에 HTTP POST 로 전송한다. 클라이언트는 Google ID Token 을 매 요청마다 발급해 함께 전송하고, Apps Script 는 Google 공개키로 토큰을 검증한다. 전송 실패 시 로컬 큐(`access_log_pending_v1`)에 쌓아 다음 실행 시 재전송.
+**이유**: 별도 서버 없이 Google Sheets 에 로그를 쌓을 수 있어 운영 비용 0. ID Token 검증으로 위조된 행 삽입 방지. UI 를 차단하지 않는 fire-and-forget 설계.
+**트레이드오프**: Apps Script 실행 할당량(일 6분) 초과 시 전송 실패. 로그가 Google Sheets 한 곳에만 쌓여 분석 도구 연결이 번거로움. 장기적으로 사용자 규모가 커지면 전용 백엔드로 이전 필요.
+
+### ADR-012: 학습 카드를 에셋 JSON 으로 관리
+**결정**: 소카테고리별 핵심 개념·수치·법령 출처를 `assets/study/<subcategoryId>.json` 파일에 저장하고 `StudyCardService` 가 로드한다. 콘텐츠는 사람이 직접 작성; `tool/extract_study_seeds.dart` 는 초안 seed 만 생성.
+**이유**: 문제 은행과 동일하게 오프라인·번들 접근 방식을 유지. 별도 CMS 없이 파일 편집만으로 콘텐츠 추가 가능. LocalizedText(`{ko, en, zh, vi}`) 맵으로 다국어 지원.
+**트레이드오프**: 콘텐츠 업데이트마다 앱 재배포 필요. 카드 스키마 변경 시 `StudyCard` 모델과 `StudyCardScreen` 을 함께 갱신해야 함.

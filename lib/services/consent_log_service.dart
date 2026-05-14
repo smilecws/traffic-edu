@@ -31,7 +31,8 @@ class ConsentLogService {
     final body = <String, String>{
       ConsentLogConfig.entryName: name,
       if (ConsentLogConfig.entryGrantedAt.isNotEmpty)
-        ConsentLogConfig.entryGrantedAt: grantedAtUtc.toIso8601String(),
+        // Google Form 의 날짜 필드는 YYYY-MM-DD 만 받음 (시간/ISO8601 거부).
+        ConsentLogConfig.entryGrantedAt: _formatDate(grantedAtUtc),
       if (ConsentLogConfig.entryPlatform.isNotEmpty)
         ConsentLogConfig.entryPlatform: _platformLabel(),
     };
@@ -49,6 +50,13 @@ class ConsentLogService {
     } catch (_) {
       // 의도적 무시 — fire-and-forget.
     }
+  }
+
+  static String _formatDate(DateTime d) {
+    final y = d.year.toString().padLeft(4, '0');
+    final m = d.month.toString().padLeft(2, '0');
+    final day = d.day.toString().padLeft(2, '0');
+    return '$y-$m-$day';
   }
 
   static String _platformLabel() {

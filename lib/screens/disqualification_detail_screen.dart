@@ -7,9 +7,14 @@ import '../theme/app_theme_colors.dart';
 import '../utils/safe_external_url.dart';
 
 class DisqualificationDetailScreen extends StatelessWidget {
-  const DisqualificationDetailScreen({super.key, required this.catalog});
+  const DisqualificationDetailScreen({
+    super.key,
+    required this.catalog,
+    this.initialTabIndex = 0,
+  });
 
   final DisqualificationCatalog catalog;
+  final int initialTabIndex;
 
   Future<void> _openUrl(BuildContext context, String url) async {
     final uri = Uri.tryParse(url.trim());
@@ -45,6 +50,7 @@ class DisqualificationDetailScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return DefaultTabController(
       length: 2,
+      initialIndex: initialTabIndex.clamp(0, 1),
       child: Scaffold(
         backgroundColor: context.appColors.background,
         appBar: AppBar(

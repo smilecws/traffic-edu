@@ -16,8 +16,7 @@ class AppLocalizations {
   static const LocalizationsDelegate<AppLocalizations> delegate =
       _AppLocalizationsDelegate();
 
-  String _t(Map<String, String> m) =>
-      m[locale.languageCode] ?? m['ko']!;
+  String _t(Map<String, String> m) => m[locale.languageCode] ?? m['ko']!;
 
   // ——— 일반 ———
   String get appTitle => _t({
@@ -316,6 +315,20 @@ class AppLocalizations {
         'en': 'Road test',
         'zh': '路考',
         'vi': 'Thi đường trường',
+      });
+
+  String get disqualificationFunctionTitle => _t({
+        'ko': '기능시험 실격사항',
+        'en': 'Skills test disqualification',
+        'zh': '技能考试不合格事项',
+        'vi': 'Thi sa hình: điểm loại',
+      });
+
+  String get disqualificationRoadTitle => _t({
+        'ko': '도로주행 실격사항',
+        'en': 'Road test disqualification',
+        'zh': '路考不合格事项',
+        'vi': 'Thi đường trường: điểm loại',
       });
 
   String get disqualificationSourceLink => _t({
@@ -896,7 +909,8 @@ class AppLocalizations {
         'ko': '모의고사 기록이 없습니다.\n모의고사를 완료하면 여기에 추이가 표시됩니다.',
         'en': 'No exam records yet.\nFinish an exam to see the trend here.',
         'zh': '暂无模拟考试记录。\n完成一次模拟考试后，将在此显示趋势。',
-        'vi': 'Chưa có lịch sử thi thử.\nHoàn thành một bài thi thử để xem xu hướng tại đây.',
+        'vi':
+            'Chưa có lịch sử thi thử.\nHoàn thành một bài thi thử để xem xu hướng tại đây.',
       });
 
   String get statsChartOldestFirst => _t({
@@ -939,9 +953,7 @@ class AppLocalizations {
       'en': '{a} tries · {w} wrong',
       'zh': '尝试 {a} 次 · 错 {w} 次',
       'vi': '{a} lần làm · sai {w} lần',
-    })
-        .replaceAll('{a}', '$attempts')
-        .replaceAll('{w}', '$wrong');
+    }).replaceAll('{a}', '$attempts').replaceAll('{w}', '$wrong');
   }
 
   String statsWrongRatePercent(String rate) {
@@ -1104,7 +1116,7 @@ class AppLocalizations {
         (
           label: _t({'ko': '수집 목적'}),
           value: _t({
-            'ko': '앱 이용자 실적 집계',
+            'ko': '학과시험 학습 이력 집계 및 한국도로교통공단 제공',
           }),
         ),
         (
@@ -1117,9 +1129,39 @@ class AppLocalizations {
         ),
       ];
 
+  String get consentThirdPartyTitle => _t({
+        'ko': '개인정보 제3자 제공 내역',
+      });
+
+  List<({String label, String value})> get consentThirdPartyRows => [
+        (
+          label: _t({'ko': '제공받는 기관'}),
+          value: _t({'ko': '한국도로교통공단'}),
+        ),
+        (
+          label: _t({'ko': '제공 목적'}),
+          value: _t({
+            'ko': '학과시험 응시자 학습 현황 통계 자료 제공',
+          }),
+        ),
+        (
+          label: _t({'ko': '제공 항목'}),
+          value: _t({'ko': '이름, 동의 일자'}),
+        ),
+        (
+          label: _t({'ko': '제공 근거'}),
+          value: _t({'ko': '정보주체의 동의'}),
+        ),
+        (
+          label: _t({'ko': '보유·이용기간'}),
+          value: _t({
+            'ko': '한국도로교통공단의 내부 보유기간 정책에 따름',
+          }),
+        ),
+      ];
+
   String get consentRightToRefuse => _t({
-        'ko':
-            '동의를 거부할 권리가 있으며, 거부 시 앱을 사용할 수 없습니다.',
+        'ko': '동의를 거부할 권리가 있으며, 거부 시 앱을 사용할 수 없습니다.',
         'en': 'You may refuse; refusing means the app cannot be used.',
         'zh': '您有权拒绝同意,拒绝后无法使用本应用。',
         'vi': 'Bạn có thể từ chối; nếu từ chối, ứng dụng không khả dụng.',
@@ -1154,11 +1196,11 @@ class AppLocalizations {
       });
 
   String get consentCollectionAgreeCheckbox => _t({
-        'ko': '[필수] 개인정보 수집·이용에 동의합니다.',
+        'ko': '[필수] 개인정보 수집·이용 및 제3자 제공에 동의합니다.',
       });
 
   String get consentGlobalStatsAgreeCheckbox => _t({
-        'ko': '[선택] 익명 학습 통계 수집에 동의합니다.',
+        'ko': '[필수] 익명 학습 통계 수집에 동의합니다.',
         'en': '[Optional] Allow anonymous study stats collection.',
         'zh': '[可选] 同意收集匿名学习统计。',
         'vi': '[Tùy chọn] Cho phép thu thập thống kê học tập ẩn danh.',
@@ -1169,8 +1211,7 @@ class AppLocalizations {
             '풀이한 문항 ID·정답 여부·선택한 보기 인덱스만 익명으로 서버에 누적되어, 다른 사용자들이 자주 틀리는 문항을 보여드리는 데 사용됩니다. 개인을 식별할 수 있는 정보는 수집하지 않습니다.',
         'en':
             'Only the question ID, correct/wrong flag, and chosen option index are anonymously aggregated on the server to highlight questions others frequently miss. No personal identifiers are collected.',
-        'zh':
-            '仅以匿名方式上传题目 ID、是否正确、所选选项序号,用于展示大家常错的题目。不收集任何个人身份信息。',
+        'zh': '仅以匿名方式上传题目 ID、是否正确、所选选项序号,用于展示大家常错的题目。不收集任何个人身份信息。',
         'vi':
             'Chỉ ID câu hỏi, kết quả đúng/sai và chỉ số đáp án được tổng hợp ẩn danh lên máy chủ để hiển thị câu hỏi mà mọi người hay sai. Không thu thập thông tin cá nhân.',
       });
@@ -1301,7 +1342,8 @@ class AppLocalizations {
       });
 
   String get ecoIntroS1Body => _t({
-        'ko': '연료 소비와 온실가스 배출을 줄이기 위해 부드럽고 효율적으로 운전하는 습관으로, 환경과 경제를 동시에 살리는 운전법입니다.',
+        'ko':
+            '연료 소비와 온실가스 배출을 줄이기 위해 부드럽고 효율적으로 운전하는 습관으로, 환경과 경제를 동시에 살리는 운전법입니다.',
         'en':
             'A driving habit that smoothly and efficiently reduces fuel use and greenhouse gas emissions — saving both the environment and your wallet.',
         'zh': '通过平稳高效的驾驶习惯，减少燃料消耗与温室气体排放，让环境与经济同时受益。',

@@ -25,8 +25,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   bool _collectionAgreed = false;
-  // 선택 항목 — 기본 ON. 끄면 익명 학습 통계가 서버로 전송되지 않는다.
-  bool _globalStatsAgreed = true;
+  bool _globalStatsAgreed = false;
   bool _submitting = false;
 
   @override
@@ -127,6 +126,11 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     title: l10n.consentCollectionTitle,
                     rows: l10n.consentCollectionRows,
                   ),
+                  const SizedBox(height: 16),
+                  _PrivacyTableSection(
+                    title: l10n.consentThirdPartyTitle,
+                    rows: l10n.consentThirdPartyRows,
+                  ),
                   const SizedBox(height: 12),
                   Text(
                     l10n.consentRightToRefuse,
@@ -197,6 +201,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     activeColor: colors.primary,
                     contentPadding: EdgeInsets.zero,
                     controlAffinity: ListTileControlAffinity.leading,
+                    titleAlignment: ListTileTitleAlignment.top,
                   ),
                   const SizedBox(height: 16),
                   FilledButton(
@@ -276,7 +281,7 @@ class _PrivacyTableSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             child: Table(
               columnWidths: const {
-                0: IntrinsicColumnWidth(),
+                0: FixedColumnWidth(110),
                 1: FlexColumnWidth(),
               },
               border: TableBorder.symmetric(

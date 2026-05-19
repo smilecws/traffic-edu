@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
@@ -11,14 +8,11 @@ import '../services/favorite_questions_service.dart';
 import '../services/question_service.dart';
 import '../services/question_subcategory_service.dart';
 import '../services/subcategory_classifier.dart';
-import '../models/disqualification_catalog.dart';
 import '../models/mock_exam_history_entry.dart';
-import '../services/disqualification_catalog_service.dart';
 import '../services/mock_exam_history_service.dart';
 import '../services/wrong_note_service.dart';
 import '../theme/app_theme_colors.dart';
 import '../utils/subcategory_ui.dart';
-import 'disqualification_detail_screen.dart';
 import 'mock_exam_history_screen.dart';
 import 'quiz_screen.dart';
 import 'stats_screen.dart';
@@ -52,11 +46,6 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
   int _wrongCount = 0;
   MockExamHistoryEntry? _latestMockExam;
 
-  Timer? _disqualificationTimer;
-  DisqualificationCatalog? _disqualificationCatalog;
-  bool _disqualificationLoading = true;
-  String _disqualificationSnippet = '';
-
   double get _progress {
     if (_totalCount <= 0) return 0;
     return (_attemptedCount / _totalCount).clamp(0, 1);
@@ -66,70 +55,6 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
   void initState() {
     super.initState();
     _loadCounts();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _bootstrapDisqualificationTips();
-    });
-  }
-
-  @override
-  void dispose() {
-    _disqualificationTimer?.cancel();
-    super.dispose();
-  }
-
-  Future<void> _bootstrapDisqualificationTips() async {
-    if (!mounted) return;
-    final cat = await DisqualificationCatalogService.load();
-    if (!mounted) return;
-    if (cat == null) {
-      setState(() {
-        _disqualificationCatalog = null;
-        _disqualificationLoading = false;
-        _disqualificationSnippet =
-            AppLocalizations.of(context).disqualificationLoadError;
-      });
-      return;
-    }
-    final pool = cat.allCriteriaTexts;
-    if (pool.isEmpty) {
-      setState(() {
-        _disqualificationCatalog = cat;
-        _disqualificationLoading = false;
-        _disqualificationSnippet =
-            AppLocalizations.of(context).disqualificationLoadError;
-      });
-      return;
-    }
-    setState(() {
-      _disqualificationCatalog = cat;
-      _disqualificationLoading = false;
-      _disqualificationSnippet = pool[Random().nextInt(pool.length)];
-    });
-    _disqualificationTimer?.cancel();
-    _disqualificationTimer = Timer.periodic(const Duration(milliseconds: 3500), (_) {
-      if (!mounted) return;
-      setState(() {
-        _disqualificationSnippet = pool[Random().nextInt(pool.length)];
-      });
-    });
-  }
-
-  void _openDisqualificationDetail(BuildContext context) {
-    final c = _disqualificationCatalog;
-    if (c == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).disqualificationLoadError),
-        ),
-      );
-      return;
-    }
-    Navigator.push<void>(
-      context,
-      MaterialPageRoute<void>(
-        builder: (_) => DisqualificationDetailScreen(catalog: c),
-      ),
-    );
   }
 
   @override
@@ -684,99 +609,6 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
                 title: l10n.statsTitle,
                 subtitle: l10n.statsMenuSubtitle,
                 onTap: () => _openStats(context),
-              ),
-              const SizedBox(height: 10),
-              Material(
-                color: context.appColors.surfaceWhite,
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: context.appColors.borderLight),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFE8E8),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Icon(
-                          Icons.gpp_bad_outlined,
-                          color: context.appColors.primaryDark,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    l10n.tipTitle,
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w800,
-                                      color: context.appColors.textPrimary,
-                                    ),
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: _disqualificationCatalog == null
-                                      ? null
-                                      : () => _openDisqualificationDetail(
-                                            context,
-                                          ),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: const Color(0xFF15803D),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 0,
-                                    ),
-                                    minimumSize: Size.zero,
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                  ),
-                                  child: Text(
-                                    l10n.disqualificationViewAll,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 280),
-                              child: Text(
-                                _disqualificationLoading
-                                    ? l10n.disqualificationLoading
-                                    : _disqualificationSnippet,
-                                key: ValueKey<String>(_disqualificationSnippet),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  height: 1.45,
-                                  color: context.appColors.textSecondary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ),
               const SizedBox(height: 14),
             ],

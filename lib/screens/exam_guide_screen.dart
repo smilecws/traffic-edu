@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../l10n/app_localizations.dart';
+import '../models/disqualification_catalog.dart';
+import '../services/disqualification_catalog_service.dart';
 import '../theme/app_theme_colors.dart';
+import 'disqualification_detail_screen.dart';
 
 /// 한국도로교통공단 안전운전 통합민원 「면허시험순서」 안내 요약.
 /// https://www.safedriving.or.kr/guide/rerGuide01View.do?menuCode=MN-PO-1111
-class ExamGuideScreen extends StatelessWidget {
+class ExamGuideScreen extends StatefulWidget {
   const ExamGuideScreen({super.key});
 
   static const String _officialGuideUrl =
@@ -142,7 +146,53 @@ class ExamGuideScreen extends StatelessWidget {
   }
 
   @override
+  State<ExamGuideScreen> createState() => _ExamGuideScreenState();
+}
+
+class _ExamGuideScreenState extends State<ExamGuideScreen> {
+  DisqualificationCatalog? _catalog;
+  bool _loadingCatalog = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _loadCatalog();
+    });
+  }
+
+  Future<void> _loadCatalog() async {
+    final c = await DisqualificationCatalogService.load();
+    if (!mounted) return;
+    setState(() {
+      _catalog = c;
+      _loadingCatalog = false;
+    });
+  }
+
+  void _openDisqualificationDetail(int initialTab) {
+    final c = _catalog;
+    final l10n = AppLocalizations.of(context);
+    if (c == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.disqualificationLoadError)),
+      );
+      return;
+    }
+    Navigator.push<void>(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => DisqualificationDetailScreen(
+          catalog: c,
+          initialTabIndex: initialTab,
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: context.appColors.background,
       appBar: AppBar(
@@ -161,12 +211,26 @@ class ExamGuideScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          ..._steps.map((s) => _StepCard(step: s)),
+          for (final s in _steps) ...[
+            _StepCard(step: s),
+            if (s.title.startsWith('4.'))
+              _DisqualSection(
+                title: l10n.disqualificationFunctionTitle,
+                loading: _loadingCatalog,
+                onOpen: () => _openDisqualificationDetail(0),
+              ),
+            if (s.title.startsWith('6.'))
+              _DisqualSection(
+                title: l10n.disqualificationRoadTitle,
+                loading: _loadingCatalog,
+                onOpen: () => _openDisqualificationDetail(1),
+              ),
+          ],
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () => openOfficialPage(context),
+              onPressed: () => ExamGuideScreen.openOfficialPage(context),
               icon: const Icon(Icons.open_in_new, size: 20),
               label: const Text('공식 안내 페이지에서 자세히 보기'),
               style: OutlinedButton.styleFrom(
@@ -190,6 +254,80 @@ class ExamGuideScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _DisqualSection extends StatelessWidget {
+  const _DisqualSection({
+    required this.title,
+    required this.loading,
+    required this.onOpen,
+  });
+
+  final String title;
+  final bool loading;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: c.surfaceWhite,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: loading ? null : onOpen,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: c.borderLight),
+            ),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFE8E8),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    Icons.gpp_bad_outlined,
+                    color: c.primaryDark,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: c.textPrimary,
+                    ),
+                  ),
+                ),
+                Text(
+                  l10n.disqualificationViewAll,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF15803D),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

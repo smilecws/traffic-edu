@@ -42,7 +42,7 @@ class _StatsScreenState extends State<StatsScreen> {
     _load();
   }
 
-  Future<void> _load() async {
+  Future<void> _load({bool forceRefresh = false}) async {
     final results = await Future.wait([
       UserAnswerStatsService.getOverallStats(),
       MockExamHistoryService.loadEntries(),
@@ -50,7 +50,7 @@ class _StatsScreenState extends State<StatsScreen> {
       WrongNoteService.loadWrongIds(),
       AttemptedQuestionsService.loadAttemptedIds(),
       _globalSupported
-          ? GlobalAnswerStatsService.loadAllStats(forceRefresh: true)
+          ? GlobalAnswerStatsService.loadAllStats(forceRefresh: forceRefresh)
           : Future<Map<int, GlobalQuestionStat>>.value(const {}),
       _globalSupported
           ? QuestionService.loadAllQuestionsById()
@@ -106,7 +106,7 @@ class _StatsScreenState extends State<StatsScreen> {
               ),
             )
           : RefreshIndicator(
-              onRefresh: _load,
+              onRefresh: () => _load(forceRefresh: true),
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
                 children: [

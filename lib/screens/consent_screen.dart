@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
 import '../services/consent_log_service.dart';
 import '../services/consent_service.dart';
+import '../services/global_stats_consent_service.dart';
 import '../theme/app_theme_colors.dart';
 
 /// 첫 실행 게이트. 이름 입력 + 동의 체크 2개 만족해야 통과.
@@ -24,6 +25,8 @@ class _ConsentScreenState extends State<ConsentScreen> {
   final _nameController = TextEditingController();
   bool _collectionAgreed = false;
   bool _thirdPartyAgreed = false;
+  // 선택 항목 — 기본 ON. 끄면 익명 학습 통계가 서버로 전송되지 않는다.
+  bool _globalStatsAgreed = true;
   bool _submitting = false;
 
   @override
@@ -46,6 +49,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
 
     // 로컬 저장이 우선 — 네트워크 실패해도 동의 자체는 저장.
     await ConsentService.save(record);
+    await GlobalStatsConsentService.save(_globalStatsAgreed);
     // Google Form 전송은 fire-and-forget. 실패해도 게이트는 통과.
     // ignore: discarded_futures
     ConsentLogService.submitConsent(
@@ -175,6 +179,31 @@ class _ConsentScreenState extends State<ConsentScreen> {
                     title: Text(
                       l10n.consentThirdPartyAgreeCheckbox,
                       style: TextStyle(color: colors.textPrimary),
+                    ),
+                    activeColor: colors.primary,
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                  ),
+                  CheckboxListTile(
+                    value: _globalStatsAgreed,
+                    onChanged: _submitting
+                        ? null
+                        : (v) =>
+                            setState(() => _globalStatsAgreed = v ?? false),
+                    title: Text(
+                      l10n.consentGlobalStatsAgreeCheckbox,
+                      style: TextStyle(color: colors.textPrimary),
+                    ),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        l10n.consentGlobalStatsDesc,
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 1.4,
+                          color: colors.textSecondary,
+                        ),
+                      ),
                     ),
                     activeColor: colors.primary,
                     contentPadding: EdgeInsets.zero,

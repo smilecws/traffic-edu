@@ -814,6 +814,20 @@ class AppLocalizations {
         'vi': 'Luyện câu liên quan',
       });
 
+  String get studyScreenLoadError => _t({
+        'ko': '학습 자료를 불러오지 못했습니다.',
+        'en': 'Failed to load study materials.',
+        'zh': '无法加载学习资料。',
+        'vi': 'Không thể tải tài liệu học.',
+      });
+
+  String get studyScreenSummaryTitle => _t({
+        'ko': '핵심 정리',
+        'en': 'Key takeaways',
+        'zh': '核心整理',
+        'vi': 'Tóm tắt chính',
+      });
+
   // ——— 나의 통계 ———
   String get statsTitle => _t({
         'ko': '나의 통계',
@@ -939,6 +953,132 @@ class AppLocalizations {
     }).replaceAll('{r}', rate);
   }
 
+  // ——— 전체 사용자(글로벌) 통계 ———
+
+  String statsGlobalHardestTopN(int n) {
+    return _t({
+      'ko': '전체 사용자가 자주 틀리는 문제 Top {n}',
+      'en': 'Top {n} questions others get wrong',
+      'zh': '全体用户最易错题 Top {n}',
+      'vi': 'Top {n} câu mọi người hay sai',
+    }).replaceAll('{n}', '$n');
+  }
+
+  String statsGlobalAccuracyBadge(String rate) {
+    return _t({
+      'ko': '전체 정답률 {r}%',
+      'en': 'Overall correct {r}%',
+      'zh': '全体正确率 {r}%',
+      'vi': 'Toàn bộ đúng {r}%',
+    }).replaceAll('{r}', rate);
+  }
+
+  String get statsGlobalSubcategoryTitle => _t({
+        'ko': '주제별 평균 오답률 (전체 사용자)',
+        'en': 'Average wrong rate by topic (all users)',
+        'zh': '各主题平均错误率(全体用户)',
+        'vi': 'Tỉ lệ sai trung bình theo chủ đề (mọi người)',
+      });
+
+  String get statsGlobalSubcategoryEmpty => _t({
+        'ko': '아직 표시할 수 있는 표본이 부족합니다.',
+        'en': 'Not enough data to show yet.',
+        'zh': '数据量不足,暂无法显示。',
+        'vi': 'Chưa đủ dữ liệu để hiển thị.',
+      });
+
+  String get statsGlobalUnavailable => _t({
+        'ko': '데스크톱 빌드에서는 전체 통계가 지원되지 않습니다.',
+        'en': 'Global stats are unavailable on desktop builds.',
+        'zh': '桌面端不支持显示全体用户统计。',
+        'vi': 'Bản máy tính không hỗ trợ thống kê toàn bộ.',
+      });
+
+  String get statsGlobalLoadFailed => _t({
+        'ko': '통계 서버 연결 실패',
+        'en': 'Failed to reach stats server',
+        'zh': '统计服务器连接失败',
+        'vi': 'Không kết nối được máy chủ thống kê',
+      });
+
+  // ——— 문항 상세 (내 vs 전체) ———
+
+  String get qdetailTitle => _t({
+        'ko': '문항 상세',
+        'en': 'Question detail',
+        'zh': '题目详情',
+        'vi': 'Chi tiết câu hỏi',
+      });
+
+  String get qdetailMyAccuracy => _t({
+        'ko': '내 정답률',
+        'en': 'My accuracy',
+        'zh': '我的正确率',
+        'vi': 'Độ chính xác của tôi',
+      });
+
+  String get qdetailGlobalAccuracy => _t({
+        'ko': '전체 정답률',
+        'en': 'Overall accuracy',
+        'zh': '全体正确率',
+        'vi': 'Độ chính xác toàn bộ',
+      });
+
+  String qdetailDiffHigher(int diff) {
+    return _t({
+      'ko': '평균보다 {d}%p 높음',
+      'en': '{d}%p above average',
+      'zh': '比平均高 {d}%p',
+      'vi': 'Cao hơn trung bình {d}%p',
+    }).replaceAll('{d}', '$diff');
+  }
+
+  String qdetailDiffLower(int diff) {
+    return _t({
+      'ko': '평균보다 {d}%p 낮음',
+      'en': '{d}%p below average',
+      'zh': '比平均低 {d}%p',
+      'vi': 'Thấp hơn trung bình {d}%p',
+    }).replaceAll('{d}', '$diff');
+  }
+
+  String get qdetailDiffSame => _t({
+        'ko': '평균과 비슷함',
+        'en': 'About average',
+        'zh': '与平均接近',
+        'vi': 'Gần với trung bình',
+      });
+
+  String get qdetailDiffNoData => _t({
+        'ko': '데이터 부족',
+        'en': 'Not enough data',
+        'zh': '数据不足',
+        'vi': 'Chưa đủ dữ liệu',
+      });
+
+  String get qdetailOptionDistribution => _t({
+        'ko': '전체 사용자 보기 선택 분포',
+        'en': 'How others picked each option',
+        'zh': '全体用户各选项选择分布',
+        'vi': 'Phân bố lựa chọn của mọi người',
+      });
+
+  String get qdetailRetryButton => _t({
+        'ko': '이 문제 다시 풀기',
+        'en': 'Retry this question',
+        'zh': '再做一次',
+        'vi': 'Làm lại câu này',
+      });
+
+  String qdetailAttemptsLine(int attempts) {
+    return _t({
+      'ko': '전체 {a}회 시도',
+      'en': '{a} attempts total',
+      'zh': '共 {a} 次尝试',
+      'vi': 'Tổng {a} lần làm',
+    }).replaceAll('{a}', '$attempts');
+  }
+
   // ——— 개인정보 수집 동의 (Google Sign-In 게이트) ———
 
   String get consentTitle => _t({
@@ -1046,6 +1186,24 @@ class AppLocalizations {
 
   String get consentThirdPartyAgreeCheckbox => _t({
         'ko': '[필수] 개인정보 제3자 제공(한국도로교통공단)에 동의합니다.',
+      });
+
+  String get consentGlobalStatsAgreeCheckbox => _t({
+        'ko': '[선택] 익명 학습 통계 수집에 동의합니다.',
+        'en': '[Optional] Allow anonymous study stats collection.',
+        'zh': '[可选] 同意收集匿名学习统计。',
+        'vi': '[Tùy chọn] Cho phép thu thập thống kê học tập ẩn danh.',
+      });
+
+  String get consentGlobalStatsDesc => _t({
+        'ko':
+            '풀이한 문항 ID·정답 여부·선택한 보기 인덱스만 익명으로 서버에 누적되어, 다른 사용자들이 자주 틀리는 문항을 보여드리는 데 사용됩니다. 개인을 식별할 수 있는 정보는 수집하지 않습니다.',
+        'en':
+            'Only the question ID, correct/wrong flag, and chosen option index are anonymously aggregated on the server to highlight questions others frequently miss. No personal identifiers are collected.',
+        'zh':
+            '仅以匿名方式上传题目 ID、是否正确、所选选项序号,用于展示大家常错的题目。不收集任何个人身份信息。',
+        'vi':
+            'Chỉ ID câu hỏi, kết quả đúng/sai và chỉ số đáp án được tổng hợp ẩn danh lên máy chủ để hiển thị câu hỏi mà mọi người hay sai. Không thu thập thông tin cá nhân.',
       });
 
   String get consentAgreeButton => _t({

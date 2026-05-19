@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/mock_exam_history_entry.dart';
+import '../models/question.dart';
 import '../services/attempted_questions_service.dart';
+import '../services/global_answer_stats_service.dart';
 import '../services/mock_exam_history_service.dart';
+import '../services/question_service.dart';
+import '../services/question_subcategory_service.dart';
 import '../services/user_answer_stats_service.dart';
 import '../services/wrong_note_service.dart';
 import '../theme/app_theme_colors.dart';
+import 'question_detail_screen.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -24,6 +29,13 @@ class _StatsScreenState extends State<StatsScreen> {
   int _wrongCount = 0;
   int _attemptedCount = 0;
 
+  // 글로벌 통계 관련
+  Map<int, GlobalQuestionStat> _globalStats = const {};
+  Map<int, Question> _questionsById = const {};
+  Map<int, String> _subcategoryMap = const {};
+  bool _globalLoadFailed = false;
+  bool get _globalSupported => GlobalAnswerStatsService.isSupported;
+
   @override
   void initState() {
     super.initState();
@@ -37,17 +49,41 @@ class _StatsScreenState extends State<StatsScreen> {
       UserAnswerStatsService.getHardestQuestions(n: 10, minAttempts: 2),
       WrongNoteService.loadWrongIds(),
       AttemptedQuestionsService.loadAttemptedIds(),
+      _globalSupported
+          ? GlobalAnswerStatsService.loadAllStats(forceRefresh: true)
+          : Future<Map<int, GlobalQuestionStat>>.value(const {}),
+      _globalSupported
+          ? QuestionService.loadAllQuestionsById()
+          : Future<Map<int, Question>>.value(const {}),
+      _globalSupported
+          ? QuestionSubcategoryService.loadMap()
+          : Future<Map<int, String>>.value(const {}),
     ]);
 
     if (!mounted) return;
+    final global = results[5] as Map<int, GlobalQuestionStat>;
     setState(() {
       _overall = results[0] as OverallStats;
       _mockHistory = results[1] as List<MockExamHistoryEntry>;
       _hardestQuestions = results[2] as List<AnswerQuestionStat>;
       _wrongCount = (results[3] as Set<int>).length;
       _attemptedCount = (results[4] as Set<int>).length;
+      _globalStats = global;
+      _questionsById = results[6] as Map<int, Question>;
+      _subcategoryMap = results[7] as Map<int, String>;
+      _globalLoadFailed = _globalSupported && global.isEmpty;
       _loading = false;
     });
+  }
+
+  void _openDetail(int questionId) {
+    final q = _questionsById[questionId];
+    if (q == null) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => QuestionDetailScreen(question: q),
+      ),
+    );
   }
 
   @override
@@ -95,13 +131,90 @@ class _StatsScreenState extends State<StatsScreen> {
                     _HardestQuestionsList(
                       l10n: l10n,
                       questions: _hardestQuestions,
+                      onTapQuestion: _openDetail,
                     ),
                   ],
+                  ..._buildGlobalSections(l10n),
                 ],
               ),
             ),
     );
   }
+
+  // ───────────────────────────────────────────────────────────────────────
+  // 글로벌(전체 사용자) 통계 섹션
+  // ───────────────────────────────────────────────────────────────────────
+
+  List<Widget> _buildGlobalSections(AppLocalizations l10n) {
+    if (!_globalSupported) {
+      return [
+        const SizedBox(height: 20),
+        _GlobalUnsupportedCard(message: l10n.statsGlobalUnavailable),
+      ];
+    }
+    if (_globalLoadFailed) {
+      return [
+        const SizedBox(height: 20),
+        _GlobalUnsupportedCard(message: l10n.statsGlobalLoadFailed),
+      ];
+    }
+
+    final globalHardest = _globalStats.values
+        .where((s) => s.attempts >= 5 && s.wrongCount > 0)
+        .toList()
+      ..sort((a, b) => a.accuracyRate.compareTo(b.accuracyRate));
+    final globalTop = globalHardest.take(10).toList();
+
+    final subcategoryAggregates = _aggregateBySubcategory();
+
+    return [
+      if (globalTop.isNotEmpty) ...[
+        const SizedBox(height: 20),
+        _SectionHeader(title: l10n.statsGlobalHardestTopN(globalTop.length)),
+        const SizedBox(height: 8),
+        _GlobalHardestQuestionsList(
+          l10n: l10n,
+          stats: globalTop,
+          onTapQuestion: _openDetail,
+        ),
+      ],
+      const SizedBox(height: 20),
+      _SectionHeader(title: l10n.statsGlobalSubcategoryTitle),
+      const SizedBox(height: 8),
+      if (subcategoryAggregates.isEmpty)
+        _GlobalUnsupportedCard(message: l10n.statsGlobalSubcategoryEmpty)
+      else
+        _GlobalSubcategoryAccuracyList(
+          l10n: l10n,
+          aggregates: subcategoryAggregates,
+        ),
+    ];
+  }
+
+  /// 글로벌 stats × subcategory_map join → 태그별 (attempts, correct) 합.
+  /// 표본 합 30 미만은 제외(노이즈).
+  List<_SubcatAgg> _aggregateBySubcategory() {
+    final byTag = <String, _SubcatAgg>{};
+    _globalStats.forEach((qid, stat) {
+      final tag = _subcategoryMap[qid];
+      if (tag == null) return;
+      final cur = byTag.putIfAbsent(tag, () => _SubcatAgg(tag: tag));
+      cur.attempts += stat.attempts;
+      cur.correct += stat.correct;
+    });
+    final list = byTag.values.where((a) => a.attempts >= 30).toList();
+    list.sort((a, b) => a.accuracyRate.compareTo(b.accuracyRate));
+    return list;
+  }
+}
+
+class _SubcatAgg {
+  _SubcatAgg({required this.tag});
+  final String tag;
+  int attempts = 0;
+  int correct = 0;
+  double get accuracyRate => attempts > 0 ? correct / attempts : 0;
+  int get wrongCount => attempts - correct;
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -405,10 +518,15 @@ class _MockExamChart extends StatelessWidget {
 // ──────────────────────────────────────────────────────────────────────────────
 
 class _HardestQuestionsList extends StatelessWidget {
-  const _HardestQuestionsList({required this.l10n, required this.questions});
+  const _HardestQuestionsList({
+    required this.l10n,
+    required this.questions,
+    this.onTapQuestion,
+  });
 
   final AppLocalizations l10n;
   final List<AnswerQuestionStat> questions;
+  final void Function(int questionId)? onTapQuestion;
 
   @override
   Widget build(BuildContext context) {
@@ -432,71 +550,312 @@ class _HardestQuestionsList extends StatelessWidget {
           final s = questions[i];
           final wrongRate =
               ((1 - s.accuracyRate) * 100).toStringAsFixed(0);
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFEE2E2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${i + 1}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red.shade700,
+          return InkWell(
+            onTap: onTapQuestion == null
+                ? null
+                : () => onTapQuestion!(s.questionId),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEE2E2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${i + 1}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red.shade700,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.statsQuestionIdLine(s.questionId),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: context.appColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          l10n.statsAttemptsWrongLine(
+                              s.attempts, s.wrongCount),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: context.appColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        l10n.statsQuestionIdLine(s.questionId),
+                        l10n.statsWrongRatePercent(wrongRate),
                         style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: context.appColors.textPrimary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red.shade700,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        l10n.statsAttemptsWrongLine(s.attempts, s.wrongCount),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: context.appColors.textSecondary,
-                        ),
-                      ),
+                      const SizedBox(height: 4),
+                      _AccuracyBar(rate: s.accuracyRate),
                     ],
                   ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      l10n.statsWrongRatePercent(wrongRate),
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red.shade700,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    _AccuracyBar(rate: s.accuracyRate),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 글로벌(전체 사용자) — 가장 많이 틀린 문제 Top N
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _GlobalHardestQuestionsList extends StatelessWidget {
+  const _GlobalHardestQuestionsList({
+    required this.l10n,
+    required this.stats,
+    required this.onTapQuestion,
+  });
+
+  final AppLocalizations l10n;
+  final List<GlobalQuestionStat> stats;
+  final void Function(int questionId) onTapQuestion;
+
+  @override
+  Widget build(BuildContext context) {
+    final ac = context.appColors;
+    return Container(
+      decoration: BoxDecoration(
+        color: ac.surfaceWhite,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: ac.borderLight),
+      ),
+      child: ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: stats.length,
+        separatorBuilder: (_, __) => Divider(
+          height: 1,
+          color: ac.borderLight,
+          indent: 16,
+          endIndent: 16,
+        ),
+        itemBuilder: (context, i) {
+          final s = stats[i];
+          final wrongRate = ((1 - s.accuracyRate) * 100).toStringAsFixed(0);
+          return InkWell(
+            onTap: () => onTapQuestion(s.questionId),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEE2E2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${i + 1}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red.shade700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.statsQuestionIdLine(s.questionId),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: ac.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          l10n.statsAttemptsWrongLine(s.attempts, s.wrongCount),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: ac.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        l10n.statsWrongRatePercent(wrongRate),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red.shade700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      _AccuracyBar(rate: s.accuracyRate),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 글로벌 — 소카테고리별 평균 오답률
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _GlobalSubcategoryAccuracyList extends StatelessWidget {
+  const _GlobalSubcategoryAccuracyList({
+    required this.l10n,
+    required this.aggregates,
+  });
+
+  final AppLocalizations l10n;
+  final List<_SubcatAgg> aggregates;
+
+  @override
+  Widget build(BuildContext context) {
+    final ac = context.appColors;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: BoxDecoration(
+        color: ac.surfaceWhite,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: ac.borderLight),
+      ),
+      child: Column(
+        children: [
+          for (int i = 0; i < aggregates.length; i++) ...[
+            _SubcategoryRow(l10n: l10n, agg: aggregates[i]),
+            if (i < aggregates.length - 1) const SizedBox(height: 10),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _SubcategoryRow extends StatelessWidget {
+  const _SubcategoryRow({required this.l10n, required this.agg});
+
+  final AppLocalizations l10n;
+  final _SubcatAgg agg;
+
+  @override
+  Widget build(BuildContext context) {
+    final ac = context.appColors;
+    final wrongRate = ((1 - agg.accuracyRate) * 100).round();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                l10n.subcategoryLabel(agg.tag),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: ac.textPrimary,
+                ),
+              ),
+            ),
+            Text(
+              '$wrongRate%',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: Colors.red.shade700,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: (1 - agg.accuracyRate).clamp(0.0, 1.0),
+            minHeight: 7,
+            backgroundColor: ac.chipBg,
+            color: Colors.red.shade400,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          l10n.statsAttemptsWrongLine(agg.attempts, agg.wrongCount),
+          style: TextStyle(fontSize: 11, color: ac.textSecondary),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 글로벌 — 미지원/실패/빈 데이터 안내 카드
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _GlobalUnsupportedCard extends StatelessWidget {
+  const _GlobalUnsupportedCard({required this.message});
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final ac = context.appColors;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+      decoration: BoxDecoration(
+        color: ac.surfaceWhite,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: ac.borderLight),
+      ),
+      child: Center(
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 12,
+            height: 1.5,
+            color: ac.textSecondary,
+          ),
+        ),
       ),
     );
   }

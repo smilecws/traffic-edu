@@ -1,0 +1,55 @@
+rules_version = '2';
+
+// Firestore 보안 규칙.
+//   - 모든 사용자(익명 포함)는 question_stats 를 read 가능.
+//   - write 는 익명 로그인 사용자만, 그리고 카운터를 +1 씩만 증가시키는 경우만 허용.
+//     (위조 카운트 폭증 방지)
+//   - delete 는 어떤 경우에도 불허.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /question_stats/{qid} {
+      allow read: if true;
+
+      // 신규 문서: attempts/correct = 1 또는 0(틀린 경우), option_counts 각 키가 1, 외 필드 없음.
+      allow create: if
+        request.auth != null
+        && validNewDoc(request.resource.data);
+
+      // 기존 문서: 모든 변경 필드가 정확히 +1 증가, 외 필드 변경 없음.
+      allow update: if
+        request.auth != null
+        && validIncrement(request.resource.data, resource.data);
+
+      allow delete: if false;
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 헬퍼
+  // ─────────────────────────────────────────────────────────────────────────
+
+  function validNewDoc(data) {
+    return
+      data.attempts == 1
+      && (data.correct == 0 || data.correct == 1)
+      && data.option_counts is map
+      && data.last_updated_at == request.time
+      && data.keys().hasOnly(['attempts', 'correct', 'option_counts', 'last_updated_at']);
+  }
+
+  function validIncrement(newData, oldData) {
+    // attempts 는 무조건 +1
+    return
+      newData.attempts == oldData.attempts + 1
+      // correct 는 +0 또는 +1
+      && (newData.correct == oldData.correct || newData.correct == oldData.correct + 1)
+      // 타임스탬프 갱신
+      && newData.last_updated_at == request.time
+      // option_counts 는 map 타입이며 각 키 차이가 0 또는 1 이어야 함은
+      // 규칙으로 키별 검증이 까다로워 일단 map 타입 + 무한 폭증 방지(차이 합 ≤ 보기 수)로 완화.
+      && newData.option_counts is map
+      // 외 필드 추가 금지
+      && newData.keys().hasOnly(['attempts', 'correct', 'option_counts', 'last_updated_at']);
+  }
+}

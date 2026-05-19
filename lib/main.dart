@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app_settings_scope.dart';
+import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 import 'screens/auth_loading_screen.dart';
 import 'screens/consent_screen.dart';
@@ -9,6 +12,7 @@ import 'screens/eco_intro_screen.dart';
 import 'screens/home_screen.dart';
 import 'services/consent_service.dart';
 import 'services/eco_intro_service.dart';
+import 'services/global_answer_stats_service.dart';
 import 'services/locale_service.dart';
 import 'services/question_service.dart';
 import 'services/theme_mode_service.dart';
@@ -16,7 +20,24 @@ import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await _initFirebase();
   runApp(const QuizApp());
+}
+
+/// Firebase 초기화 + 익명 로그인. 미지원 플랫폼/네트워크 실패는 silent.
+/// 실패해도 앱 자체는 정상 구동되어야 하므로 throw 하지 않는다.
+Future<void> _initFirebase() async {
+  if (!GlobalAnswerStatsService.isSupported) return;
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    if (FirebaseAuth.instance.currentUser == null) {
+      await FirebaseAuth.instance.signInAnonymously();
+    }
+  } catch (e) {
+    debugPrint('Firebase init failed: $e');
+  }
 }
 
 enum _AuthState { loading, needConsent, needEcoIntro, ready }

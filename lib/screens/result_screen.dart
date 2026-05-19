@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models/mock_exam_license_kind.dart';
 import '../models/session_result.dart';
+import '../services/global_answer_stats_service.dart';
 import '../theme/app_theme_colors.dart';
 import 'home_screen.dart';
+import 'question_detail_screen.dart';
 
 class ResultScreen extends StatelessWidget {
   final int score;
@@ -221,99 +223,10 @@ class ResultScreen extends StatelessWidget {
               itemCount: incorrectResults.length,
               itemBuilder: (context, index) {
                 final r = incorrectResults[index];
-                final question = r.question;
-                final selected = r.selectedIndices;
-
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: ac.surfaceCard,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.red.shade200),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Q${results.indexOf(r) + 1}. ${question.question}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                          color: ac.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      if (question.isMultipleChoice) ...[
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.close,
-                                color: Colors.red, size: 18),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                '내 답: ${selected.isNotEmpty ? _indicesToLabels(r, selected) : "(선택 없음)"}',
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.check,
-                                color: Colors.green, size: 18),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                '정답: ${_indicesToLabels(r, question.correctIndices)}',
-                                style: TextStyle(color: Colors.green),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ] else ...[
-                        if (selected.isNotEmpty)
-                          Row(
-                            children: [
-                              const Icon(Icons.close,
-                                  color: Colors.red, size: 18),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  '내 답: ${question.options[selected.first]}',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                            ],
-                          ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(Icons.check,
-                                color: Colors.green, size: 18),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                '정답: ${question.options[question.correctIndices.first]}',
-                                style: TextStyle(color: Colors.green),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                      const SizedBox(height: 8),
-                      Text(
-                        question.explanation,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
+                return _IncorrectCard(
+                  result: r,
+                  questionNumber: results.indexOf(r) + 1,
+                  indicesToLabels: _indicesToLabels,
                 );
               },
             ),
@@ -347,6 +260,180 @@ class ResultScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 오답 카드 — 글로벌 정답률 배지 + 탭 시 QuestionDetailScreen 진입
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _IncorrectCard extends StatefulWidget {
+  const _IncorrectCard({
+    required this.result,
+    required this.questionNumber,
+    required this.indicesToLabels,
+  });
+
+  final SessionResult result;
+  final int questionNumber;
+  final String Function(SessionResult, Iterable<int>) indicesToLabels;
+
+  @override
+  State<_IncorrectCard> createState() => _IncorrectCardState();
+}
+
+class _IncorrectCardState extends State<_IncorrectCard> {
+  GlobalQuestionStat? _global;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGlobal();
+  }
+
+  Future<void> _loadGlobal() async {
+    if (!GlobalAnswerStatsService.isSupported) return;
+    final stat =
+        await GlobalAnswerStatsService.loadStat(widget.result.questionId);
+    if (!mounted) return;
+    setState(() => _global = stat);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ac = context.appColors;
+    final l10n = AppLocalizations.of(context);
+    final r = widget.result;
+    final question = r.question;
+    final selected = r.selectedIndices;
+    final globalPct = (_global == null || _global!.attempts == 0)
+        ? null
+        : (_global!.accuracyRate * 100).round();
+
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => QuestionDetailScreen(question: question),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: ac.surfaceCard,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.red.shade200),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    'Q${widget.questionNumber}. ${question.question}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: ac.textPrimary,
+                    ),
+                  ),
+                ),
+                if (globalPct != null) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: ac.chipBg,
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: ac.borderLight),
+                    ),
+                    child: Text(
+                      l10n.statsGlobalAccuracyBadge('$globalPct'),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: ac.textSecondary,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (question.isMultipleChoice) ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.close, color: Colors.red, size: 18),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      '내 답: ${selected.isNotEmpty ? widget.indicesToLabels(r, selected) : "(선택 없음)"}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.check, color: Colors.green, size: 18),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      '정답: ${widget.indicesToLabels(r, question.correctIndices)}',
+                      style: const TextStyle(color: Colors.green),
+                    ),
+                  ),
+                ],
+              ),
+            ] else ...[
+              if (selected.isNotEmpty)
+                Row(
+                  children: [
+                    const Icon(Icons.close, color: Colors.red, size: 18),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        '내 답: ${question.options[selected.first]}',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(Icons.check, color: Colors.green, size: 18),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      '정답: ${question.options[question.correctIndices.first]}',
+                      style: const TextStyle(color: Colors.green),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 8),
+            Text(
+              question.explanation,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade700,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

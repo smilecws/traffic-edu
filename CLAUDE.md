@@ -10,6 +10,7 @@
 - `url_launcher` — 도로교통공단 외부 링크
 - `flutter_localizations` + 자체 `AppLocalizations` (gen-l10n 미사용)
 - `flutter_launcher_icons` — 멀티 플랫폼 아이콘 생성
+- `firebase_core` / `firebase_auth` (익명 로그인) / `cloud_firestore` — 익명 학습 통계 집계용. Web/Android/iOS 만 지원하며 Windows/macOS 데스크톱에서는 기능이 자동 비활성화된다. Firebase 프로젝트는 `quiz-ace9a`, 설정은 `lib/firebase_options.dart` (flutterfire CLI 자동 생성), 보안 규칙은 `firestore.rules` (`firebase deploy --only firestore:rules` 로 배포).
 
 ## 아키텍처 규칙
 - CRITICAL: 레이어 경계 — `lib/models/` ← `lib/services/` ← `lib/screens/`. 역방향 import 금지. `services/` 는 `models/` 와 플러그인(`shared_preferences`, `flutter/services` rootBundle)에만 의존한다. `screens/` 만 Flutter `material.dart` 에 의존한다.
@@ -21,6 +22,7 @@
 - 외부 URL 을 `url_launcher` 로 열기 전 반드시 `utils/safe_external_url.dart` 의 검증을 거친다 (https + 허용 호스트만).
 - 소카테고리 매핑(`assets/question_subcategory.json`) 은 `tool/classify_subcategory.dart` 로만 재생성한다. 수동 편집 금지. 규칙은 `lib/services/subcategory_classifier.dart` 에 두고 CLI·테스트·런타임 모두 거기서 참조한다.
 - 학습 카드(`assets/study/<tag>.json`) 는 사람이 직접 작성한다. `tool/extract_study_seeds.dart` 가 만든 `assets/study/_seeds/` 는 작성 보조용 중간 산출물이며 git ignore 처리. 카드 스키마 변경 시 `lib/models/study_card.dart` 와 `lib/screens/study_card_screen.dart` 를 함께 갱신한다.
+- CRITICAL: 익명 글로벌 통계의 모든 Firestore I/O 는 `lib/services/global_answer_stats_service.dart` 만 한다. 스크린·다른 서비스에서 `FirebaseFirestore.instance` 를 직접 호출 금지. 동의 거부·미지원 플랫폼은 같은 서비스 내부에서 no-op 처리되므로 호출부 가드 불필요. 데이터 모델은 `question_stats/{questionId}` 문서의 `attempts` / `correct` / `option_counts` (Map) / `last_updated_at` 4 필드 고정이며, 보안 규칙(`firestore.rules`) 이 카운터 +1 증가만 허용한다 — 스키마 변경 시 규칙도 같이 갱신해 재배포한다.
 
 ## 개발 프로세스
 - 새 스크린을 추가할 때는 `MaterialPageRoute` 로 `Navigator.push` 하는 패턴을 따른다 (라우트 테이블 / go_router 미도입).

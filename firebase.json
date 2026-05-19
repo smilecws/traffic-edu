@@ -1,0 +1,27 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "quiz-ace9a",
+          "appId": "1:85578438685:android:a24df1f4028cc1eb988ef4",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "quiz-ace9a",
+          "configurations": {
+            "android": "1:85578438685:android:a24df1f4028cc1eb988ef4",
+            "ios": "1:85578438685:ios:6d6b389705daa022988ef4",
+            "web": "1:85578438685:web:01e14dbaf9641395988ef4"
+          }
+        }
+      }
+    }
+  }
+}

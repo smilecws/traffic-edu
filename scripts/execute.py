@@ -82,12 +82,15 @@ class StepExecutor:
         self._project = idx.get("project", "project")
         self._phase_name = idx.get("phase", phase_dir_name)
         self._total = len(idx["steps"])
+        # phase 시작 시점에 이미 있던 미커밋 파일 — step 커밋에서 제외한다.
+        self._preexisting: set = set()
 
     def run(self):
         self._print_header()
         self._validate_index()
         self._check_blockers()
         self._checkout_branch()
+        self._capture_preexisting()
         guardrails = self._load_guardrails()
         self._validate_guardrails(guardrails)
         self._ensure_created_at()
@@ -142,6 +145,24 @@ class StepExecutor:
 
         print(f"  Branch: {branch}")
 
+    def _capture_preexisting(self):
+        """phase 시작 시점에 working tree 에 있던 미커밋 파일 목록을 기록한다.
+        step 커밋에서 이 파일들을 제외해, phase 와 무관한 변경이 섞이지 않게 한다."""
+        r = self._run_git("status", "--porcelain")
+        self._preexisting = set()
+        for line in r.stdout.splitlines():
+            if len(line) < 4:
+                continue
+            path = line[3:]
+            if " -> " in path:  # rename 항목은 새 경로를 기록
+                path = path.split(" -> ", 1)[1]
+            self._preexisting.add(path.strip().strip('"'))
+
+    def _reset_preexisting(self):
+        """phase 시작 전부터 있던 미커밋 파일들을 스테이징에서 제외한다."""
+        for path in self._preexisting:
+            self._run_git("reset", "HEAD", "--", path)
+
     def _commit_step(self, step_num: int, step_name: str):
         output_rel = f"phases/{self._phase_dir_name}/step{step_num}-output.json"
         index_rel = f"phases/{self._phase_dir_name}/index.json"
@@ -149,6 +170,7 @@ class StepExecutor:
         self._run_git("add", "-A")
         self._run_git("reset", "HEAD", "--", output_rel)
         self._run_git("reset", "HEAD", "--", index_rel)
+        self._reset_preexisting()
 
         if self._run_git("diff", "--cached", "--quiet").returncode != 0:
             msg = self.FEAT_MSG.format(phase=self._phase_name, num=step_num, name=step_name)
@@ -159,6 +181,7 @@ class StepExecutor:
                 print(f"  WARN: 코드 커밋 실패: {r.stderr.strip()}")
 
         self._run_git("add", "-A")
+        self._reset_preexisting()
         if self._run_git("diff", "--cached", "--quiet").returncode != 0:
             msg = self.CHORE_MSG.format(phase=self._phase_name, num=step_num)
             r = self._run_git("commit", "-m", msg)
@@ -229,7 +252,8 @@ class StepExecutor:
             f"   - AC 통과 → \"completed\" + \"summary\" 필드에 이 step의 산출물을 한 줄로 요약\n"
             f"   - {self.MAX_RETRIES}회 수정 시도 후에도 실패 → \"error\" + \"error_message\" 기록\n"
             f"   - 사용자 개입이 필요한 경우 (API 키, 인증, 수동 설정 등) → \"blocked\" + \"blocked_reason\" 기록 후 즉시 중단\n"
-            f"6. 모든 변경사항을 커밋하라:\n"
+            f"6. 이 step에서 직접 생성·수정한 파일만 `git add <경로>`로 명시적으로 스테이징해 커밋하라. "
+            f"`git add -A`/`git add .`는 phase와 무관한 파일을 끌어들이므로 쓰지 마라:\n"
             f"   {commit_example}\n\n---\n\n"
         )
 
@@ -459,6 +483,7 @@ class StepExecutor:
         self._update_top_index("completed")
 
         self._run_git("add", "-A")
+        self._reset_preexisting()
         if self._run_git("diff", "--cached", "--quiet").returncode != 0:
             msg = f"chore({self._phase_name}): mark phase completed"
             r = self._run_git("commit", "-m", msg)

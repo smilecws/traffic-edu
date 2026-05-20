@@ -23,7 +23,7 @@ lib/
 │   ├── locale_service.dart            # 로케일 저장 + 언어→asset 경로 매핑
 │   ├── theme_mode_service.dart        # ThemeMode 저장
 │   ├── consent_service.dart           # PIPA 동의 기록 저장/로드/삭제 (SharedPreferences)
-│   ├── global_answer_stats_service.dart  # 익명 글로벌 통계 Firestore write + 사전집계 HTTP read
+│   ├── global_answer_stats_service.dart  # 익명 글로벌 통계 사전집계 HTTP read (Firestore write 없음)
 │   ├── global_stats_consent_service.dart # 글로벌 통계 수집 동의 (SharedPreferences bool)
 │   ├── user_answer_log_service.dart   # 사용자별 풀이 이력 Firestore write (운영자 콘솔 조회용)
 │   ├── eco_intro_service.dart         # 친환경 운전 교육 인트로 표시 여부 (SharedPreferences bool)
@@ -68,7 +68,7 @@ assets/
 └── app_icon.png / quiz_icon.png / license_icon.png
 
 tool/
-├── aggregate_stats.js                 # firebase-admin 으로 question_stats·user_answers 집계 (GitHub Actions 사용)
+├── aggregate_stats.js                 # firebase-admin 으로 user_answers 세션 로그 기반 집계 (GitHub Actions 사용)
 ├── classify_subcategory.dart          # question_subcategory.json 재생성 CLI
 ├── extract_study_seeds.dart           # 학습 카드 초안 seed 생성 (중간 산출물, git ignore)
 ├── generate_app_icon_png.py           # app_icon.png 재생성 스크립트 (Pillow)
@@ -85,7 +85,7 @@ screens/  →  services/  →  models/
    └─ google_fonts
 ```
 - `models/` 는 Flutter 의존 없음 (video_player/shared_preferences import 금지). 순수 Dart 로 테스트 가능.
-- `services/` 는 Flutter `services.dart`(rootBundle), `shared_preferences`, `http`, `firebase_auth`, `cloud_firestore` 만. Material 위젯 import 금지.
+- `services/` 는 Flutter `services.dart`(rootBundle), `shared_preferences`, `http` 만. `firebase_auth`/`cloud_firestore` 는 `user_answer_log_service.dart` 만 사용. Material 위젯 import 금지.
 - `screens/` 만 `material.dart` / `video_player` / `url_launcher` / `google_fonts` 를 사용.
 - 한 파일은 한 레이어만 참조한다. 역방향 의존(services → screens, models → services) 금지.
 
@@ -196,11 +196,10 @@ QuizApp.initState → _bootstrap()
 - **데스크톱 (Windows/macOS/Linux)**: Firebase(`firebase_core`/`firebase_auth`/`cloud_firestore`) 미지원. `GlobalAnswerStatsService.isSupported` 가 `false` 를 반환해 Firebase 기능이 자동 비활성화된다.
 - **GitHub Pages 배포**: `flutter build web` → `docs/` 또는 Pages 브랜치. base href 주의 (빌드 옵션으로 조정).
 
-## 데이터 흐름 — 글로벌 통계 외부 집계 (P0-4)
+## 데이터 흐름 — 글로벌 통계 외부 집계
 ```
 [Firestore]                           [GitHub Actions]                    [클라이언트]
-question_stats/{id}  ─────┐
-user_answers/{uid}/   ─────┤
+user_answers/{uid}/   ─────┐
                            ▼
                     tool/aggregate_stats.js          (4시간 cron)
                            │
@@ -218,6 +217,7 @@ user_answers/{uid}/   ─────┤
                                               stats_screen.dart
                                               (hardest_top10, subcategory 통계 표시)
 ```
-- **쓰기**: 클라이언트가 퀴즈 세션 종료 시 `GlobalAnswerStatsService` 로 Firestore 에 문항별 통계를 기록한다.
-- **읽기**: 클라이언트는 Firestore 를 직접 읽지 않는다. GitHub Actions 가 4시간마다 `tool/aggregate_stats.js` 를 실행해 `aggregates.json` 을 `data-aggregates` 브랜치에 커밋하고, 클라이언트는 GitHub raw URL 로 HTTP fetch 한다.
+- **쓰기**: 클라이언트가 퀴즈 세션 종료 시 `UserAnswerLogService` 로 Firestore 의 `user_answers/{uid}/sessions/{auto_id}` 에 세션당 1 write 를 기록한다. `question_stats` 컬렉션은 폐기되어 클라이언트가 직접 쓰지 않는다.
+- **집계**: GitHub Actions 가 4시간마다 `tool/aggregate_stats.js` 를 실행해 `user_answers` 세션 로그로부터 문항별 통계를 집계하고, `aggregates.json` 을 `data-aggregates` 브랜치에 커밋한다.
+- **읽기**: 클라이언트는 Firestore 를 직접 읽지 않는다. `GlobalAnswerStatsService.loadAggregateStats()` 가 GitHub raw URL 로 HTTP fetch 한다.
 - **캐시**: 메모리 캐시 > SharedPreferences 1시간 TTL > HTTP fetch > 만료된 SP 폴백 > 빈 결과 순으로 폴백한다.

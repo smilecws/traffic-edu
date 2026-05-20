@@ -4,6 +4,10 @@
       "dir": "p0-3-license",
       "status": "completed",
       "completed_at": "2026-05-20T11:00:35+0900"
+    },
+    {
+      "dir": "p0-4-stats-read",
+      "status": "pending"
     }
   ]
 }

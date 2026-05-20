@@ -1,0 +1,10 @@
+{
+  "project": "quiz_app",
+  "phase": "p0-4-stats-read",
+  "steps": [
+    { "step": 0, "name": "aggregate-script", "status": "pending" },
+    { "step": 1, "name": "github-actions-workflow", "status": "pending" },
+    { "step": 2, "name": "client-cache-fetch", "status": "pending" },
+    { "step": 3, "name": "docs-update", "status": "pending" }
+  ]
+}

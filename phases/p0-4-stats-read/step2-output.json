@@ -1,0 +1,67 @@
+{
+  "step": 2,
+  "name": "client-cache-fetch",
+  "exitCode": 0,
+  "git_sha_before": "423cfa8529ad49631f4c4facc400f7b9e2fcb4da",
+  "git_sha_after": "7c622cecdcf05a27c8eeeb4deefb9679784352f2",
+  "stdout": "{\"type\":\"result\",\"subtype\":\"success\",\"is_error\":false,\"duration_ms\":572934,\"duration_api_ms\":347440,\"num_turns\":50,\"result\":\"Step 2 완료되었습니다. 변경 요약:\\n\\n**`lib/services/global_answer_stats_service.dart`**\\n- `_fetchAll()`: Firestore 1,000문서 get → `https://raw.githubusercontent.com/smilecws/quiz/data-aggregates/aggregates.json` HTTP GET으로 교체\\n- `GlobalAggregateStats`, `AggregateHardestEntry`, `SubcategoryAggregate` 데이터 클래스 추가\\n- `loadAggregateStats()` 메서드: 메모리 캐시 → SharedPreferences(1시간 TTL) → HTTP fetch → 만료 SP 폴백 → empty 순으로 시도\\n- `loadStat()` (단건 Firestore 조회)와 `applySessionResults()` (쓰기)는 기존대로 유지\\n\\n**`lib/screens/stats_screen.dart`**\\n- 사전집계된 `hardestTop10`·`subcategory`를 직접 표시, 클라이언트 측 재집계 로직(`_aggregateBySubcategory`, `_SubcatAgg`) 제거\\n- `_questionsById`/`_subcategoryMap` 로딩 중 `_subcategoryMap` 제거\\n- \\\"최근 업데이트: N시간 전\\\" 라벨 추가\\n\\n**`lib/l10n/app_localizations.dart`**\\n- 4개 언어 `statsGlobalUpdatedAgo`/`Hours`/`Minutes`/`Days`/`JustNow` 문자열 추가\\n\\n**검증**: `flutter analyze` 이슈 없음, `flutter test` 기존 golden test 실패 10개(변경 전후 동일)\",\"stop_reason\":\"end_turn\",\"session_id\":\"d1744eea-03f0-4c61-8e2b-2b5294f2aec1\",\"total_cost_usd\":2.567248250000001,\"usage\":{\"input_tokens\":578,\"cache_creation_input_tokens\":76435,\"cache_read_input_tokens\":3067579,\"output_tokens\":22114,\"server_tool_use\":{\"web_search_requests\":0,\"web_fetch_requests\":0},\"service_tier\":\"standard\",\"cache_creation\":{\"ephemeral_1h_input_tokens\":76435,\"ephemeral_5m_input_tokens\":0},\"inference_geo\":\"\",\"iterations\":[{\"input_tokens\":1,\"output_tokens\":473,\"cache_read_input_tokens\":87839,\"cache_creation_input_tokens\":286,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":286},\"type\":\"message\"}],\"speed\":\"standard\"},\"modelUsage\":{\"claude-opus-4-6\":{\"inputTokens\":578,\"outputTokens\":22114,\"cacheReadInputTokens\":3067579,\"cacheCreationInputTokens\":76435,\"webSearchRequests\":0,\"costUSD\":2.567248250000001,\"contextWindow\":200000,\"maxOutputTokens\":64000}},\"permission_denials\":[],\"terminal_reason\":\"completed\",\"fast_mode_state\":\"off\",\"uuid\":\"010bce52-bd8a-4d2d-9d05-d79d28e058ba\"}\n",
+  "stderr": "",
+  "claude": {
+    "type": "result",
+    "subtype": "success",
+    "is_error": false,
+    "duration_ms": 572934,
+    "duration_api_ms": 347440,
+    "num_turns": 50,
+    "result": "Step 2 완료되었습니다. 변경 요약:\n\n**`lib/services/global_answer_stats_service.dart`**\n- `_fetchAll()`: Firestore 1,000문서 get → `https://raw.githubusercontent.com/smilecws/quiz/data-aggregates/aggregates.json` HTTP GET으로 교체\n- `GlobalAggregateStats`, `AggregateHardestEntry`, `SubcategoryAggregate` 데이터 클래스 추가\n- `loadAggregateStats()` 메서드: 메모리 캐시 → SharedPreferences(1시간 TTL) → HTTP fetch → 만료 SP 폴백 → empty 순으로 시도\n- `loadStat()` (단건 Firestore 조회)와 `applySessionResults()` (쓰기)는 기존대로 유지\n\n**`lib/screens/stats_screen.dart`**\n- 사전집계된 `hardestTop10`·`subcategory`를 직접 표시, 클라이언트 측 재집계 로직(`_aggregateBySubcategory`, `_SubcatAgg`) 제거\n- `_questionsById`/`_subcategoryMap` 로딩 중 `_subcategoryMap` 제거\n- \"최근 업데이트: N시간 전\" 라벨 추가\n\n**`lib/l10n/app_localizations.dart`**\n- 4개 언어 `statsGlobalUpdatedAgo`/`Hours`/`Minutes`/`Days`/`JustNow` 문자열 추가\n\n**검증**: `flutter analyze` 이슈 없음, `flutter test` 기존 golden test 실패 10개(변경 전후 동일)",
+    "stop_reason": "end_turn",
+    "session_id": "d1744eea-03f0-4c61-8e2b-2b5294f2aec1",
+    "total_cost_usd": 2.567248250000001,
+    "usage": {
+      "input_tokens": 578,
+      "cache_creation_input_tokens": 76435,
+      "cache_read_input_tokens": 3067579,
+      "output_tokens": 22114,
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 76435,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "",
+      "iterations": [
+        {
+          "input_tokens": 1,
+          "output_tokens": 473,
+          "cache_read_input_tokens": 87839,
+          "cache_creation_input_tokens": 286,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 286
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "modelUsage": {
+      "claude-opus-4-6": {
+        "inputTokens": 578,
+        "outputTokens": 22114,
+        "cacheReadInputTokens": 3067579,
+        "cacheCreationInputTokens": 76435,
+        "webSearchRequests": 0,
+        "costUSD": 2.567248250000001,
+        "contextWindow": 200000,
+        "maxOutputTokens": 64000
+      }
+    },
+    "permission_denials": [],
+    "terminal_reason": "completed",
+    "fast_mode_state": "off",
+    "uuid": "010bce52-bd8a-4d2d-9d05-d79d28e058ba"
+  }
+}

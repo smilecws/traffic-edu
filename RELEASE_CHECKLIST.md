@@ -29,13 +29,32 @@ https://console.firebase.google.com/project/quiz-ace9a/authentication/users
 - 크롬: 자물쇠 아이콘 → "사이트 정보" → "쿠키 및 사이트 데이터" → 삭제
 - 또는 시크릿창으로 새로 진입
 
-## 4. 최신 코드 배포
+## 4. 배포 자동화 복구 + 최신 코드 배포
 
-```powershell
-git push origin main
+테스트 단계에서 두 워크플로를 수동 실행 전용으로 바꿔뒀다 (PR #5). 실제 사용자 공개 시 아래를 처리한다.
+
+### 4-1. aggregate_stats.yml — 4시간 cron 복구 (필수)
+
+`.github/workflows/aggregate_stats.yml` 의 `on:` 블록에서 `schedule` 2줄 주석을 해제한다:
+
+```yaml
+on:
+  schedule:
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
 ```
 
-- `main` 푸시 → `.github/workflows/deploy_github_pages.yml` 자동 실행 → 약 2-3분 후 https://smilecws.github.io/quiz/ 에 반영.
+복구하지 않으면 통계 집계(`aggregates.json`)가 자동 갱신되지 않아 통계 화면이 옛 데이터에 멈춘다.
+
+### 4-2. deploy_github_pages.yml — push 자동 배포 (운영 방식에 따라 선택)
+
+현재 `push` 트리거가 제거돼 수동 배포만 가능하다. `main` push 시 자동 배포를 원하면 `on:` 에 push 트리거를 복구한다. 수동 배포를 유지해도 무방.
+
+### 4-3. 코드 배포
+
+- 수동 배포: GitHub Actions 탭 → "Deploy Flutter Web to GitHub Pages" → "Run workflow". 또는 `gh workflow run deploy_github_pages.yml`.
+- (push 트리거를 복구했다면) `git push origin main` 으로 자동 배포.
+- 약 2-3분 후 https://smilecws.github.io/quiz/ 에 반영.
 - Firestore 보안 규칙(`firestore.rules`)을 수정했다면 별도로:
 
   ```powershell

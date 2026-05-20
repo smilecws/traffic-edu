@@ -1,20 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/session_result.dart';
-import 'global_stats_consent_service.dart';
-
 // ─────────────────────────────────────────────────────────────────────────────
-// 개별 문항 통계 (Firestore 단건 조회용 — loadStat)
+// 개별 문항 통계 (aggregates.json 의 all_questions 에서 조회)
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// Firestore 한 문서(`question_stats/{questionId}`) 에 대응되는 익명 집계 통계.
+/// 한 문항의 익명 집계 통계.
 class GlobalQuestionStat {
   final int questionId;
   final int attempts;
@@ -71,16 +66,33 @@ class SubcategoryAggregate {
   int get wrongCount => attempts - correct;
 }
 
+/// `all_questions` 한 항목.
+class AllQuestionAggregate {
+  final int questionId;
+  final int attempts;
+  final int correct;
+  final double wrongRate;
+
+  const AllQuestionAggregate({
+    required this.questionId,
+    required this.attempts,
+    required this.correct,
+    required this.wrongRate,
+  });
+}
+
 /// GitHub Actions 가 생성한 `aggregates.json` 파싱 결과.
 class GlobalAggregateStats {
   final DateTime? updatedAt;
   final List<AggregateHardestEntry> hardestTop10;
   final List<SubcategoryAggregate> subcategory;
+  final Map<int, AllQuestionAggregate> allQuestions;
 
   const GlobalAggregateStats({
     this.updatedAt,
     this.hardestTop10 = const [],
     this.subcategory = const [],
+    this.allQuestions = const {},
   });
 
   static const empty = GlobalAggregateStats();
@@ -121,10 +133,27 @@ class GlobalAggregateStats {
       subcats.sort((a, b) => a.accuracyRate.compareTo(b.accuracyRate));
     }
 
+    final allQs = <int, AllQuestionAggregate>{};
+    final rawAllQ = json['all_questions'];
+    if (rawAllQ is Map) {
+      rawAllQ.forEach((key, val) {
+        if (val is! Map) return;
+        final id = int.tryParse(key.toString());
+        if (id == null) return;
+        allQs[id] = AllQuestionAggregate(
+          questionId: id,
+          attempts: (val['attempts'] as num?)?.toInt() ?? 0,
+          correct: (val['correct'] as num?)?.toInt() ?? 0,
+          wrongRate: (val['wrong_rate'] as num?)?.toDouble() ?? 0,
+        );
+      });
+    }
+
     return GlobalAggregateStats(
       updatedAt: updatedAt,
       hardestTop10: hardest,
       subcategory: subcats,
+      allQuestions: allQs,
     );
   }
 }
@@ -135,14 +164,19 @@ class GlobalAggregateStats {
 
 /// 전체 사용자 익명 집계 통계 서비스.
 ///
-/// - 쓰기: 세션 종료 시 [applySessionResults] 1회. Firestore 에 +1 증가.
 /// - 읽기(집계): [loadAggregateStats] 가 GitHub raw URL 의 `aggregates.json` 을
 ///   가져온다. 메모리 캐시 → SharedPreferences 캐시(1시간) → HTTP fetch 순.
-/// - 읽기(단건): [loadStat] 는 Firestore 에서 개별 문서를 가져온다.
+/// - 읽기(단건): [loadStat] 는 집계의 `allQuestions` 에서 개별 문항을 조회한다.
 class GlobalAnswerStatsService {
   GlobalAnswerStatsService._();
 
-  static const _collection = 'question_stats';
+  /// Web/Android/iOS 에서만 true. Windows/macOS/Linux 데스크톱은 Firebase
+  /// 미지원이므로 false.
+  static bool get isSupported {
+    if (kIsWeb) return true;
+    return defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+  }
 
   static const _aggregateUrl =
       'https://raw.githubusercontent.com/smilecws/quiz/data-aggregates/aggregates.json';
@@ -155,55 +189,6 @@ class GlobalAnswerStatsService {
   static GlobalAggregateStats? _aggCache;
   static DateTime? _aggCacheLoadedAt;
   static Future<GlobalAggregateStats>? _aggInFlight;
-
-  /// Web/Android/iOS 에서만 true. Windows/macOS/Linux 데스크톱은 cloud_firestore
-  /// 미지원이므로 false. 쓰기(applySessionResults) · 단건 읽기(loadStat) 에 사용.
-  static bool get isSupported {
-    if (kIsWeb) return true;
-    return defaultTargetPlatform == TargetPlatform.android ||
-        defaultTargetPlatform == TargetPlatform.iOS;
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // 쓰기
-  // ─────────────────────────────────────────────────────────────────────────
-
-  /// 세션 결과를 Firestore 에 batch increment 로 반영한다.
-  /// 실패해도 throw 하지 않는다(로컬 저장 흐름을 막지 않기 위해).
-  static Future<void> applySessionResults(List<SessionResult> results) async {
-    if (!isSupported || results.isEmpty) return;
-
-    final consent = await GlobalStatsConsentService.load();
-    if (!consent) return;
-
-    if (FirebaseAuth.instance.currentUser == null) {
-      try {
-        await FirebaseAuth.instance.signInAnonymously();
-      } catch (_) {
-        return;
-      }
-    }
-
-    try {
-      final firestore = FirebaseFirestore.instance;
-      final batch = firestore.batch();
-      for (final r in results) {
-        final ref = firestore.collection(_collection).doc(r.questionId.toString());
-        final updates = <String, Object>{
-          'attempts': FieldValue.increment(1),
-          'correct': FieldValue.increment(r.isCorrect ? 1 : 0),
-          'last_updated_at': FieldValue.serverTimestamp(),
-        };
-        for (final idx in r.selectedIndices) {
-          updates['option_counts.$idx'] = FieldValue.increment(1);
-        }
-        batch.set(ref, updates, SetOptions(merge: true));
-      }
-      await batch.commit();
-    } catch (e) {
-      debugPrint('GlobalAnswerStatsService.applySessionResults failed: $e');
-    }
-  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // 읽기 — 집계 (aggregates.json)
@@ -305,44 +290,19 @@ class GlobalAnswerStatsService {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 읽기 — 단건 (Firestore)
+  // 읽기 — 단건 (aggregates.json 의 all_questions)
   // ─────────────────────────────────────────────────────────────────────────
 
-  /// 단일 문항 통계. Firestore 에서 개별 문서를 가져온다.
+  /// 단일 문항 통계. 집계의 `allQuestions` 에서 조회한다.
   static Future<GlobalQuestionStat?> loadStat(int questionId) async {
-    if (!isSupported) return null;
-
-    try {
-      final snap = await FirebaseFirestore.instance
-          .collection(_collection)
-          .doc(questionId.toString())
-          .get();
-      if (!snap.exists) return null;
-      return _parseDoc(questionId, snap.data() ?? const {});
-    } catch (e) {
-      debugPrint('GlobalAnswerStatsService.loadStat failed: $e');
-      return null;
-    }
-  }
-
-  static GlobalQuestionStat _parseDoc(int id, Map<String, dynamic> data) {
-    final attempts = (data['attempts'] as num?)?.toInt() ?? 0;
-    final correct = (data['correct'] as num?)?.toInt() ?? 0;
-    final rawCounts = data['option_counts'];
-    final optionCounts = <int, int>{};
-    if (rawCounts is Map) {
-      rawCounts.forEach((key, value) {
-        final idx = int.tryParse(key.toString());
-        if (idx != null && value is num) {
-          optionCounts[idx] = value.toInt();
-        }
-      });
-    }
+    final agg = await loadAggregateStats();
+    final entry = agg.allQuestions[questionId];
+    if (entry == null) return null;
     return GlobalQuestionStat(
-      questionId: id,
-      attempts: attempts,
-      correct: correct,
-      optionCounts: optionCounts,
+      questionId: questionId,
+      attempts: entry.attempts,
+      correct: entry.correct,
+      optionCounts: const {},
     );
   }
 

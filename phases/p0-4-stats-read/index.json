@@ -7,7 +7,8 @@
       "name": "aggregate-script",
       "status": "completed",
       "started_at": "2026-05-20T12:34:18+0900",
-      "summary": "tool/package.json + tool/aggregate_stats.js 생성. firebase-admin으로 question_stats·user_answers 집계 → aggregates.json, full_report.json, report.md 출력"
+      "summary": "tool/package.json + tool/aggregate_stats.js 생성. firebase-admin으로 question_stats·user_answers 집계 → aggregates.json, full_report.json, report.md 출력",
+      "completed_at": "2026-05-20T12:36:42+0900"
     },
     {
       "step": 1,

@@ -22,7 +22,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm ci --prefix tool
+        run: npm install --prefix tool
 
       - name: Write service account key to temp file
         run: |

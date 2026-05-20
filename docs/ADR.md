@@ -55,10 +55,10 @@
 **이유**: 글로벌 통계(ADR-011)를 Firestore 에 기록하려면 인증된 사용자가 필요. 익명 인증은 사용자 마찰 없이 UID 를 발급하고 Firestore 보안 규칙에서 write 권한을 제어할 수 있다. PIPA 요건(목적·항목·보존기간·거부 권리 고지) 준수.
 **트레이드오프**: 데스크톱(Windows/macOS/Linux)은 Firebase 미지원이라 통계 수집이 비활성화된다. 동의 버전이 올라가면 기존 사용자가 재동의 필요.
 
-### ADR-011: Firestore 로 글로벌 통계·풀이 이력 기록
-**결정**: 문항별 글로벌 통계(`question_stats/{questionId}`)와 사용자별 풀이 이력(`user_answers/{uid}/sessions/{auto_id}`)을 Cloud Firestore 에 기록한다. 쓰기는 `GlobalAnswerStatsService` 와 `UserAnswerLogService` 만 담당한다.
+### ADR-011: Firestore 로 풀이 이력 기록 (question_stats 폐기)
+**결정**: 사용자별 풀이 이력(`user_answers/{uid}/sessions/{auto_id}`)만 Cloud Firestore 에 기록한다. 쓰기는 `UserAnswerLogService` 만 담당한다. 기존 `question_stats/{questionId}` 컬렉션은 폐기됐다(P0-2 write 통합).
 **이유**: Firebase 무료 티어(Spark)로 운영 비용 0. 익명 인증 UID 기반 보안 규칙으로 write 를 제어하고, 운영자는 Firebase 콘솔에서 직접 조회한다. 클라이언트 read 는 보안 규칙으로 차단해 비용을 억제한다.
-**트레이드오프**: Firestore 문서 1,000개를 클라이언트에서 직접 읽으면 무료 한도를 빠르게 소진 — ADR-013 의 외부 집계로 해결. App Check 미도입 상태라 write 검증이 약함(카운터 +1 검증은 dotted-path 문제로 제거됨).
+**트레이드오프**: 클라이언트 read 는 ADR-013 의 외부 집계로 해결. App Check 미도입 상태라 write 검증이 약함.
 
 ### ADR-012: 학습 카드를 에셋 JSON 으로 관리
 **결정**: 소카테고리별 핵심 개념·수치·법령 출처를 `assets/study/<subcategoryId>.json` 파일에 저장하고 `StudyCardService` 가 로드한다. 콘텐츠는 사람이 직접 작성; `tool/extract_study_seeds.dart` 는 초안 seed 만 생성.
@@ -66,6 +66,6 @@
 **트레이드오프**: 콘텐츠 업데이트마다 앱 재배포 필요. 카드 스키마 변경 시 `StudyCard` 모델과 `StudyCardScreen` 을 함께 갱신해야 함.
 
 ### ADR-013: 글로벌 통계 읽기를 GitHub Actions 외부 집계로 전환
-**결정**: 클라이언트가 Firestore 의 `question_stats` 1,000문서를 직접 읽는 대신, GitHub Actions cron(4시간 주기)이 `tool/aggregate_stats.js` 로 서버사이드 집계해 `aggregates.json` 을 별도 `data-aggregates` 브랜치에 커밋한다. 클라이언트는 GitHub raw URL 로 HTTP fetch 하고, SharedPreferences 에 1시간 TTL 로 캐시한다.
-**이유**: Firestore 무료 티어의 일일 read 한도(50,000)를 사용자 수 증가 시 빠르게 소진. 사전 집계로 클라이언트 read 를 0 으로 줄이고, GitHub raw URL 은 CDN 이라 추가 비용 없음.
-**트레이드오프**: 통계 신선도가 최대 4시간 지연된다. GitHub Actions Secrets 에 Firebase 서비스 계정 키 등록이 필요. `data-aggregates` 브랜치를 별도로 사용하는 이유는 (1) Flutter 웹 service worker 가 `main` 브랜치의 파일을 공격적으로 캐싱해 집계 갱신이 반영되지 않는 문제 회피, (2) 자동 생성 파일로 `main` 커밋 이력을 오염시키지 않기 위함.
+**결정**: GitHub Actions cron(4시간 주기)이 `tool/aggregate_stats.js` 로 `user_answers` 세션 로그를 서버사이드 집계해 `aggregates.json` 을 별도 `data-aggregates` 브랜치에 커밋한다. 클라이언트는 GitHub raw URL 로 HTTP fetch 하고, SharedPreferences 에 1시간 TTL 로 캐시한다. P0-2 이후 `question_stats` 컬렉션이 폐기되어 집계 소스는 `user_answers` 만 사용한다.
+**이유**: Firestore 무료 티어의 일일 read 한도(50,000)를 사용자 수 증가 시 빠르게 소진. 사전 집계로 클라이언트 read 를 0 으로 줄이고, GitHub raw URL 은 CDN 이라 추가 비용 없음. write 통합(P0-2)으로 세션당 Firestore write 가 41회(question_stats 40 + user_answers 1)에서 1회(user_answers)로 감소해 무료 한도 부담이 대폭 줄었다.
+**트레이드오프**: 통계 신선도가 최대 4시간 지연된다. GitHub Actions Secrets 에 Firebase 서비스 계정 키 등록이 필요. 집계 시 `user_answers` 전체를 read 하므로 세션 수 증가 시 집계 시간이 늘어날 수 있다. `data-aggregates` 브랜치를 별도로 사용하는 이유는 (1) Flutter 웹 service worker 가 `main` 브랜치의 파일을 공격적으로 캐싱해 집계 갱신이 반영되지 않는 문제 회피, (2) 자동 생성 파일로 `main` 커밋 이력을 오염시키지 않기 위함.

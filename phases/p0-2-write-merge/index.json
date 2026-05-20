@@ -1,0 +1,40 @@
+{
+  "project": "quiz_app",
+  "phase": "p0-2-write-merge",
+  "steps": [
+    {
+      "step": 0,
+      "name": "aggregate-script-rewrite",
+      "status": "completed",
+      "started_at": "2026-05-20T16:54:01+0900",
+      "completed_at": "2026-05-20T16:55:49+0900",
+      "summary": "aggregate_stats.js 집계 소스를 question_stats → user_answers 세션 로그로 전환, aggregates.json에 all_questions 필드 추가"
+    },
+    {
+      "step": 1,
+      "name": "client-write-removal",
+      "status": "completed",
+      "started_at": "2026-05-20T16:55:50+0900",
+      "completed_at": "2026-05-20T17:02:35+0900",
+      "summary": "question_stats Firestore write(applySessionResults) 제거, loadStat을 aggregates.json의 all_questions에서 조회하도록 전환, cloud_firestore/firebase_auth 의존 제거"
+    },
+    {
+      "step": 2,
+      "name": "firestore-rules",
+      "status": "completed",
+      "started_at": "2026-05-20T17:02:36+0900",
+      "completed_at": "2026-05-20T17:04:20+0900",
+      "summary": "firestore.rules에서 question_stats match 블록 제거, user_answers 블록 유지"
+    },
+    {
+      "step": 3,
+      "name": "docs-update",
+      "status": "completed",
+      "started_at": "2026-05-20T17:04:22+0900",
+      "completed_at": "2026-05-20T17:07:10+0900",
+      "summary": "ARCHITECTURE.md/ADR.md/CLAUDE.md에서 question_stats 폐기 반영, user_answers 단일 write + 서버사이드 집계 구조로 문서 갱신"
+    }
+  ],
+  "created_at": "2026-05-20T16:54:01+0900",
+  "completed_at": "2026-05-20T17:07:17+0900"
+}

@@ -10,7 +10,6 @@ import '../models/question.dart';
 import '../models/session_result.dart';
 import '../services/attempted_questions_service.dart';
 import '../services/favorite_questions_service.dart';
-import '../services/global_answer_stats_service.dart';
 import '../services/mock_exam_history_service.dart';
 import '../services/question_service.dart';
 import '../services/user_answer_log_service.dart';
@@ -137,10 +136,7 @@ class _QuizScreenState extends State<QuizScreen> {
   Future<void> _saveStatsSoFar() async {
     final results = _resultsSoFarForPersistence();
     if (results.isEmpty) return;
-    await Future.wait([
-      UserAnswerStatsService.applySessionResults(results),
-      GlobalAnswerStatsService.applySessionResults(results),
-    ]);
+    await UserAnswerStatsService.applySessionResults(results);
   }
 
   @override
@@ -389,7 +385,6 @@ class _QuizScreenState extends State<QuizScreen> {
         _questions.map((q) => q.id),
       ),
       UserAnswerStatsService.applySessionResults(allResults),
-      GlobalAnswerStatsService.applySessionResults(allResults),
       UserAnswerLogService.saveSession(
         allResults,
         licenseKind: widget.mockExamLicenseKind,

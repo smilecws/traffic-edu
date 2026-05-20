@@ -7,7 +7,8 @@
     },
     {
       "dir": "p0-4-stats-read",
-      "status": "pending"
+      "status": "completed",
+      "completed_at": "2026-05-20T12:54:08+0900"
     }
   ]
 }

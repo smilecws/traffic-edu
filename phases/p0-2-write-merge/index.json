@@ -15,7 +15,7 @@
       "name": "client-write-removal",
       "status": "completed",
       "started_at": "2026-05-20T16:55:50+0900",
-      "completed_at": "2026-05-20T17:10:00+0900",
+      "completed_at": "2026-05-20T17:02:35+0900",
       "summary": "question_stats Firestore write(applySessionResults) 제거, loadStat을 aggregates.json의 all_questions에서 조회하도록 전환, cloud_firestore/firebase_auth 의존 제거"
     },
     {

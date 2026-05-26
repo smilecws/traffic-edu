@@ -2,9 +2,28 @@
   "project": "quiz_app",
   "phase": "feat-ui-redesign",
   "steps": [
-    { "step": 0, "name": "design-system", "status": "pending" },
-    { "step": 1, "name": "written-exam-menu-redesign", "status": "pending" },
-    { "step": 2, "name": "home-screen-redesign", "status": "pending" },
-    { "step": 3, "name": "docs-update", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "design-system",
+      "status": "completed",
+      "started_at": "2026-05-26T10:46:38+0900",
+      "summary": "Pretendard 폰트 5종 추가, 테마에 그라데이션 팔레트 7종 추가, glass 위젯 3개(GlassBackground/GlassCard/GradientIconBadge) 신설"
+    },
+    {
+      "step": 1,
+      "name": "written-exam-menu-redesign",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "home-screen-redesign",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "docs-update",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-05-26T10:46:38+0900"
 }

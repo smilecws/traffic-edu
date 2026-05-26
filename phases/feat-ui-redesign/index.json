@@ -31,7 +31,7 @@
       "name": "docs-update",
       "status": "completed",
       "started_at": "2026-05-26T11:07:50+0900",
-      "completed_at": "2026-05-26T11:15:00+0900",
+      "completed_at": "2026-05-26T11:09:50+0900",
       "summary": "ARCHITECTURE.md에 widgets/glass/ 디렉토리·Pretendard 폰트·그라데이션 팔레트 항목 추가, ADR-014(글래스모피즘 UI 디자인 도입) 추가, CLAUDE.md에 그라데이션 팔레트·글래스 위젯 사용 규칙 2줄 추가"
     }
   ],

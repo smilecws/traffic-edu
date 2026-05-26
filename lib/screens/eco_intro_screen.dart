@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 
-// 슬라이드별 색상 팔레트 — sample_eco/eco_driving_rich_v2.html 충실 재현.
+// 슬라이드별 색상 팔레트.
 // 1회용 인트로 전용이라 전역 AppThemeColors 를 오염시키지 않고 여기에 격리.
 const _kS1Bg = Color(0xFFEAF3DE);
 const _kS1Accent = Color(0xFF639922);

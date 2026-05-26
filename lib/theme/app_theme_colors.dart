@@ -14,6 +14,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.textSecondary,
     required this.borderLight,
     required this.chipBg,
+    required this.gradientCyan,
+    required this.gradientRose,
+    required this.gradientEmerald,
+    required this.gradientIndigo,
+    required this.gradientAmber,
+    required this.gradientViolet,
+    required this.gradientTeal,
   });
 
   final Color background;
@@ -26,6 +33,21 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color textSecondary;
   final Color borderLight;
   final Color chipBg;
+  final List<Color> gradientCyan;
+  final List<Color> gradientRose;
+  final List<Color> gradientEmerald;
+  final List<Color> gradientIndigo;
+  final List<Color> gradientAmber;
+  final List<Color> gradientViolet;
+  final List<Color> gradientTeal;
+
+  static const _gradientCyan = [Color(0xFF06B6D4), Color(0xFF2563EB)];
+  static const _gradientRose = [Color(0xFFFB7185), Color(0xFFEC4899)];
+  static const _gradientEmerald = [Color(0xFF34D399), Color(0xFF14B8A6)];
+  static const _gradientIndigo = [Color(0xFF6366F1), Color(0xFF9333EA)];
+  static const _gradientAmber = [Color(0xFFFBBF24), Color(0xFFF97316)];
+  static const _gradientViolet = [Color(0xFFA78BFA), Color(0xFFA855F7)];
+  static const _gradientTeal = [Color(0xFF2DD4BF), Color(0xFF06B6D4)];
 
   static const light = AppThemeColors(
     background: Color(0xFFF0FDF4),
@@ -38,6 +60,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     textSecondary: Color(0xFF64748B),
     borderLight: Color(0xFFD1FAE5),
     chipBg: Color(0xFFDCFCE7),
+    gradientCyan: _gradientCyan,
+    gradientRose: _gradientRose,
+    gradientEmerald: _gradientEmerald,
+    gradientIndigo: _gradientIndigo,
+    gradientAmber: _gradientAmber,
+    gradientViolet: _gradientViolet,
+    gradientTeal: _gradientTeal,
   );
 
   static const dark = AppThemeColors(
@@ -51,6 +80,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     textSecondary: Color(0xFF94A3B8),
     borderLight: Color(0xFF2D4A38),
     chipBg: Color(0xFF166534),
+    gradientCyan: _gradientCyan,
+    gradientRose: _gradientRose,
+    gradientEmerald: _gradientEmerald,
+    gradientIndigo: _gradientIndigo,
+    gradientAmber: _gradientAmber,
+    gradientViolet: _gradientViolet,
+    gradientTeal: _gradientTeal,
   );
 
   @override
@@ -65,6 +101,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? textSecondary,
     Color? borderLight,
     Color? chipBg,
+    List<Color>? gradientCyan,
+    List<Color>? gradientRose,
+    List<Color>? gradientEmerald,
+    List<Color>? gradientIndigo,
+    List<Color>? gradientAmber,
+    List<Color>? gradientViolet,
+    List<Color>? gradientTeal,
   }) {
     return AppThemeColors(
       background: background ?? this.background,
@@ -77,6 +120,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       textSecondary: textSecondary ?? this.textSecondary,
       borderLight: borderLight ?? this.borderLight,
       chipBg: chipBg ?? this.chipBg,
+      gradientCyan: gradientCyan ?? this.gradientCyan,
+      gradientRose: gradientRose ?? this.gradientRose,
+      gradientEmerald: gradientEmerald ?? this.gradientEmerald,
+      gradientIndigo: gradientIndigo ?? this.gradientIndigo,
+      gradientAmber: gradientAmber ?? this.gradientAmber,
+      gradientViolet: gradientViolet ?? this.gradientViolet,
+      gradientTeal: gradientTeal ?? this.gradientTeal,
     );
   }
 
@@ -94,7 +144,21 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       borderLight: Color.lerp(borderLight, other.borderLight, t)!,
       chipBg: Color.lerp(chipBg, other.chipBg, t)!,
+      gradientCyan: _lerpColorList(gradientCyan, other.gradientCyan, t),
+      gradientRose: _lerpColorList(gradientRose, other.gradientRose, t),
+      gradientEmerald: _lerpColorList(gradientEmerald, other.gradientEmerald, t),
+      gradientIndigo: _lerpColorList(gradientIndigo, other.gradientIndigo, t),
+      gradientAmber: _lerpColorList(gradientAmber, other.gradientAmber, t),
+      gradientViolet: _lerpColorList(gradientViolet, other.gradientViolet, t),
+      gradientTeal: _lerpColorList(gradientTeal, other.gradientTeal, t),
     );
+  }
+
+  static List<Color> _lerpColorList(List<Color> a, List<Color> b, double t) {
+    return [
+      Color.lerp(a[0], b[0], t)!,
+      Color.lerp(a[1], b[1], t)!,
+    ];
   }
 }
 

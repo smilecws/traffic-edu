@@ -22,7 +22,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('초심찾기 도로교통법'), findsOneWidget);
+    expect(find.text('도로교통법'), findsOneWidget);
     expect(find.text('학습하기'), findsOneWidget);
     expect(find.text('문제 풀기'), findsOneWidget);
   });

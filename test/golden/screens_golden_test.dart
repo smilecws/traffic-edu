@@ -95,31 +95,31 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     });
 
-    testWidgets('card_child_zone_ko_light', (tester) async {
+    testWidgets('card_topic_06_ko_light', (tester) async {
       await setGoldenDefaults(tester);
       seedPrefs();
       await primeQuestionBankCache(tester);
       await tester.pumpWidget(
         wrapForGolden(
-          const StudyCardScreen(subcategoryId: 'child_zone'),
+          const StudyCardScreen(topicId: 6),
         ),
       );
       await settleAsync(tester,
           wait: const Duration(milliseconds: 800));
       await expectLater(
         find.byType(MaterialApp),
-        matchesGoldenFile('goldens/study_card_child_zone_ko_light.png'),
+        matchesGoldenFile('goldens/study_card_topic_06_ko_light.png'),
       );
       await tester.pumpWidget(const SizedBox());
     });
 
-    testWidgets('card_alcohol_ko_dark', (tester) async {
+    testWidgets('card_topic_04_ko_dark', (tester) async {
       await setGoldenDefaults(tester);
       seedPrefs();
       await primeQuestionBankCache(tester);
       await tester.pumpWidget(
         wrapForGolden(
-          const StudyCardScreen(subcategoryId: 'alcohol'),
+          const StudyCardScreen(topicId: 4),
           themeMode: ThemeMode.dark,
         ),
       );
@@ -127,7 +127,7 @@ void main() {
           wait: const Duration(milliseconds: 800));
       await expectLater(
         find.byType(MaterialApp),
-        matchesGoldenFile('goldens/study_card_alcohol_ko_dark.png'),
+        matchesGoldenFile('goldens/study_card_topic_04_ko_dark.png'),
       );
       await tester.pumpWidget(const SizedBox());
     });

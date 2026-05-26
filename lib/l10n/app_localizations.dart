@@ -61,6 +61,62 @@ class AppLocalizations {
         'vi': '0 điểm',
       });
 
+  String get statsProgressLabel => _t({
+        'ko': '진도',
+        'en': 'Progress',
+        'zh': '进度',
+        'vi': 'Tiến độ',
+      });
+
+  String get statsAccuracyLabel => _t({
+        'ko': '정답률',
+        'en': 'Accuracy',
+        'zh': '正确率',
+        'vi': 'Tỷ lệ đúng',
+      });
+
+  String get bentoMockSubtitle => _t({
+        'ko': '실전 40문제 · 40분',
+        'en': '40 questions · 40 min',
+        'zh': '实战 40 题 · 40 分钟',
+        'vi': '40 câu · 40 phút',
+      });
+
+  String get bentoPracticeSubtitle => _t({
+        'ko': '유형별 · 랜덤 40문제',
+        'en': 'By type · Random 40',
+        'zh': '分类 · 随机 40 题',
+        'vi': 'Theo dạng · 40 câu ngẫu nhiên',
+      });
+
+  String get bentoWrongSubtitle => _t({
+        'ko': '틀린 문제 모음',
+        'en': 'Wrong answers collection',
+        'zh': '错题集',
+        'vi': 'Tập câu sai',
+      });
+
+  String get bentoFavoritesSubtitle => _t({
+        'ko': '저장한 문제 모음',
+        'en': 'Saved questions',
+        'zh': '已收藏题目',
+        'vi': 'Câu đã lưu',
+      });
+
+  String get popupStatsView => _t({
+        'ko': '통계 보기',
+        'en': 'View statistics',
+        'zh': '查看统计',
+        'vi': 'Xem thống kê',
+      });
+
+  String get popupMockHistory => _t({
+        'ko': '모의고사 이력',
+        'en': 'Exam history',
+        'zh': '模拟考记录',
+        'vi': 'Lịch sử thi thử',
+      });
+
   String progressQuestions(int attempted, int total) {
     switch (locale.languageCode) {
       case 'en':
@@ -343,6 +399,120 @@ class AppLocalizations {
         'en': 'Could not open the link.',
         'zh': '无法打开链接。',
         'vi': 'Không mở được liên kết.',
+      });
+
+  // ——— 홈 화면 리디자인 ———
+
+  String get homeHeaderLabel => _t({
+        'ko': '초심찾기',
+        'en': 'BEGINNER',
+        'zh': '初心',
+        'vi': 'SƠ TÂM',
+      });
+
+  String get homeHeaderTitle => _t({
+        'ko': '도로교통법',
+        'en': 'Traffic Law',
+        'zh': '道路交通法',
+        'vi': 'Luật Giao thông',
+      });
+
+  String get homeStatsLecture => _t({
+        'ko': '강의',
+        'en': 'Lectures',
+        'zh': '课程',
+        'vi': 'Bài giảng',
+      });
+
+  String get homeStatsPrep => _t({
+        'ko': '준비',
+        'en': 'Prep',
+        'zh': '准备',
+        'vi': 'Chuẩn bị',
+      });
+
+  String get homeStatsReservation => _t({
+        'ko': '예약',
+        'en': 'Booking',
+        'zh': '预约',
+        'vi': 'Đặt lịch',
+      });
+
+  String get homeComingSoon => _t({
+        'ko': '준비 중',
+        'en': 'Coming soon',
+        'zh': '准备中',
+        'vi': 'Đang chuẩn bị',
+      });
+
+  String get homeStudyTitle => _t({
+        'ko': '학습하기',
+        'en': 'Study',
+        'zh': '学习',
+        'vi': 'Học tập',
+      });
+
+  String get homeStudySub => _t({
+        'ko': '개념과 자료로 차분히',
+        'en': 'Concepts & materials',
+        'zh': '沉着学习概念与资料',
+        'vi': 'Học khái niệm & tài liệu',
+      });
+
+  String get homePracticeTitle => _t({
+        'ko': '문제 풀기',
+        'en': 'Practice',
+        'zh': '做题',
+        'vi': 'Luyện đề',
+      });
+
+  String get homePracticeSub => _t({
+        'ko': '모의고사 · 연습 · 오답',
+        'en': 'Mock exam · Practice · Review',
+        'zh': '模拟考 · 练习 · 错题',
+        'vi': 'Thi thử · Luyện · Ôn sai',
+      });
+
+  String get homeFaqTitle => _t({
+        'ko': '자주묻는\n질문',
+        'en': 'FAQ',
+        'zh': '常见\n问题',
+        'vi': 'Câu hỏi\nthường gặp',
+      });
+
+  String get homeExamStepsBadge => _t({
+        'ko': '5단계',
+        'en': '5 steps',
+        'zh': '5 步骤',
+        'vi': '5 bước',
+      });
+
+  String get homeExternalSection => _t({
+        'ko': '도로교통공단 · 외부 페이지',
+        'en': 'KoROAD · External pages',
+        'zh': '韩国道路交通公团 · 外部页面',
+        'vi': 'KoROAD · Trang ngoài',
+      });
+
+  String get homeEduScheduleDesc => _t({
+        'ko': '지역별 교육 일정 확인',
+        'en': 'Check local training schedules',
+        'zh': '查看各地区教育日程',
+        'vi': 'Xem lịch đào tạo theo vùng',
+      });
+
+  String get homeTestScheduleDesc => _t({
+        'ko': '전국 시험장 일정 조회',
+        'en': 'Nationwide test center schedules',
+        'zh': '全国考场日程查询',
+        'vi': 'Tra lịch thi toàn quốc',
+      });
+
+  String get snackComingSoon => _t({
+        'ko': '준비 중인 기능입니다',
+        'en': 'This feature is coming soon',
+        'zh': '功能正在准备中',
+        'vi': 'Tính năng đang được chuẩn bị',
       });
 
   String get navExamOrder => _t({
@@ -790,56 +960,6 @@ class AppLocalizations {
   String quizTitleSubcategory(String id) {
     return subcategoryLabel(id);
   }
-
-  // ——— 학습 카드 ———
-  String get studyActionLabel => _t({
-        'ko': '공부하기',
-        'en': 'Study',
-        'zh': '学习',
-        'vi': 'Học',
-      });
-
-  String get studyScreenSectionKeyPoints => _t({
-        'ko': '핵심 포인트',
-        'en': 'Key points',
-        'zh': '核心要点',
-        'vi': 'Điểm chính',
-      });
-
-  String get studyScreenSectionNumbers => _t({
-        'ko': '핵심 수치',
-        'en': 'Key numbers',
-        'zh': '核心数值',
-        'vi': 'Số liệu chính',
-      });
-
-  String get studyScreenSectionExamples => _t({
-        'ko': '대표 기출',
-        'en': 'Representative questions',
-        'zh': '代表题目',
-        'vi': 'Câu hỏi tiêu biểu',
-      });
-
-  String get studyScreenQuizRelated => _t({
-        'ko': '관련 문제 풀기',
-        'en': 'Practice these questions',
-        'zh': '练习相关题目',
-        'vi': 'Luyện câu liên quan',
-      });
-
-  String get studyScreenLoadError => _t({
-        'ko': '학습 자료를 불러오지 못했습니다.',
-        'en': 'Failed to load study materials.',
-        'zh': '无法加载学习资料。',
-        'vi': 'Không thể tải tài liệu học.',
-      });
-
-  String get studyScreenSummaryTitle => _t({
-        'ko': '핵심 정리',
-        'en': 'Key takeaways',
-        'zh': '核心整理',
-        'vi': 'Tóm tắt chính',
-      });
 
   // ——— 나의 통계 ———
   String get statsTitle => _t({

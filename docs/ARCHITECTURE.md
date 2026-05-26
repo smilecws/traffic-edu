@@ -10,14 +10,19 @@ lib/
 │   └── app_localizations.dart         # 자체 AppLocalizations (ko/en/zh/vi 문자열 맵, gen_l10n 미사용)
 ├── theme/
 │   ├── app_theme.dart                 # buildLightTheme() / buildDarkTheme() — ThemeData 조립
-│   └── app_theme_colors.dart          # AppThemeColors ThemeExtension (라이트/다크)
+│   └── app_theme_colors.dart          # AppThemeColors ThemeExtension (라이트/다크 + 그라데이션 팔레트 7종: gradientCyan/Rose/Emerald/Indigo/Amber/Violet/Teal)
+├── widgets/
+│   └── glass/
+│       ├── glass_background.dart      # 그라데이션 배경 + 흐릿한 원형 블러 컨테이너
+│       ├── glass_card.dart            # BackdropFilter 기반 반투명 카드
+│       └── gradient_icon_badge.dart   # 그라데이션 사각형 아이콘 배지
 ├── models/                            # 순수 데이터 타입, 외부 의존 없음
 │   ├── question.dart                  # Question + 3가지 JSON 팩토리 + URI 노멀라이저
 │   ├── session_result.dart            # 세션 내 한 문항 답안 결과
 │   ├── mock_exam_history_entry.dart   # 모의고사 기록(날짜·점수·틀린 ID)
 │   ├── mock_exam_license_kind.dart    # 면허 종류 enum + 합격 점수 확장
 │   ├── disqualification_catalog.dart  # 실격 기준 카탈로그
-│   └── study_card.dart               # StudyCard + KeyPoint + NumberEntry + LocalizedText 파서
+│   └── study_card.dart               # StudyTopic + SubTopic + CardItem + Badge + ComparisonTable + ExamAnalysis 파서 (한국어 단일 언어)
 ├── services/                          # 영속 저장·에셋 로딩·외부 API (전부 static, DI 없음)
 │   ├── question_service.dart          # 문제 은행 로딩 + 카테고리/랜덤 샘플링 + 언어별 캐시
 │   ├── locale_service.dart            # 로케일 저장 + 언어→asset 경로 매핑
@@ -33,7 +38,7 @@ lib/
 │   ├── user_answer_stats_service.dart # 문항별 (attempts/correct/option_counts) 누적
 │   ├── mock_exam_history_service.dart # 모의고사 이력 JSON (최대 80건 FIFO)
 │   ├── disqualification_catalog_service.dart  # merged JSON → DisqualificationCatalog
-│   ├── study_card_service.dart        # assets/study/<id>.json → List<StudyCard>
+│   ├── study_card_service.dart        # assets/study/NN_<slug>.json → StudyTopic (16개 토픽 메타 하드코딩)
 │   ├── question_subcategory_service.dart      # 소카테고리별 문제 수 캐시
 │   ├── subcategory_classifier.dart    # 문제 텍스트 → 소카테고리 ID 분류 규칙 (CLI·런타임 공용)
 │   └── preference_id_codec.dart       # List<String> → Set<int> 안전 파싱
@@ -43,8 +48,8 @@ lib/
 │   ├── eco_intro_screen.dart          # 친환경 운전 교육 인트로 (동의 후 1회 표시)
 │   ├── home_screen.dart               # 앱 랜딩 (6개 메뉴 카드: 학습·문제·시험순서·준비·교육일정·시험일정)
 │   ├── written_exam_menu_screen.dart  # "문제 풀기" 서브메뉴 (진도·점수·메뉴·실격 팁)
-│   ├── study_screen.dart              # 학습하기 인덱스 (10개 소카테고리 리스트)
-│   ├── study_card_screen.dart         # 소카테고리별 핵심 개념 카드 뷰어
+│   ├── study_screen.dart              # 학습하기 인덱스 (16개 토픽 리스트)
+│   ├── study_card_screen.dart         # 토픽별 세부 주제 아코디언 + 5장 카드뉴스 + 시험 출제 분석
 │   ├── quiz_screen.dart               # 퀴즈 플레이어 (타이머/채점/비디오/이미지)
 │   ├── question_detail_screen.dart    # 단일 문항 상세 보기
 │   ├── result_screen.dart             # 점수·합격 판정·오답 노트 리스트
@@ -62,7 +67,8 @@ assets/
 │                                      # 언어별 문제 은행 (3가지 포맷 공존)
 ├── driving_disqualification_merged.json  # 실격 기준 (기능시험 + 도로주행)
 ├── question_subcategory.json          # 문제 ID → 소카테고리 ID 매핑 (tool/classify_subcategory.dart 재생성)
-├── study/<subcategoryId>.json         # 소카테고리별 학습 카드 (사람이 직접 작성)
+├── study/NN_<slug>.json               # 학습 토픽 16개 (사람이 직접 작성, 한국어 단일 언어)
+├── fonts/Pretendard-{Regular,Medium,Bold,ExtraBold,Black}.otf  # Pretendard 폰트 (pubspec.yaml flutter.fonts 에 family 등록)
 ├── images/*.{png,jpeg}                # 문제 본문/해설 이미지
 ├── questions_videos/*.mp4             # 동영상 문제
 └── app_icon.png / quiz_icon.png / license_icon.png
@@ -159,22 +165,43 @@ QuizApp.initState → _bootstrap()
 파싱 시 `images` 는 `data:image/...;base64,...` 또는 `assets/images/...` 로 노멀라이즈. `video` 는 http → https 업그레이드 후 `assets/questions_videos/...` 또는 https URL 로 정리.
 
 ## 학습 카드 포맷
-`assets/study/<subcategoryId>.json` 스키마:
+`assets/study/NN_<slug>.json` 스키마 (NN=01~16, 한국어 단일 언어):
 ```json
 {
-  "subcategory_id": "traffic_signal",
-  "title": { "ko": "신호·지시", "en": "Signals" },
-  "lead": { "ko": "..." },
-  "key_points": [
-    { "heading": { "ko": "..." }, "body": { "ko": "..." }, "law_refs": ["도로교통법 §5"] }
+  "id": 1,
+  "title": "속도와 차로 통행",
+  "sub_topics": [
+    {
+      "marker": "A",
+      "title": "속도 제한과 안전 속도",
+      "cards": [
+        {
+          "number": 1,
+          "title": "법정 제한속도의 기본 원칙",
+          "badge": { "number": "01", "code": "LAW" },
+          "label": "속도 제한",
+          "subtitle": "일반도로와 고속도로의 기본 속도 규정",
+          "body": "...",
+          "key_points": ["일반도로 편도 1차로: 시속 60km", "..."],
+          "comparison_table": {
+            "headers": ["도로 구분", "최저 속도", "최고 속도"],
+            "rows": [["일반도로 1차로", "제한 없음", "60km/h"], ["..."]]
+          },
+          "tags": ["#법정속도", "#일반도로"]
+        }
+      ]
+    }
   ],
-  "numbers": [
-    { "label": { "ko": "황색 점멸" }, "value": { "ko": "서행" } }
-  ],
-  "example_question_ids": [1, 42, 337]
+  "exam_analysis": {
+    "related_questions": "학과시험 문제은행 997번 등 유사 문항",
+    "key_content": ["기상 악화 시 감속 기준: ...", "..."]
+  }
 }
 ```
-`StudyCard.fromJson` 이 파싱. `LocalizedText` 는 `{ "ko": "...", "en": "..." }` 맵이며 없는 언어는 ko 폴백.
+- 1 파일 = 1 토픽. 토픽 16개, 각 토픽당 sub_topic 3개(`marker`는 `A/B/C` 또는 `1/2/3`), 카드 5장 → 총 240 카드.
+- 카드는 모두 `comparison_table` 을 포함 (`StudyCardScreen` 의 `DataTable` 로 렌더링).
+- 파싱은 `StudyTopic.fromJson`. 다국어 미사용 (`String` 직접).
+- 파일명 슬러그 ↔ id 매핑은 `StudyCardService.topics` 리스트가 단일 진실 소스.
 
 ## 영속 저장 키 (SharedPreferences)
 | 키 | 타입 | 용도 |

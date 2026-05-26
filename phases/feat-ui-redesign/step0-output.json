@@ -1,0 +1,67 @@
+{
+  "step": 0,
+  "name": "design-system",
+  "exitCode": 0,
+  "git_sha_before": "53b269442c6be92bc5e10bdb8622fec58e4f7326",
+  "git_sha_after": "a6f458a2bfa308a71ca0880a3c855fdd033c29a7",
+  "stdout": "{\"type\":\"result\",\"subtype\":\"success\",\"is_error\":false,\"duration_ms\":426718,\"duration_api_ms\":188154,\"num_turns\":28,\"result\":\"Step 0 완료되었습니다.\\n\\n**요약:**\\n- `assets/fonts/` 에 Pretendard 5종(Regular/Medium/Bold/ExtraBold/Black) 다운로드 완료\\n- `pubspec.yaml`에 Pretendard font family 등록\\n- `app_theme.dart` — Jua(`google_fonts`) → Pretendard(번들 폰트)로 전환\\n- `app_theme_colors.dart` — 그라데이션 7종(`gradientCyan/Rose/Emerald/Indigo/Amber/Violet/Teal`) 필드 추가 + `copyWith`/`lerp` 갱신\\n- `lib/widgets/glass/` — `GlassBackground`, `GlassCard`, `GradientIconBadge` 3개 위젯 신설\\n- `flutter analyze` 이슈 0개, `flutter test` 41개 전체 통과\",\"stop_reason\":\"end_turn\",\"session_id\":\"f4c0dcf6-cff0-4bd6-a04f-c1a43a6494d2\",\"total_cost_usd\":1.2853845,\"usage\":{\"input_tokens\":24,\"cache_creation_input_tokens\":64900,\"cache_read_input_tokens\":1272729,\"output_tokens\":9731,\"server_tool_use\":{\"web_search_requests\":0,\"web_fetch_requests\":0},\"service_tier\":\"standard\",\"cache_creation\":{\"ephemeral_1h_input_tokens\":64900,\"ephemeral_5m_input_tokens\":0},\"inference_geo\":\"\",\"iterations\":[{\"input_tokens\":1,\"output_tokens\":251,\"cache_read_input_tokens\":64522,\"cache_creation_input_tokens\":378,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":378},\"type\":\"message\"}],\"speed\":\"standard\"},\"modelUsage\":{\"claude-opus-4-6\":{\"inputTokens\":24,\"outputTokens\":9731,\"cacheReadInputTokens\":1272729,\"cacheCreationInputTokens\":64900,\"webSearchRequests\":0,\"costUSD\":1.2853845,\"contextWindow\":200000,\"maxOutputTokens\":64000}},\"permission_denials\":[],\"terminal_reason\":\"completed\",\"fast_mode_state\":\"off\",\"uuid\":\"3b8c13ca-e1f2-4db1-9e83-eff5f54c9cd5\"}\n",
+  "stderr": "",
+  "claude": {
+    "type": "result",
+    "subtype": "success",
+    "is_error": false,
+    "duration_ms": 426718,
+    "duration_api_ms": 188154,
+    "num_turns": 28,
+    "result": "Step 0 완료되었습니다.\n\n**요약:**\n- `assets/fonts/` 에 Pretendard 5종(Regular/Medium/Bold/ExtraBold/Black) 다운로드 완료\n- `pubspec.yaml`에 Pretendard font family 등록\n- `app_theme.dart` — Jua(`google_fonts`) → Pretendard(번들 폰트)로 전환\n- `app_theme_colors.dart` — 그라데이션 7종(`gradientCyan/Rose/Emerald/Indigo/Amber/Violet/Teal`) 필드 추가 + `copyWith`/`lerp` 갱신\n- `lib/widgets/glass/` — `GlassBackground`, `GlassCard`, `GradientIconBadge` 3개 위젯 신설\n- `flutter analyze` 이슈 0개, `flutter test` 41개 전체 통과",
+    "stop_reason": "end_turn",
+    "session_id": "f4c0dcf6-cff0-4bd6-a04f-c1a43a6494d2",
+    "total_cost_usd": 1.2853845,
+    "usage": {
+      "input_tokens": 24,
+      "cache_creation_input_tokens": 64900,
+      "cache_read_input_tokens": 1272729,
+      "output_tokens": 9731,
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 64900,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "",
+      "iterations": [
+        {
+          "input_tokens": 1,
+          "output_tokens": 251,
+          "cache_read_input_tokens": 64522,
+          "cache_creation_input_tokens": 378,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 378
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "modelUsage": {
+      "claude-opus-4-6": {
+        "inputTokens": 24,
+        "outputTokens": 9731,
+        "cacheReadInputTokens": 1272729,
+        "cacheCreationInputTokens": 64900,
+        "webSearchRequests": 0,
+        "costUSD": 1.2853845,
+        "contextWindow": 200000,
+        "maxOutputTokens": 64000
+      }
+    },
+    "permission_denials": [],
+    "terminal_reason": "completed",
+    "fast_mode_state": "off",
+    "uuid": "3b8c13ca-e1f2-4db1-9e83-eff5f54c9cd5"
+  }
+}

@@ -24,9 +24,11 @@
 - 테마 색은 `theme/app_theme_colors.dart` 의 `AppThemeColors` ThemeExtension 만 사용한다. 위젯에서 `context.appColors.xxx` 로 접근 — `Theme.of(context).colorScheme` 을 직접 읽지 않는다 (다크 모드 색이 분기되어 있음).
 - 외부 URL 을 `url_launcher` 로 열기 전 반드시 `utils/safe_external_url.dart` 의 검증을 거친다 (https + 허용 호스트만).
 - 소카테고리 매핑(`assets/question_subcategory.json`) 은 `tool/classify_subcategory.dart` 로만 재생성한다. 수동 편집 금지. 규칙은 `lib/services/subcategory_classifier.dart` 에 두고 CLI·테스트·런타임 모두 거기서 참조한다.
-- 학습 카드(`assets/study/<tag>.json`) 는 사람이 직접 작성한다. `tool/extract_study_seeds.dart` 가 만든 `assets/study/_seeds/` 는 작성 보조용 중간 산출물이며 git ignore 처리. 카드 스키마 변경 시 `lib/models/study_card.dart` 와 `lib/screens/study_card_screen.dart` 를 함께 갱신한다.
+- 학습 카드(`assets/study/NN_<slug>.json`, NN=01~16) 는 사람이 직접 작성한다. 파일명 슬러그와 `lib/services/study_card_service.dart` 의 `topics` 리스트가 1:1 로 일치해야 한다. `tool/extract_study_seeds.dart` 가 만든 `assets/study/_seeds/` 는 작성 보조용 중간 산출물(법조문·수치 빈도 통계)이며 git ignore 처리. 학습 카드는 한국어 단일 언어로 작성되며 (다국어는 추후 작업), 카드 스키마 변경 시 `lib/models/study_card.dart` 와 `lib/screens/study_card_screen.dart` 를 함께 갱신한다. 학습 토픽 축(16개)과 문제 분류 축(`SubcategoryIds.verbalSubcategoryIds`, 10개) 은 별개 — 학습 화면은 토픽 id, 연습/통계 화면은 소카테고리 id 를 쓴다.
 - CRITICAL: 익명 글로벌 통계의 읽기는 `lib/services/global_answer_stats_service.dart` 만 한다. 이 서비스는 GitHub Actions 가 `user_answers` 세션 로그로부터 집계한 `aggregates.json` 을 GitHub raw URL 로 HTTP fetch 한다. `question_stats` 컬렉션은 폐기됐으며 클라이언트는 Firestore 에 직접 읽기/쓰기하지 않는다. 스크린·다른 서비스에서 `FirebaseFirestore.instance` 를 직접 호출 금지.
 - CRITICAL: 사용자별 풀이 이력(`user_answers/{uid}/sessions/{auto_id}`) 의 모든 Firestore I/O 는 `lib/services/user_answer_log_service.dart` 만 한다. 운영자(=프로젝트 소유자)가 Firebase 콘솔에서 uid 단위로 직접 조회하는 용도이며, 클라이언트 read 는 보안 규칙으로 차단되어 있다. 동의 시 입력받은 이름은 익명 사용자의 `displayName` 에 세팅되어 콘솔에서 식별자로 사용된다.
+- 그라데이션 색은 `AppThemeColors` 의 `gradientCyan` / `Rose` / `Emerald` / `Indigo` / `Amber` / `Violet` / `Teal` 등 미리 정의된 팔레트만 사용한다. 화면에서 임의의 `LinearGradient` 만들지 않는다.
+- 글래스모피즘 카드·배경·아이콘 배지는 `lib/widgets/glass/` 의 `GlassBackground` / `GlassCard` / `GradientIconBadge` 위젯을 사용한다. 직접 `BackdropFilter` 나 그라데이션 컨테이너를 만들지 마라.
 
 ## 개발 프로세스
 - 새 스크린을 추가할 때는 `MaterialPageRoute` 로 `Navigator.push` 하는 패턴을 따른다 (라우트 테이블 / go_router 미도입).

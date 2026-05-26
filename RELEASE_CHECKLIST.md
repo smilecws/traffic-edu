@@ -183,7 +183,7 @@ Blaze 비용 ($0.06/100K read): 월 $0.90 ~ $30. write 비용보다 10~80배 큼
 GitHub Actions (매 4시간 cron)
   ↓ Firebase Admin SDK
 question_stats 전체 fetch (1,000 read/일 × 6회 = 6,000 read/일)
-  ↓ 집계 (Top 10 + 소카테고리)
+  ↓ 집계 (Top 10)
 data-aggregates 브랜치에 aggregates.json force commit
   ↓
 클라이언트가 raw.githubusercontent.com에서 HTTP fetch
@@ -197,7 +197,7 @@ SharedPreferences 영구 캐시 갱신
 - [ ] `.github/workflows/aggregate_stats.yml` 작성:
   - `cron: '0 */4 * * *'` (매 4시간)
   - Node.js + `firebase-admin` 패키지로 `question_stats` 전체 fetch
-  - Top 10 hardest + 소카테고리별 합계 집계
+  - Top 10 hardest 집계
   - `data-aggregates` 브랜치에 `aggregates.json` force push (단일 commit 유지)
 - [ ] `tool/aggregate_stats.js` (또는 `.dart`) 집계 스크립트 작성
 - [ ] `data-aggregates` 브랜치 초기화 (`git checkout --orphan data-aggregates`)
@@ -207,7 +207,7 @@ SharedPreferences 영구 캐시 갱신
     - 1차: `https://raw.githubusercontent.com/smilecws/quiz/data-aggregates/aggregates.json` HTTP GET
     - 2차 (폴백): SharedPreferences 캐시 사용
     - 실패 시 빈 맵 반환 (현재 동작 유지)
-  - [ ] aggregates.json 스키마: `{ "updated_at": "...", "hardest_top10": [...], "subcategory": {...} }`
+  - [ ] aggregates.json 스키마: `{ "updated_at": "...", "hardest_top10": [...] }`
   - [ ] StatsScreen이 새 스키마에 맞춰 작동하는지 확인
 
 **효과**: 클라이언트 Firebase read **0**, GitHub Actions이 일 6,000 read만 발생 (Spark 한도의 12%, 안전).

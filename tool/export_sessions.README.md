@@ -93,9 +93,6 @@
 - 행: `finished_at` → 그룹화로 "일" 단위 묶기
 - 값: `session_id` → "고유 개수"
 
-**5) 카테고리별 평균 점수** (선택)
-- `question_id` 와 카테고리 매핑 시트(`assets/question_subcategory.json`) 를 VLOOKUP 으로 결합한 뒤 분석
-
 ## 성능 / 비용 메모
 
 - `collectionGroup('sessions').get()` 은 **읽기 = 세션 doc 수**. 1만 세션이면 10K read.

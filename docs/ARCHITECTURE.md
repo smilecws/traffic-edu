@@ -235,7 +235,7 @@ user_answers/{uid}/   ─────┐
                                                      │
                                                      ▼
                                               stats_screen.dart
-                                              (hardest_top10, subcategory 통계 표시)
+                                              (hardest_top10 표시)
 ```
 - **쓰기**: 클라이언트가 퀴즈 세션 종료 시 `UserAnswerLogService` 로 Firestore 의 `user_answers/{uid}/sessions/{auto_id}` 에 세션당 1 write 를 기록한다. `question_stats` 컬렉션은 폐기되어 클라이언트가 직접 쓰지 않는다.
 - **집계**: GitHub Actions 가 4시간마다 `tool/aggregate_stats.js` 를 실행해 `user_answers` 세션 로그로부터 문항별 통계를 집계하고, `aggregates.json` 을 `data-aggregates` 브랜치에 커밋한다.

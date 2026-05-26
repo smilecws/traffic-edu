@@ -19,26 +19,10 @@ class AppLocalizations {
   String _t(Map<String, String> m) => m[locale.languageCode] ?? m['ko']!;
 
   // ——— 일반 ———
-  String get appTitle => _t({
-        'ko': '초심찾기 도로교통법',
-        'en': '학습',
-        'zh': '학습',
-        'vi': '학습',
-      });
+  // 앱 이름은 모든 언어에서 한국어 '초심찾기 도로교통법' 으로 통일 (번역 금지)
+  String get appTitle => '초심찾기 도로교통법';
 
-  String get greetHello => _t({
-        'ko': '안녕하세요.',
-        'en': 'Hello.',
-        'zh': '您好。',
-        'vi': 'Xin chào.',
-      });
-
-  String get titleMain => _t({
-        'ko': '초심찾기 도로교통법',
-        'en': '학습',
-        'zh': '학습',
-        'vi': '학습',
-      });
+  String get titleMain => '초심찾기 도로교통법';
 
   String get learningProgress => _t({
         'ko': '학습 진도',
@@ -115,6 +99,20 @@ class AppLocalizations {
         'en': 'Exam history',
         'zh': '模拟考记录',
         'vi': 'Lịch sử thi thử',
+      });
+
+  String get bentoStatsSubtitle => _t({
+        'ko': '전체 풀이 분석',
+        'en': 'Overall analysis',
+        'zh': '整体答题分析',
+        'vi': 'Phân tích tổng thể',
+      });
+
+  String get bentoHistorySubtitle => _t({
+        'ko': '지난 응시 기록',
+        'en': 'Past attempts',
+        'zh': '过往应试记录',
+        'vi': 'Lịch sử thi',
       });
 
   String progressQuestions(int attempted, int total) {
@@ -417,34 +415,6 @@ class AppLocalizations {
         'vi': 'Luật Giao thông',
       });
 
-  String get homeStatsLecture => _t({
-        'ko': '강의',
-        'en': 'Lectures',
-        'zh': '课程',
-        'vi': 'Bài giảng',
-      });
-
-  String get homeStatsPrep => _t({
-        'ko': '준비',
-        'en': 'Prep',
-        'zh': '准备',
-        'vi': 'Chuẩn bị',
-      });
-
-  String get homeStatsReservation => _t({
-        'ko': '예약',
-        'en': 'Booking',
-        'zh': '预约',
-        'vi': 'Đặt lịch',
-      });
-
-  String get homeComingSoon => _t({
-        'ko': '준비 중',
-        'en': 'Coming soon',
-        'zh': '准备中',
-        'vi': 'Đang chuẩn bị',
-      });
-
   String get homeStudyTitle => _t({
         'ko': '학습하기',
         'en': 'Study',
@@ -473,13 +443,6 @@ class AppLocalizations {
         'vi': 'Thi thử · Luyện · Ôn sai',
       });
 
-  String get homeFaqTitle => _t({
-        'ko': '자주묻는\n질문',
-        'en': 'FAQ',
-        'zh': '常见\n问题',
-        'vi': 'Câu hỏi\nthường gặp',
-      });
-
   String get homeExamStepsBadge => _t({
         'ko': '5단계',
         'en': '5 steps',
@@ -488,7 +451,7 @@ class AppLocalizations {
       });
 
   String get homeExternalSection => _t({
-        'ko': '도로교통공단 · 외부 페이지',
+        'ko': '한국도로교통공단 · 외부 페이지',
         'en': 'KoROAD · External pages',
         'zh': '韩国道路交通公团 · 外部页面',
         'vi': 'KoROAD · Trang ngoài',
@@ -530,14 +493,14 @@ class AppLocalizations {
       });
 
   String get navEduSchedule => _t({
-        'ko': '특별교육 일정',
+        'ko': '특별교통안전교육 일정',
         'en': 'Special training',
         'zh': '特别教育日程',
         'vi': 'Lịch học đặc biệt',
       });
 
   String get navTestSchedule => _t({
-        'ko': '면허시험 일정',
+        'ko': '운전면허시험 일정',
         'en': 'Test schedule',
         'zh': '考试日程',
         'vi': 'Lịch thi',

@@ -70,8 +70,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
-                padding:
-                    EdgeInsets.fromLTRB(16, kToolbarHeight + 12, 16, 24),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                 children: [
                   _QuestionBodyCard(question: widget.question),
                   const SizedBox(height: 16),

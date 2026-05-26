@@ -78,44 +78,8 @@ class _StudyCardScreenState extends State<StudyCardScreen> {
     return GlassScaffold(
       appBar: GlassAppBar(title: Text(topic.title)),
       body: ListView(
-        padding:
-            EdgeInsets.fromLTRB(20, kToolbarHeight + 16, 20, 24),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
         children: [
-          GlassCard(
-            borderRadius: 12,
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            child: Row(
-              children: [
-                GradientIconBadge(
-                  gradient: gradient,
-                  size: 36,
-                  child: Text(
-                    topic.id.toString().padLeft(2, '0'),
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    '세부 주제 ${topic.subTopics.length}개 · 카드 ${topic.totalCards}장',
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: accent,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
           for (final st in topic.subTopics) ...[
             _SubTopicTile(
               subTopic: st,
@@ -180,27 +144,14 @@ class _SubTopicTile extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          subTopic.title,
-                          style: TextStyle(
-                            fontFamily: 'Pretendard',
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: ac.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${subTopic.cards.length}장의 카드',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: ac.textSecondary,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      subTopic.title,
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: ac.textPrimary,
+                      ),
                     ),
                   ),
                   AnimatedRotation(

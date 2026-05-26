@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
@@ -148,87 +150,85 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
     final l10n = AppLocalizations.of(context);
     final choice = await showModalBottomSheet<MockExamLicenseKind>(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (sheetContext) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.mockLicenseSheetTitle,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
+        final ac = sheetContext.appColors;
+        return _GlassBottomSheet(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.mockLicenseSheetTitle,
+                style: TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: ac.textPrimary,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.mockLicenseSheetHint,
-                  style: TextStyle(
-                    fontSize: 13,
-                    height: 1.4,
-                    color: context.appColors.textSecondary,
-                  ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n.mockLicenseSheetHint,
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.4,
+                  color: ac.textSecondary,
                 ),
-                const SizedBox(height: 12),
-                _PracticeTypeTile(
-                  title: l10n.mockLicenseLabel(MockExamLicenseKind.type1Large),
-                  subtitle: l10n.mockResultPassBar(
-                    MockExamLicenseKind.type1Large.passScoreMinOutOf100,
-                  ),
-                  icon: Icons.local_shipping_outlined,
-                  color: context.appColors.chipBg,
-                  onTap: () => Navigator.pop(
-                    sheetContext,
-                    MockExamLicenseKind.type1Large,
-                  ),
+              ),
+              const SizedBox(height: 14),
+              _PracticeTypeTile(
+                title: l10n.mockLicenseLabel(MockExamLicenseKind.type1Large),
+                subtitle: l10n.mockResultPassBar(
+                  MockExamLicenseKind.type1Large.passScoreMinOutOf100,
                 ),
-                const SizedBox(height: 8),
-                _PracticeTypeTile(
-                  title: l10n.mockLicenseLabel(MockExamLicenseKind.type1Special),
-                  subtitle: l10n.mockResultPassBar(
-                    MockExamLicenseKind.type1Special.passScoreMinOutOf100,
-                  ),
-                  icon: Icons.precision_manufacturing_outlined,
-                  color: const Color(0xFFE9F3FF),
-                  onTap: () => Navigator.pop(
-                    sheetContext,
-                    MockExamLicenseKind.type1Special,
-                  ),
+                icon: Icons.local_shipping_outlined,
+                gradient: ac.gradientCyan,
+                onTap: () => Navigator.pop(
+                  sheetContext,
+                  MockExamLicenseKind.type1Large,
                 ),
-                const SizedBox(height: 8),
-                _PracticeTypeTile(
-                  title: l10n.mockLicenseLabel(MockExamLicenseKind.type1Normal),
-                  subtitle: l10n.mockResultPassBar(
-                    MockExamLicenseKind.type1Normal.passScoreMinOutOf100,
-                  ),
-                  icon: Icons.directions_car_outlined,
-                  color: const Color(0xFFEFFBF1),
-                  onTap: () => Navigator.pop(
-                    sheetContext,
-                    MockExamLicenseKind.type1Normal,
-                  ),
+              ),
+              const SizedBox(height: 10),
+              _PracticeTypeTile(
+                title: l10n.mockLicenseLabel(MockExamLicenseKind.type1Special),
+                subtitle: l10n.mockResultPassBar(
+                  MockExamLicenseKind.type1Special.passScoreMinOutOf100,
                 ),
-                const SizedBox(height: 8),
-                _PracticeTypeTile(
-                  title: l10n.mockLicenseLabel(MockExamLicenseKind.type2Normal),
-                  subtitle: l10n.mockResultPassBar(
-                    MockExamLicenseKind.type2Normal.passScoreMinOutOf100,
-                  ),
-                  icon: Icons.drive_eta_outlined,
-                  color: const Color(0xFFFFF3D6),
-                  onTap: () => Navigator.pop(
-                    sheetContext,
-                    MockExamLicenseKind.type2Normal,
-                  ),
+                icon: Icons.precision_manufacturing_outlined,
+                gradient: ac.gradientIndigo,
+                onTap: () => Navigator.pop(
+                  sheetContext,
+                  MockExamLicenseKind.type1Special,
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 10),
+              _PracticeTypeTile(
+                title: l10n.mockLicenseLabel(MockExamLicenseKind.type1Normal),
+                subtitle: l10n.mockResultPassBar(
+                  MockExamLicenseKind.type1Normal.passScoreMinOutOf100,
+                ),
+                icon: Icons.directions_car_outlined,
+                gradient: ac.gradientEmerald,
+                onTap: () => Navigator.pop(
+                  sheetContext,
+                  MockExamLicenseKind.type1Normal,
+                ),
+              ),
+              const SizedBox(height: 10),
+              _PracticeTypeTile(
+                title: l10n.mockLicenseLabel(MockExamLicenseKind.type2Normal),
+                subtitle: l10n.mockResultPassBar(
+                  MockExamLicenseKind.type2Normal.passScoreMinOutOf100,
+                ),
+                icon: Icons.drive_eta_outlined,
+                gradient: ac.gradientAmber,
+                onTap: () => Navigator.pop(
+                  sheetContext,
+                  MockExamLicenseKind.type2Normal,
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -263,62 +263,60 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
     final l10n = AppLocalizations.of(context);
     final choice = await showModalBottomSheet<_PracticeType>(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (sheetContext) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.practiceSheetTitle,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
+        final ac = sheetContext.appColors;
+        return _GlassBottomSheet(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.practiceSheetTitle,
+                style: TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: ac.textPrimary,
                 ),
-                const SizedBox(height: 12),
-                _PracticeTypeTile(
-                  title: l10n.practiceVerbalTitle,
-                  subtitle: l10n.practiceVerbalSub,
-                  icon: Icons.record_voice_over_outlined,
-                  color: context.appColors.chipBg,
-                  onTap: () =>
-                      Navigator.pop(sheetContext, _PracticeType.speaking),
-                ),
-                const SizedBox(height: 8),
-                _PracticeTypeTile(
-                  title: l10n.practiceSignTitle,
-                  subtitle: l10n.practiceSignSub,
-                  icon: Icons.traffic_outlined,
-                  color: const Color(0xFFE9F3FF),
-                  onTap: () =>
-                      Navigator.pop(sheetContext, _PracticeType.signAndSituation),
-                ),
-                const SizedBox(height: 8),
-                _PracticeTypeTile(
-                  title: l10n.practiceVideoTitle,
-                  subtitle: l10n.practiceVideoSub,
-                  icon: Icons.play_circle_outline_rounded,
-                  color: const Color(0xFFFFF3D6),
-                  onTap: () =>
-                      Navigator.pop(sheetContext, _PracticeType.videoQuestion),
-                ),
-                const SizedBox(height: 8),
-                _PracticeTypeTile(
-                  title: l10n.practiceRandomTitle,
-                  subtitle: l10n.practiceRandomSub,
-                  icon: Icons.shuffle_rounded,
-                  color: const Color(0xFFEFFBF1),
-                  onTap: () =>
-                      Navigator.pop(sheetContext, _PracticeType.randomAll),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 14),
+              _PracticeTypeTile(
+                title: l10n.practiceVerbalTitle,
+                subtitle: l10n.practiceVerbalSub,
+                icon: Icons.record_voice_over_outlined,
+                gradient: ac.gradientCyan,
+                onTap: () =>
+                    Navigator.pop(sheetContext, _PracticeType.speaking),
+              ),
+              const SizedBox(height: 10),
+              _PracticeTypeTile(
+                title: l10n.practiceSignTitle,
+                subtitle: l10n.practiceSignSub,
+                icon: Icons.traffic_outlined,
+                gradient: ac.gradientIndigo,
+                onTap: () =>
+                    Navigator.pop(sheetContext, _PracticeType.signAndSituation),
+              ),
+              const SizedBox(height: 10),
+              _PracticeTypeTile(
+                title: l10n.practiceVideoTitle,
+                subtitle: l10n.practiceVideoSub,
+                icon: Icons.play_circle_outline_rounded,
+                gradient: ac.gradientAmber,
+                onTap: () =>
+                    Navigator.pop(sheetContext, _PracticeType.videoQuestion),
+              ),
+              const SizedBox(height: 10),
+              _PracticeTypeTile(
+                title: l10n.practiceRandomTitle,
+                subtitle: l10n.practiceRandomSub,
+                icon: Icons.shuffle_rounded,
+                gradient: ac.gradientEmerald,
+                onTap: () =>
+                    Navigator.pop(sheetContext, _PracticeType.randomAll),
+              ),
+            ],
           ),
         );
       },
@@ -400,58 +398,50 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
     return showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (sheetContext) {
-        final maxSheetHeight =
-            MediaQuery.sizeOf(sheetContext).height * 0.88;
-        return SafeArea(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: maxSheetHeight),
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.subcategorySheetTitle,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _PracticeTypeTile(
-                      title: l10n.subcategoryAllVerbalTitle,
-                      subtitle: l10n.subcategoryAllVerbalSub,
-                      icon: Icons.shuffle_rounded,
-                      color: context.appColors.chipBg,
-                      onTap: () => Navigator.pop(
-                        sheetContext,
-                        _kAllVerbalMarker,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ...SubcategoryIds.verbalSubcategoryIds.map((id) {
-                      final count = counts[id] ?? 0;
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: _SubcategoryPracticeTile(
-                          title: l10n.subcategoryLabel(id),
-                          subtitle: l10n.subcategorySubtitle(id, count),
-                          icon: iconForSubcategory(id),
-                          color: colorForSubcategory(context, id),
-                          onTap: () => Navigator.pop(sheetContext, id),
-                        ),
-                      );
-                    }),
-                  ],
+        final ac = sheetContext.appColors;
+        return _GlassBottomSheet(
+          scrollable: true,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.subcategorySheetTitle,
+                style: TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: ac.textPrimary,
                 ),
               ),
-            ),
+              const SizedBox(height: 14),
+              _PracticeTypeTile(
+                title: l10n.subcategoryAllVerbalTitle,
+                subtitle: l10n.subcategoryAllVerbalSub,
+                icon: Icons.shuffle_rounded,
+                gradient: ac.gradientViolet,
+                onTap: () => Navigator.pop(
+                  sheetContext,
+                  _kAllVerbalMarker,
+                ),
+              ),
+              const SizedBox(height: 10),
+              ...SubcategoryIds.verbalSubcategoryIds.map((id) {
+                final count = counts[id] ?? 0;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _SubcategoryPracticeTile(
+                    title: l10n.subcategoryLabel(id),
+                    subtitle: l10n.subcategorySubtitle(id, count),
+                    icon: iconForSubcategory(id),
+                    gradient: gradientForSubcategory(sheetContext, id),
+                    onTap: () => Navigator.pop(sheetContext, id),
+                  ),
+                );
+              }),
+            ],
           ),
         );
       },
@@ -476,6 +466,7 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
               children: [
                 // ── 헤더 ──
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (Navigator.of(context).canPop()) ...[
                       IconButton(
@@ -491,11 +482,12 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
                     ],
                     Expanded(
                       child: Text(
-                        '${l10n.greetHello} ✨',
+                        l10n.menuPracticeTitle,
                         style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: ac.textSecondary,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w900,
+                          fontSize: 22,
+                          color: ac.textPrimary,
                         ),
                       ),
                     ),
@@ -695,6 +687,32 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    // 통계 보기
+                    Expanded(
+                      child: _BentoCard(
+                        gradient: ac.gradientViolet,
+                        icon: Icons.insights_outlined,
+                        title: l10n.popupStatsView,
+                        subtitle: l10n.bentoStatsSubtitle,
+                        onTap: () => _openStats(context),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // 모의고사 이력
+                    Expanded(
+                      child: _BentoCard(
+                        gradient: ac.gradientTeal,
+                        icon: Icons.history_rounded,
+                        title: l10n.popupMockHistory,
+                        subtitle: l10n.bentoHistorySubtitle,
+                        onTap: () => _openMockExamHistory(context),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 20),
               ],
             ),
@@ -718,64 +736,64 @@ class _PracticeTypeTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.icon,
-    required this.color,
+    required this.gradient,
     required this.onTap,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
-  final Color color;
+  final List<Color> gradient;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: context.appColors.surfaceWhite,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: context.appColors.borderLight),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(12),
+    final ac = context.appColors;
+    return GlassCard(
+      borderRadius: 16,
+      padding: EdgeInsets.zero,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              GradientIconBadge(
+                gradient: gradient,
+                icon: icon,
+                size: 44,
+                iconSize: 22,
               ),
-              child: Icon(icon, color: context.appColors.textPrimary),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                        color: ac.textPrimary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      color: context.appColors.textSecondary,
-                      height: 1.4,
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: ac.textSecondary,
+                        height: 1.4,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+              Icon(Icons.chevron_right_rounded, color: ac.textSecondary),
+            ],
+          ),
         ),
       ),
     );
@@ -788,70 +806,68 @@ class _SubcategoryPracticeTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.icon,
-    required this.color,
+    required this.gradient,
     required this.onTap,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
-  final Color color;
+  final List<Color> gradient;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final ac = context.appColors;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: ac.surfaceWhite,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: ac.borderLight),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(12),
+    return GlassCard(
+      borderRadius: 16,
+      padding: EdgeInsets.zero,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              GradientIconBadge(
+                gradient: gradient,
+                icon: icon,
+                size: 44,
+                iconSize: 22,
               ),
-              child: Icon(icon, color: ac.textPrimary),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                        color: ac.textPrimary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      color: ac.textSecondary,
-                      height: 1.4,
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: ac.textSecondary,
+                        height: 1.4,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Icon(Icons.chevron_right_rounded, color: ac.textSecondary),
-          ],
+              Icon(Icons.chevron_right_rounded, color: ac.textSecondary),
+            ],
+          ),
         ),
       ),
     );
@@ -938,6 +954,74 @@ class _BentoCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 글래스풍 모달 바텀시트. 상단 모서리 라운드 + 반투명 흰색 + 블러.
+/// 손잡이 그립과 상단 패딩 포함. `scrollable: true` 면 화면 88% 까지
+/// 늘어나고 내부 콘텐츠가 스크롤된다.
+class _GlassBottomSheet extends StatelessWidget {
+  const _GlassBottomSheet({
+    required this.child,
+    this.scrollable = false,
+  });
+
+  final Widget child;
+  final bool scrollable;
+
+  @override
+  Widget build(BuildContext context) {
+    final ac = context.appColors;
+    final maxHeight = MediaQuery.sizeOf(context).height *
+        (scrollable ? 0.88 : 1.0);
+    final body = Padding(
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+      child: child,
+    );
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: maxHeight),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.78),
+              border: Border(
+                top: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.8),
+                  width: 1.5,
+                ),
+              ),
+            ),
+            child: SafeArea(
+              top: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10, bottom: 6),
+                    child: Container(
+                      width: 42,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: ac.textSecondary.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Flexible(
+                    child: scrollable
+                        ? SingleChildScrollView(child: body)
+                        : body,
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

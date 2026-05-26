@@ -99,10 +99,8 @@ class _DrivingTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // extendBodyBehindAppBar 효과로 AppBar + TabBar(48) 영역만큼 top padding 보정.
-    final topPad = kToolbarHeight + kTextTabBarHeight + 12;
     return ListView(
-      padding: EdgeInsets.fromLTRB(16, topPad, 16, 28),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
       children: [
         if (catalog.drivingTitle.isNotEmpty)
           Padding(
@@ -192,9 +190,8 @@ class _RoadTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final types = catalog.roadApplicableTypes;
-    final topPad = kToolbarHeight + kTextTabBarHeight + 12;
     return ListView(
-      padding: EdgeInsets.fromLTRB(16, topPad, 16, 28),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
       children: [
         if (catalog.roadTitle.isNotEmpty)
           Padding(

@@ -96,8 +96,7 @@ class _StatsScreenState extends State<StatsScreen> {
           : RefreshIndicator(
               onRefresh: () => _load(forceRefresh: true),
               child: ListView(
-                padding:
-                    EdgeInsets.fromLTRB(16, kToolbarHeight + 12, 16, 32),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
                 children: [
                   _SectionHeader(title: l10n.statsSectionOverall),
                   const SizedBox(height: 8),

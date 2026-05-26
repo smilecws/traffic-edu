@@ -16,6 +16,7 @@ import '../services/user_answer_stats_service.dart';
 import '../services/wrong_note_service.dart';
 import '../theme/app_theme_colors.dart';
 import '../widgets/glass/glass_app_bar.dart';
+import '../widgets/glass/glass_card.dart';
 import '../widgets/glass/glass_scaffold.dart';
 import 'result_screen.dart';
 
@@ -597,7 +598,6 @@ class _QuizScreenState extends State<QuizScreen> {
         ),
       body: Column(
         children: [
-          SizedBox(height: kToolbarHeight),
           LinearProgressIndicator(
             value: progress,
             backgroundColor: ac.borderLight,
@@ -627,28 +627,19 @@ class _QuizScreenState extends State<QuizScreen> {
                         ),
                       ),
                     ),
-                  Container(
-                    width: double.infinity,
+                  GlassCard(
+                    borderRadius: 16,
                     padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: ac.surfaceWhite,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: ac.borderLight),
-                      boxShadow: [
-                        BoxShadow(
-                          color: ac.textPrimary.withValues(alpha: 0.04),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Text(
+                        'Q${_currentIndex + 1}. ${question.question}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          height: 1.5,
+                          color: ac.textPrimary,
                         ),
-                      ],
-                    ),
-                    child: Text(
-                      'Q${_currentIndex + 1}. ${question.question}',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        height: 1.5,
-                        color: ac.textPrimary,
                       ),
                     ),
                   ),
@@ -850,15 +841,10 @@ class _QuizScreenState extends State<QuizScreen> {
                   }),
                   if (!widget.showTimerAndScore && _answered) ...[
                     const SizedBox(height: 12),
-                    Container(
+                    GlassCard(
+                      borderRadius: 12,
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: ac.chipBg,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: ac.primary.withValues(alpha: 0.2),
-                        ),
-                      ),
+                      borderColor: ac.primary.withValues(alpha: 0.25),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

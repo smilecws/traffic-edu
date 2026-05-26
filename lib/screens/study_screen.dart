@@ -55,8 +55,7 @@ class _StudyScreenState extends State<StudyScreen> {
               ),
             )
           : ListView(
-              padding:
-                  EdgeInsets.fromLTRB(20, kToolbarHeight + 12, 20, 24),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
               children: [
                 Text(
                   '주제별 학습 카드로 핵심 개념과 시험 출제 포인트를 정리해 보세요.',
@@ -130,30 +129,14 @@ class _StudyTopicTile extends StatelessWidget {
               ),
               const SizedBox(width: 14),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      topic.title,
-                      style: TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        color: ac.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${topic.subTopics.length}개 세부 주제 · 카드 ${topic.totalCards}장',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        height: 1.4,
-                        color: ac.textSecondary,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  topic.title,
+                  style: TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: ac.textPrimary,
+                  ),
                 ),
               ),
               Icon(

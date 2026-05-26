@@ -54,19 +54,15 @@ class HomeScreen extends StatelessWidget {
                 _buildHeader(context, colors, l10n),
                 const SizedBox(height: 16),
 
-                // ── 2. 빠른 진입 통계바 (3분할) ──
-                _buildStatsBar(colors, l10n),
-                const SizedBox(height: 12),
-
-                // ── 3. 메인 2분할 ──
+                // ── 2. 메인 2분할 ──
                 _buildMainCards(context, colors, l10n),
                 const SizedBox(height: 12),
 
-                // ── 4. 가로 3분할 ──
-                _buildTripleCards(context, colors, l10n),
+                // ── 3. 보조 2분할 (메인 톤과 동일) ──
+                _buildSecondaryCards(context, colors, l10n),
                 const SizedBox(height: 12),
 
-                // ── 5. 외부 페이지 섹션 ──
+                // ── 4. 외부 페이지 섹션 ──
                 _buildExternalSection(context, colors, l10n),
               ],
             ),
@@ -119,7 +115,8 @@ class HomeScreen extends StatelessWidget {
             width: 36,
             height: 36,
             child: PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert, size: 18, color: colors.textSecondary),
+              icon:
+                  Icon(Icons.more_vert, size: 18, color: colors.textSecondary),
               padding: EdgeInsets.zero,
               onSelected: (value) {
                 if (value == 'revoke') _confirmRevokeConsent(context);
@@ -134,57 +131,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  // ── 통계바 3분할 ──
-  Widget _buildStatsBar(AppThemeColors colors, AppLocalizations l10n) {
-    return GlassCard(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: _StatItem(
-              icon: Icons.menu_book_outlined,
-              iconColor: colors.primaryDark,
-              label: l10n.homeStatsLecture,
-              value: '—',
-              sub: l10n.homeComingSoon,
-              colors: colors,
-            ),
-          ),
-          Container(
-            width: 1,
-            height: 36,
-            color: colors.textSecondary.withValues(alpha: 0.2),
-          ),
-          Expanded(
-            child: _StatItem(
-              icon: Icons.check_box_outlined,
-              iconColor: const Color(0xFF0891B2),
-              label: l10n.homeStatsPrep,
-              value: '—',
-              sub: l10n.homeComingSoon,
-              colors: colors,
-            ),
-          ),
-          Container(
-            width: 1,
-            height: 36,
-            color: colors.textSecondary.withValues(alpha: 0.2),
-          ),
-          Expanded(
-            child: _StatItem(
-              icon: Icons.event_available_outlined,
-              iconColor: const Color(0xFFE11D48),
-              label: l10n.homeStatsReservation,
-              value: '—',
-              sub: l10n.homeComingSoon,
-              colors: colors,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -225,8 +171,8 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // ── 가로 3분할 ──
-  Widget _buildTripleCards(
+  // ── 보조 2분할 (메인 카드 톤과 동일) ──
+  Widget _buildSecondaryCards(
     BuildContext context,
     AppThemeColors colors,
     AppLocalizations l10n,
@@ -235,13 +181,11 @@ class HomeScreen extends StatelessWidget {
       children: [
         // 면허시험 순서
         Expanded(
-          child: _BentoSmallCard(
+          child: _BentoMainCard(
             gradient: colors.gradientViolet,
             icon: Icons.format_list_numbered,
-            label: l10n.navExamOrder.replaceAll(' ', '\n'),
-            badgeText: l10n.homeExamStepsBadge,
-            badgeColor: const Color(0xFF6D28D9),
-            badgeBgColor: const Color(0xFFEDE9FE).withValues(alpha: 0.6),
+            title: l10n.navExamOrder,
+            subtitle: l10n.homeMenuExamOrderSub,
             colors: colors,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const ExamGuideScreen()),
@@ -251,34 +195,17 @@ class HomeScreen extends StatelessWidget {
         const SizedBox(width: 10),
         // 준비물 가이드
         Expanded(
-          child: _BentoSmallCard(
+          child: _BentoMainCard(
             gradient: colors.gradientTeal,
             icon: Icons.check_box_outlined,
-            label: l10n.navPrep.replaceAll(' ', '\n'),
+            title: l10n.navPrep,
+            subtitle: l10n.homeMenuPrepSub,
             colors: colors,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (_) => const PreparationGuideScreen(),
               ),
             ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        // 자주묻는 질문
-        Expanded(
-          child: _BentoSmallCard(
-            gradient: colors.gradientAmber,
-            icon: Icons.star_rounded,
-            label: l10n.homeFaqTitle,
-            badgeText: 'NEW',
-            badgeColor: const Color(0xFFB45309),
-            badgeBgColor: const Color(0xFFFEF3C7).withValues(alpha: 0.6),
-            colors: colors,
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.snackComingSoon)),
-              );
-            },
           ),
         ),
       ],
@@ -356,72 +283,6 @@ class HomeScreen extends StatelessWidget {
 
 // ─────────────────── Private widgets ───────────────────
 
-class _StatItem extends StatelessWidget {
-  const _StatItem({
-    required this.icon,
-    required this.iconColor,
-    required this.label,
-    required this.value,
-    required this.sub,
-    required this.colors,
-  });
-
-  final IconData icon;
-  final Color iconColor;
-  final String label;
-  final String value;
-  final String sub;
-  final AppThemeColors colors;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 12, color: iconColor),
-              const SizedBox(width: 4),
-              Text(
-                label.toUpperCase(),
-                style: TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 9,
-                  letterSpacing: 1.2,
-                  color: colors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w900,
-              fontSize: 15,
-              color: colors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            sub,
-            style: TextStyle(
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w600,
-              fontSize: 8,
-              color: colors.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _BentoMainCard extends StatelessWidget {
   const _BentoMainCard({
     required this.gradient,
@@ -447,108 +308,39 @@ class _BentoMainCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          child: Row(
             children: [
               GradientIconBadge(gradient: gradient, icon: icon),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w900,
-                  fontSize: 16,
-                  color: colors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w500,
-                  fontSize: 10,
-                  color: colors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _BentoSmallCard extends StatelessWidget {
-  const _BentoSmallCard({
-    required this.gradient,
-    required this.icon,
-    required this.label,
-    this.badgeText,
-    this.badgeColor,
-    this.badgeBgColor,
-    required this.colors,
-    required this.onTap,
-  });
-
-  final List<Color> gradient;
-  final IconData icon;
-  final String label;
-  final String? badgeText;
-  final Color? badgeColor;
-  final Color? badgeBgColor;
-  final AppThemeColors colors;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GlassCard(
-      padding: EdgeInsets.zero,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-          child: Column(
-            children: [
-              GradientIconBadge(gradient: gradient, icon: icon),
-              const SizedBox(height: 10),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w900,
-                  fontSize: 11,
-                  height: 1.3,
-                  color: colors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              // 배지 자리 — badgeText 가 없어도 동일한 높이를 차지해
-              // 가로 3분할 카드의 높이를 통일한다.
-              Visibility(
-                visible: badgeText != null,
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: badgeBgColor,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    badgeText ?? '',
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 9,
-                      color: badgeColor,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w900,
+                        fontSize: 20,
+                        color: colors.textPrimary,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15,
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -581,16 +373,11 @@ class _ExternalLinkTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         child: Row(
           children: [
-            GradientIconBadge(
-              gradient: gradient,
-              icon: icon,
-              size: 32,
-              iconSize: 16,
-            ),
-            const SizedBox(width: 12),
+            GradientIconBadge(gradient: gradient, icon: icon),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -600,17 +387,17 @@ class _ExternalLinkTile extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w900,
-                      fontSize: 12,
+                      fontSize: 20,
                       color: colors.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   Text(
                     subtitle,
                     style: TextStyle(
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w500,
-                      fontSize: 9,
+                      fontSize: 15,
                       color: colors.textSecondary,
                     ),
                   ),
@@ -619,7 +406,7 @@ class _ExternalLinkTile extends StatelessWidget {
             ),
             Icon(
               Icons.north_east,
-              size: 16,
+              size: 18,
               color: colors.textSecondary,
             ),
           ],

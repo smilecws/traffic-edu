@@ -21,7 +21,7 @@ class ExamGuideScreen extends StatefulWidget {
 
   /// 면허시험 일정·접수 (모바일 웹)
   static const String _officialScheduleUrl =
-      'https://www.safedriving.or.kr/drvLicnsExam/selectDrvLicnsExamSchedule.do';
+      'https://www.safedriving.or.kr/loginManage/anyidAuthLogin.do?tx=20260526144810108_5000000364_d3f8cbe8-8b06-4658-ad75-f73aafa77ba1&acrValues=2';
 
   /// 특별교통안전교육 교육장·날짜 선택 (모바일 웹)
   static const String _officialEducationScheduleUrl =
@@ -200,7 +200,7 @@ class _ExamGuideScreenState extends State<ExamGuideScreen> {
     return GlassScaffold(
       appBar: const GlassAppBar(title: Text('면허시험 순서')),
       body: ListView(
-        padding: EdgeInsets.fromLTRB(20, kToolbarHeight + 12, 20, 32),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
         children: [
           Text(
             '응시 전 교통안전교육부터 면허증 발급까지의 흐름입니다. '
@@ -284,8 +284,7 @@ class _DisqualSection extends StatelessWidget {
           onTap: loading ? null : onOpen,
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -335,7 +334,7 @@ class PreparationGuideScreen extends StatelessWidget {
     return GlassScaffold(
       appBar: const GlassAppBar(title: Text('준비물 가이드')),
       body: ListView(
-        padding: EdgeInsets.fromLTRB(20, kToolbarHeight + 12, 20, 32),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
         children: [
           Text(
             '시험 종류별 수수료·준비물·접수 방법 요약입니다. '

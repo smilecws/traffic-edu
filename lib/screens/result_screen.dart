@@ -76,7 +76,7 @@ class ResultScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          SizedBox(height: kToolbarHeight + 8),
+          const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
             child: GlassCard(

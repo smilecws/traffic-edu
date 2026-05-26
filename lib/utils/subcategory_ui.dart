@@ -56,3 +56,31 @@ Color colorForSubcategory(BuildContext context, String id) {
       return context.appColors.chipBg;
   }
 }
+
+/// 소카테고리 아이콘 그라데이션 (글래스 톤 시트용).
+List<Color> gradientForSubcategory(BuildContext context, String id) {
+  final ac = context.appColors;
+  switch (id) {
+    case SubcategoryIds.alcohol:
+      return ac.gradientRose;
+    case SubcategoryIds.childZone:
+      return ac.gradientAmber;
+    case SubcategoryIds.emergency:
+      return ac.gradientRose;
+    case SubcategoryIds.license:
+      return ac.gradientIndigo;
+    case SubcategoryIds.signSignal:
+      return ac.gradientCyan;
+    case SubcategoryIds.speedLane:
+      return ac.gradientAmber;
+    case SubcategoryIds.parking:
+      return ac.gradientTeal;
+    case SubcategoryIds.highway:
+      return ac.gradientEmerald;
+    case SubcategoryIds.vehicleEco:
+      return ac.gradientEmerald;
+    case SubcategoryIds.general:
+    default:
+      return ac.gradientViolet;
+  }
+}

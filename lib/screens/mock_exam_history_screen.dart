@@ -83,12 +83,7 @@ class _MockExamHistoryScreenState extends State<MockExamHistoryScreen> {
           return RefreshIndicator(
             onRefresh: _reload,
             child: ListView.separated(
-              padding: EdgeInsets.fromLTRB(
-                16,
-                kToolbarHeight + 12,
-                16,
-                24,
-              ),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               itemCount: list.length,
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, i) {

@@ -27,7 +27,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
   Win32Window::Size size(1280, 720);
-  if (!window.Create(L"quiz_app", origin, size)) {
+  // CMakeLists.txt 에서 /utf-8 를 켜서 한글 wide string 리터럴이 모든
+  // 코드 페이지에서 동일하게 해석되도록 보장한다.
+  if (!window.Create(L"초심찾기 도로교통법", origin, size)) {
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);

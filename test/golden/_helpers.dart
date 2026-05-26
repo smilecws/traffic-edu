@@ -9,7 +9,6 @@ import 'package:quiz_app/l10n/app_localizations.dart';
 import 'package:quiz_app/models/question.dart';
 import 'package:quiz_app/services/locale_service.dart';
 import 'package:quiz_app/services/question_service.dart';
-import 'package:quiz_app/services/question_subcategory_service.dart';
 import 'package:quiz_app/theme/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,7 +26,6 @@ Future<void> setGoldenDefaults(WidgetTester tester) async {
     tester.view.resetDevicePixelRatio();
     tester.view.resetPhysicalSize();
     QuestionService.clearCache();
-    QuestionSubcategoryService.clearCache();
   });
 }
 
@@ -86,7 +84,6 @@ Future<void> settleAsync(
 Future<void> primeQuestionBankCache(WidgetTester tester) async {
   await tester.runAsync(() async {
     await QuestionService.loadAllQuestions();
-    await QuestionSubcategoryService.loadMap();
   });
 }
 

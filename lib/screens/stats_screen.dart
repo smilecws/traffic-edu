@@ -64,8 +64,7 @@ class _StatsScreenState extends State<StatsScreen> {
       _attemptedCount = (results[4] as Set<int>).length;
       _aggregate = agg;
       _questionsById = results[6] as Map<int, Question>;
-      _globalLoadFailed =
-          agg.hardestTop10.isEmpty && agg.subcategory.isEmpty;
+      _globalLoadFailed = agg.hardestTop10.isEmpty;
       _loading = false;
     });
   }
@@ -159,7 +158,6 @@ class _StatsScreenState extends State<StatsScreen> {
     }
 
     final hardest = _aggregate.hardestTop10;
-    final subcats = _aggregate.subcategory;
     final updatedText = _formatUpdatedAgo(l10n);
 
     return [
@@ -173,16 +171,6 @@ class _StatsScreenState extends State<StatsScreen> {
           onTapQuestion: _openDetail,
         ),
       ],
-      const SizedBox(height: 20),
-      _SectionHeader(title: l10n.statsGlobalSubcategoryTitle),
-      const SizedBox(height: 8),
-      if (subcats.isEmpty)
-        _GlobalUnsupportedCard(message: l10n.statsGlobalSubcategoryEmpty)
-      else
-        _GlobalSubcategoryAccuracyList(
-          l10n: l10n,
-          aggregates: subcats,
-        ),
       if (updatedText.isNotEmpty) ...[
         const SizedBox(height: 8),
         _GlobalUpdatedAtLabel(text: updatedText),
@@ -674,91 +662,6 @@ class _GlobalHardestQuestionsList extends StatelessWidget {
           );
         },
       ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 글로벌 — 소카테고리별 평균 오답률
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _GlobalSubcategoryAccuracyList extends StatelessWidget {
-  const _GlobalSubcategoryAccuracyList({
-    required this.l10n,
-    required this.aggregates,
-  });
-
-  final AppLocalizations l10n;
-  final List<SubcategoryAggregate> aggregates;
-
-  @override
-  Widget build(BuildContext context) {
-    return GlassCard(
-      borderRadius: 16,
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      child: Column(
-        children: [
-          for (int i = 0; i < aggregates.length; i++) ...[
-            _SubcategoryRow(l10n: l10n, agg: aggregates[i]),
-            if (i < aggregates.length - 1) const SizedBox(height: 10),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _SubcategoryRow extends StatelessWidget {
-  const _SubcategoryRow({required this.l10n, required this.agg});
-
-  final AppLocalizations l10n;
-  final SubcategoryAggregate agg;
-
-  @override
-  Widget build(BuildContext context) {
-    final ac = context.appColors;
-    final wrongRate = ((1 - agg.accuracyRate) * 100).round();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                l10n.subcategoryLabel(agg.tag),
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: ac.textPrimary,
-                ),
-              ),
-            ),
-            Text(
-              '$wrongRate%',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                color: ac.danger,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: (1 - agg.accuracyRate).clamp(0.0, 1.0),
-            minHeight: 7,
-            backgroundColor: ac.chipBg,
-            color: ac.danger,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          l10n.statsAttemptsWrongLine(agg.attempts, agg.wrongCount),
-          style: TextStyle(fontSize: 11, color: ac.textSecondary),
-        ),
-      ],
     );
   }
 }

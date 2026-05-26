@@ -225,33 +225,13 @@ void main() {
           .pumpWidget(wrapForGolden(const WrittenExamMenuScreen()));
       await settleAsync(tester);
       // "문제 풀기" 타일 탭 → 연습 모드 1차 시트
-      await tester.tap(find.text('문제 풀기'));
+      // 헤더·메뉴 등 여러 곳에 동일 텍스트가 있을 수 있어 first 로 좁힘.
+      await tester.tap(find.text('문제 풀기').first);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       await expectLater(
         find.byType(MaterialApp),
         matchesGoldenFile('goldens/practice_sheet_ko_light.png'),
-      );
-      await tester.pumpWidget(const SizedBox());
-    });
-
-    testWidgets('subcategory_sheet_ko_light', (tester) async {
-      await setGoldenDefaults(tester);
-      seedPrefs();
-      await tester
-          .pumpWidget(wrapForGolden(const WrittenExamMenuScreen()));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.tap(find.text('문제 풀기'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-      // 1차 시트에서 "말문제" 타일 → 2차 소카테고리 시트
-      await tester.tap(find.text('말문제'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-      await expectLater(
-        find.byType(MaterialApp),
-        matchesGoldenFile('goldens/subcategory_sheet_ko_light.png'),
       );
       await tester.pumpWidget(const SizedBox());
     });

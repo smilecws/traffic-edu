@@ -544,7 +544,7 @@ class _StepCard extends StatelessWidget {
                         width: 5,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: c.primary,
+                          color: c.gradientIndigo[0],
                           shape: BoxShape.circle,
                         ),
                       ),

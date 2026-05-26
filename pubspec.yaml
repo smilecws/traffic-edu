@@ -62,7 +62,6 @@ flutter:
     - assets/quiz_icon.png
     - assets/license_icon.png
     - assets/driving_disqualification_merged.json
-    - assets/question_subcategory.json
     - assets/study/
     - assets/images/
     - assets/questions_videos/

@@ -445,36 +445,37 @@ class _QuizScreenState extends State<QuizScreen> {
     if (mounted) setState(() => _favoriteIds = next);
   }
 
-  Color _optionColor(AppThemeColors ac, int index) {
-    if (widget.showTimerAndScore || !_answered) return ac.surfaceCard;
-    final q = _q;
-    final isCorrect = q.correctIndexSet.contains(index);
-    if (isCorrect) return ac.successBg;
-    if (q.isMultipleChoice) {
-      if (_selectedMultiple.contains(index)) return ac.dangerBg;
-    } else {
-      if (index == _selectedSingle) return ac.dangerBg;
-    }
-    return ac.surfaceCard;
-  }
+  /// 옵션 카드의 글래스 배경(alpha 적용 완료) + 보더 색을 한 번에 계산.
+  /// - 응답 전 선택 상태: indigo 톤 (전체 화면 indigo 통일감)
+  /// - 응답 후 정답/오답: 시맨틱 success/danger 톤 유지 (피드백 기능)
+  /// `bg == null` 이면 GlassCard 기본 흰색 반투명.
+  ({Color? bg, Color border}) _optionStyle(AppThemeColors ac, int index) {
+    final indigo = ac.gradientIndigo[0];
+    final isSelected = _q.isMultipleChoice
+        ? _selectedMultiple.contains(index)
+        : _selectedSingle == index;
 
-  Color _optionBorderColor(AppThemeColors ac, int index) {
     if (widget.showTimerAndScore || !_answered) {
-      if (_q.isMultipleChoice && _selectedMultiple.contains(index)) {
-        return ac.primary;
+      if (isSelected) {
+        return (bg: indigo.withValues(alpha: 0.18), border: indigo);
       }
-      if (!_q.isMultipleChoice && _selectedSingle == index) {
-        return ac.primary;
-      }
-      return ac.borderLight;
+      return (bg: null, border: ac.borderLight);
     }
+
     final q = _q;
-    if (q.correctIndexSet.contains(index)) return ac.success;
-    if (q.isMultipleChoice && _selectedMultiple.contains(index)) {
-      return ac.danger;
+    if (q.correctIndexSet.contains(index)) {
+      return (
+        bg: ac.successBg.withValues(alpha: 0.55),
+        border: ac.success,
+      );
     }
-    if (!q.isMultipleChoice && index == _selectedSingle) return ac.danger;
-    return ac.borderLight;
+    if (isSelected) {
+      return (
+        bg: ac.dangerBg.withValues(alpha: 0.55),
+        border: ac.danger,
+      );
+    }
+    return (bg: null, border: ac.borderLight);
   }
 
   @override
@@ -532,30 +533,32 @@ class _QuizScreenState extends State<QuizScreen> {
             Padding(
               padding: const EdgeInsets.only(right: 12),
               child: Center(
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: (_remainingSeconds <= 60)
-                        ? ac.dangerBg
-                        : ac.surfaceCard,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(
-                      color: (_remainingSeconds <= 60)
-                          ? ac.dangerBorder
-                          : ac.borderLight,
+                child: () {
+                  final critical = _remainingSeconds <= 60;
+                  final indigo = ac.gradientIndigo[0];
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: critical
+                          ? ac.dangerBg
+                          : indigo.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: critical
+                            ? ac.dangerBorder
+                            : indigo.withValues(alpha: 0.25),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    _timeText,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: (_remainingSeconds <= 60)
-                          ? ac.danger
-                          : ac.textPrimary,
+                    child: Text(
+                      _timeText,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: critical ? ac.danger : indigo,
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                }(),
               ),
             ),
             Padding(
@@ -575,22 +578,8 @@ class _QuizScreenState extends State<QuizScreen> {
             Padding(
               padding: const EdgeInsets.only(right: 16),
               child: Center(
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: ac.surfaceCard,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: ac.borderLight),
-                  ),
-                  child: Text(
-                    '총 ${_questions.length}문제',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: ac.textPrimary,
-                    ),
-                  ),
+                child: _IndigoInfoPill(
+                  label: '총 ${_questions.length}문제',
                 ),
               ),
             ),
@@ -600,8 +589,8 @@ class _QuizScreenState extends State<QuizScreen> {
         children: [
           LinearProgressIndicator(
             value: progress,
-            backgroundColor: ac.borderLight,
-            color: ac.primary,
+            backgroundColor: ac.gradientIndigo[0].withValues(alpha: 0.15),
+            color: ac.gradientIndigo[0],
             minHeight: 6,
           ),
           Expanded(
@@ -614,17 +603,11 @@ class _QuizScreenState extends State<QuizScreen> {
                 children: [
                   const SizedBox(height: 8),
                   if (question.isMultipleChoice)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Chip(
-                        avatar: Icon(Icons.checklist, size: 18, color: ac.primaryDark),
-                        label: const Text('복수 선택 — 해당하는 보기를 모두 고르세요'),
-                        backgroundColor: ac.chipBg,
-                        side: BorderSide(color: ac.primary.withValues(alpha: 0.25)),
-                        labelStyle: TextStyle(
-                          color: ac.textPrimary,
-                          fontWeight: FontWeight.w500,
-                        ),
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 8),
+                      child: _IndigoInfoPill(
+                        icon: Icons.checklist,
+                        label: '복수 선택 — 해당하는 보기를 모두 고르세요',
                       ),
                     ),
                   GlassCard(
@@ -765,13 +748,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   ],
                   const SizedBox(height: 20),
                   ...List.generate(question.options.length, (i) {
-                    final rawBg = _optionColor(ac, i);
-                    // 기본(미선택) 상태에서는 GlassCard 의 흰색 반투명을 그대로
-                    // 쓰고, 선택/정답/오답 상태에서는 톤만 살짝 입힌다 (alpha
-                    // 0.55) — backdrop blur 가 비치도록.
-                    final glassBg = rawBg == ac.surfaceCard
-                        ? null
-                        : rawBg.withValues(alpha: 0.55);
+                    final style = _optionStyle(ac, i);
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: GestureDetector(
@@ -779,8 +756,8 @@ class _QuizScreenState extends State<QuizScreen> {
                         child: GlassCard(
                           borderRadius: 12,
                           padding: const EdgeInsets.all(16),
-                          backgroundColor: glassBg,
-                          borderColor: _optionBorderColor(ac, i),
+                          backgroundColor: style.bg,
+                          borderColor: style.border,
                           child: Row(
                             children: [
                               if (question.isMultipleChoice)
@@ -790,14 +767,15 @@ class _QuizScreenState extends State<QuizScreen> {
                                     _selectedMultiple.contains(i)
                                         ? Icons.check_box
                                         : Icons.check_box_outline_blank,
-                                    color: ac.primary,
+                                    color: ac.gradientIndigo[0],
                                   ),
                                 ),
                               Container(
                                 width: 32,
                                 height: 32,
                                 decoration: BoxDecoration(
-                                  color: ac.primary.withValues(alpha: 0.12),
+                                  color: ac.gradientIndigo[0]
+                                      .withValues(alpha: 0.15),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Center(
@@ -806,7 +784,7 @@ class _QuizScreenState extends State<QuizScreen> {
                                     style: TextStyle(
                                       fontFamily: 'Pretendard',
                                       fontWeight: FontWeight.w700,
-                                      color: ac.primaryDark,
+                                      color: ac.gradientIndigo[0],
                                     ),
                                   ),
                                 ),
@@ -845,12 +823,13 @@ class _QuizScreenState extends State<QuizScreen> {
                     GlassCard(
                       borderRadius: 12,
                       padding: const EdgeInsets.all(16),
-                      borderColor: ac.primary.withValues(alpha: 0.25),
+                      borderColor:
+                          ac.gradientIndigo[0].withValues(alpha: 0.25),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Icon(Icons.lightbulb_outline_rounded,
-                              color: ac.primaryDark),
+                              color: ac.gradientIndigo[0]),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -896,7 +875,7 @@ class _QuizScreenState extends State<QuizScreen> {
                           await _nextQuestion();
                         }
                       : null,
-                  gradient: ac.gradientEmerald,
+                  gradient: ac.gradientIndigo,
                 ),
               ],
             ),
@@ -1091,7 +1070,14 @@ class _ActionButton extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-            color: disabled ? ac.borderLight : null,
+            color: disabled
+                ? ac.gradientIndigo[0].withValues(alpha: 0.15)
+                : null,
+            border: disabled
+                ? Border.all(
+                    color: ac.gradientIndigo[0].withValues(alpha: 0.25),
+                  )
+                : null,
             borderRadius: BorderRadius.circular(14),
           ),
           child: InkWell(
@@ -1103,12 +1089,54 @@ class _ActionButton extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: disabled ? ac.textSecondary : Colors.white,
+                  color: disabled ? ac.gradientIndigo[0] : Colors.white,
                 ),
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// '총 N문제' / '복수 선택 ...' 등 정보용 인디고 글래스 알약.
+/// 액션 버튼·옵션 숫자 배지와 동일한 indigo 톤(`gradientIndigo[0]`)을 공유.
+class _IndigoInfoPill extends StatelessWidget {
+  const _IndigoInfoPill({required this.label, this.icon});
+
+  final String label;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final indigo = context.appColors.gradientIndigo[0];
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: indigo.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: indigo.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 18, color: indigo),
+            const SizedBox(width: 8),
+          ],
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: indigo,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -50,22 +50,6 @@ class AggregateHardestEntry {
   int get wrongCount => attempts - correct;
 }
 
-/// `subcategory.{tag}` 한 항목.
-class SubcategoryAggregate {
-  final String tag;
-  final int attempts;
-  final int correct;
-
-  const SubcategoryAggregate({
-    required this.tag,
-    required this.attempts,
-    required this.correct,
-  });
-
-  double get accuracyRate => attempts > 0 ? correct / attempts : 0;
-  int get wrongCount => attempts - correct;
-}
-
 /// `all_questions` 한 항목.
 class AllQuestionAggregate {
   final int questionId;
@@ -89,13 +73,11 @@ class AllQuestionAggregate {
 class GlobalAggregateStats {
   final DateTime? updatedAt;
   final List<AggregateHardestEntry> hardestTop10;
-  final List<SubcategoryAggregate> subcategory;
   final Map<int, AllQuestionAggregate> allQuestions;
 
   const GlobalAggregateStats({
     this.updatedAt,
     this.hardestTop10 = const [],
-    this.subcategory = const [],
     this.allQuestions = const {},
   });
 
@@ -120,21 +102,6 @@ class GlobalAggregateStats {
           wrongRate: (item['wrong_rate'] as num?)?.toDouble() ?? 0,
         ));
       }
-    }
-
-    final subcats = <SubcategoryAggregate>[];
-    final rawSubcat = json['subcategory'];
-    if (rawSubcat is Map) {
-      rawSubcat.forEach((tag, val) {
-        if (val is! Map) return;
-        subcats.add(SubcategoryAggregate(
-          tag: tag.toString(),
-          attempts: (val['attempts'] as num?)?.toInt() ?? 0,
-          correct: (val['correct'] as num?)?.toInt() ?? 0,
-        ));
-      });
-      // 오답률 높은 순 정렬
-      subcats.sort((a, b) => a.accuracyRate.compareTo(b.accuracyRate));
     }
 
     final allQs = <int, AllQuestionAggregate>{};
@@ -165,7 +132,6 @@ class GlobalAggregateStats {
     return GlobalAggregateStats(
       updatedAt: updatedAt,
       hardestTop10: hardest,
-      subcategory: subcats,
       allQuestions: allQs,
     );
   }

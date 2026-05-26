@@ -39,8 +39,6 @@ lib/
 │   ├── mock_exam_history_service.dart # 모의고사 이력 JSON (최대 80건 FIFO)
 │   ├── disqualification_catalog_service.dart  # merged JSON → DisqualificationCatalog
 │   ├── study_card_service.dart        # assets/study/NN_<slug>.json → StudyTopic (16개 토픽 메타 하드코딩)
-│   ├── question_subcategory_service.dart      # 소카테고리별 문제 수 캐시
-│   ├── subcategory_classifier.dart    # 문제 텍스트 → 소카테고리 ID 분류 규칙 (CLI·런타임 공용)
 │   └── preference_id_codec.dart       # List<String> → Set<int> 안전 파싱
 ├── screens/                           # 한 파일 = 한 화면 (Navigator.push 기반, 라우트 테이블 없음)
 │   ├── auth_loading_screen.dart       # 부팅 중 스피너 (ConsentService 확인 전 표시)
@@ -59,14 +57,12 @@ lib/
 │   ├── disqualification_detail_screen.dart  # 실격 기준 상세
 │   └── license_placeholder_screen.dart      # 준비 중 플레이스홀더
 └── utils/
-    ├── safe_external_url.dart         # url_launcher 허용 호스트 화이트리스트
-    └── subcategory_ui.dart            # 소카테고리 ID → 아이콘/색상 매핑
+    └── safe_external_url.dart         # url_launcher 허용 호스트 화이트리스트
 
 assets/
 ├── questions_kor.json / questions_eng.json / questions_chi.json / questions_vi.json
 │                                      # 언어별 문제 은행 (3가지 포맷 공존)
 ├── driving_disqualification_merged.json  # 실격 기준 (기능시험 + 도로주행)
-├── question_subcategory.json          # 문제 ID → 소카테고리 ID 매핑 (tool/classify_subcategory.dart 재생성)
 ├── study/NN_<slug>.json               # 학습 토픽 16개 (사람이 직접 작성, 한국어 단일 언어)
 ├── fonts/Pretendard-{Regular,Medium,Bold,ExtraBold,Black}.otf  # Pretendard 폰트 (pubspec.yaml flutter.fonts 에 family 등록)
 ├── images/*.{png,jpeg}                # 문제 본문/해설 이미지
@@ -75,8 +71,6 @@ assets/
 
 tool/
 ├── aggregate_stats.js                 # firebase-admin 으로 user_answers 세션 로그 기반 집계 (GitHub Actions 사용)
-├── classify_subcategory.dart          # question_subcategory.json 재생성 CLI
-├── extract_study_seeds.dart           # 학습 카드 초안 seed 생성 (중간 산출물, git ignore)
 ├── generate_app_icon_png.py           # app_icon.png 재생성 스크립트 (Pillow)
 └── package.json                       # aggregate_stats.js 의 firebase-admin 의존성
 ```

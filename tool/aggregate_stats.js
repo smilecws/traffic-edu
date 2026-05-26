@@ -20,16 +20,6 @@ const OUT_DIR = process.argv[2] || join(__dirname, 'out');
 initializeApp({ credential: applicationDefault() });
 const db = getFirestore();
 
-// ── 소카테고리 매핑 로드 ─────────────────────────────────────────────────────
-
-async function loadSubcategoryMap() {
-  const raw = await readFile(
-    join(__dirname, '..', 'assets', 'question_subcategory.json'),
-    'utf-8',
-  );
-  return JSON.parse(raw); // { "1": "license", "2": "license", ... }
-}
-
 // ── Firestore 데이터 수집 ────────────────────────────────────────────────────
 
 async function fetchQuestionStats() {
@@ -102,22 +92,6 @@ function buildHardestList(stats, topN) {
     .slice(0, topN);
 }
 
-function buildSubcategoryAggregates(stats, subcatMap) {
-  const agg = {};
-  for (const [id, s] of Object.entries(stats)) {
-    const tag = subcatMap[id];
-    if (!tag) continue;
-    if (!agg[tag]) agg[tag] = { attempts: 0, correct: 0 };
-    agg[tag].attempts += s.attempts;
-    agg[tag].correct += s.correct;
-  }
-  // 표본 합 30 미만 태그 제외
-  for (const tag of Object.keys(agg)) {
-    if (agg[tag].attempts < 30) delete agg[tag];
-  }
-  return agg;
-}
-
 function buildAllQuestions(stats) {
   const result = {};
   for (const [id, s] of Object.entries(stats)) {
@@ -133,11 +107,10 @@ function buildAllQuestions(stats) {
 
 // ── 출력 생성 ────────────────────────────────────────────────────────────────
 
-function buildAggregatesJson(stats, subcatMap, updatedAt) {
+function buildAggregatesJson(stats, updatedAt) {
   return {
     updated_at: updatedAt,
     hardest_top10: buildHardestList(stats, 10),
-    subcategory: buildSubcategoryAggregates(stats, subcatMap),
     all_questions: buildAllQuestions(stats),
   };
 }
@@ -181,15 +154,14 @@ function buildReportMd(fullReport) {
 
 async function main() {
   console.log('Fetching user_answers sessions...');
-  const [stats, subcatMap, userCounts] = await Promise.all([
+  const [stats, userCounts] = await Promise.all([
     fetchQuestionStats(),
-    loadSubcategoryMap(),
     fetchUserCounts(),
   ]);
 
   const updatedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
 
-  const aggregates = buildAggregatesJson(stats, subcatMap, updatedAt);
+  const aggregates = buildAggregatesJson(stats, updatedAt);
   const fullReport = buildFullReportJson(
     stats,
     userCounts.totalUsers,

@@ -8,14 +8,11 @@ import '../models/question.dart';
 import '../services/attempted_questions_service.dart';
 import '../services/favorite_questions_service.dart';
 import '../services/question_service.dart';
-import '../services/question_subcategory_service.dart';
-import '../services/subcategory_classifier.dart';
 import '../models/mock_exam_history_entry.dart';
 import '../services/mock_exam_history_service.dart';
 import '../services/user_answer_stats_service.dart';
 import '../services/wrong_note_service.dart';
 import '../theme/app_theme_colors.dart';
-import '../utils/subcategory_ui.dart';
 import '../widgets/glass/glass_background.dart';
 import '../widgets/glass/glass_card.dart';
 import '../widgets/glass/gradient_icon_badge.dart';
@@ -328,22 +325,11 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
     String title;
     switch (choice) {
       case _PracticeType.speaking:
-        if (!context.mounted) return;
-        final subcategoryId = await _openVerbalSubcategorySheet(context);
-        if (subcategoryId == null || !context.mounted) return;
-        if (subcategoryId == _kAllVerbalMarker) {
-          questions = await QuestionService.getRandomQuestionsByCategory(
-            category: QuestionCategory.verbal,
-            count: 40,
-          );
-          title = l10n.quizTitleVerbal;
-        } else {
-          questions = await QuestionService.getRandomQuestionsBySubcategory(
-            subcategoryId: subcategoryId,
-            count: 40,
-          );
-          title = l10n.quizTitleSubcategory(subcategoryId);
-        }
+        questions = await QuestionService.getRandomQuestionsByCategory(
+          category: QuestionCategory.verbal,
+          count: 40,
+        );
+        title = l10n.quizTitleVerbal;
         break;
       case _PracticeType.signAndSituation:
         questions = await QuestionService.getRandomQuestionsByCategory(
@@ -386,66 +372,6 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
       ),
     );
     await _loadCounts();
-  }
-
-  /// "말문제" 선택 후 뜨는 2차 시트. 10개 소카테고리 + "전체" 옵션.
-  /// 선택된 태그 ID 또는 "전체" 마커 [_kAllVerbalMarker] 를 반환. 취소 시 null.
-  Future<String?> _openVerbalSubcategorySheet(BuildContext context) async {
-    final l10n = AppLocalizations.of(context);
-    final counts = await QuestionSubcategoryService.loadCounts();
-    if (!context.mounted) return null;
-
-    return showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        final ac = sheetContext.appColors;
-        return _GlassBottomSheet(
-          scrollable: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.subcategorySheetTitle,
-                style: TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  color: ac.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 14),
-              _PracticeTypeTile(
-                title: l10n.subcategoryAllVerbalTitle,
-                subtitle: l10n.subcategoryAllVerbalSub,
-                icon: Icons.shuffle_rounded,
-                gradient: ac.gradientViolet,
-                onTap: () => Navigator.pop(
-                  sheetContext,
-                  _kAllVerbalMarker,
-                ),
-              ),
-              const SizedBox(height: 10),
-              ...SubcategoryIds.verbalSubcategoryIds.map((id) {
-                final count = counts[id] ?? 0;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: _SubcategoryPracticeTile(
-                    title: l10n.subcategoryLabel(id),
-                    subtitle: l10n.subcategorySubtitle(id, count),
-                    icon: iconForSubcategory(id),
-                    gradient: gradientForSubcategory(sheetContext, id),
-                    onTap: () => Navigator.pop(sheetContext, id),
-                  ),
-                );
-              }),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   @override
@@ -553,7 +479,7 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
                                         Text(
                                           l10n.statsProgressLabel,
                                           style: TextStyle(
-                                            fontSize: 10,
+                                            fontSize: 11,
                                             fontWeight: FontWeight.w700,
                                             color: ac.textSecondary,
                                           ),
@@ -565,7 +491,7 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
                                       text: TextSpan(
                                         style: TextStyle(
                                           fontFamily: 'Pretendard',
-                                          fontSize: 18,
+                                          fontSize: 15,
                                           fontWeight: FontWeight.w900,
                                           color: ac.textPrimary,
                                         ),
@@ -575,7 +501,7 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
                                           TextSpan(
                                             text: '/$_totalCount',
                                             style: TextStyle(
-                                              fontSize: 12,
+                                              fontSize: 11,
                                               fontWeight: FontWeight.w700,
                                               color: ac.textSecondary,
                                             ),
@@ -607,7 +533,7 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
                                         Text(
                                           l10n.statsAccuracyLabel,
                                           style: TextStyle(
-                                            fontSize: 10,
+                                            fontSize: 11,
                                             fontWeight: FontWeight.w700,
                                             color: ac.textSecondary,
                                           ),
@@ -619,7 +545,7 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
                                       accuracyText,
                                       style: TextStyle(
                                         fontFamily: 'Pretendard',
-                                        fontSize: 18,
+                                        fontSize: 15,
                                         fontWeight: FontWeight.w900,
                                         color: ac.textPrimary,
                                       ),
@@ -727,10 +653,6 @@ enum _OverflowAction { stats, history }
 
 enum _PracticeType { speaking, signAndSituation, videoQuestion, randomAll }
 
-/// 소카테고리 2차 시트에서 "말문제 전체" 를 나타내는 센티넬.
-/// 태그 ID 문자열과 충돌하지 않는 값이면 됨.
-const String _kAllVerbalMarker = '__all_verbal__';
-
 class _PracticeTypeTile extends StatelessWidget {
   const _PracticeTypeTile({
     required this.title,
@@ -782,80 +704,6 @@ class _PracticeTypeTile extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        color: ac.textSecondary,
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(Icons.chevron_right_rounded, color: ac.textSecondary),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// 소카테고리 시트 2차 타일. 탭하면 해당 소카테고리 연습 진입.
-class _SubcategoryPracticeTile extends StatelessWidget {
-  const _SubcategoryPracticeTile({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.gradient,
-    required this.onTap,
-  });
-
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final List<Color> gradient;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final ac = context.appColors;
-    return GlassCard(
-      borderRadius: 16,
-      padding: EdgeInsets.zero,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              GradientIconBadge(
-                gradient: gradient,
-                icon: icon,
-                size: 44,
-                iconSize: 22,
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w800,
-                        fontSize: 15,
-                        color: ac.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 12.5,
                         color: ac.textSecondary,
@@ -962,65 +810,49 @@ class _BentoCard extends StatelessWidget {
 }
 
 /// 글래스풍 모달 바텀시트. 상단 모서리 라운드 + 반투명 흰색 + 블러.
-/// 손잡이 그립과 상단 패딩 포함. `scrollable: true` 면 화면 88% 까지
-/// 늘어나고 내부 콘텐츠가 스크롤된다.
 class _GlassBottomSheet extends StatelessWidget {
-  const _GlassBottomSheet({
-    required this.child,
-    this.scrollable = false,
-  });
+  const _GlassBottomSheet({required this.child});
 
   final Widget child;
-  final bool scrollable;
 
   @override
   Widget build(BuildContext context) {
     final ac = context.appColors;
-    final maxHeight = MediaQuery.sizeOf(context).height *
-        (scrollable ? 0.88 : 1.0);
-    final body = Padding(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-      child: child,
-    );
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: maxHeight),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.78),
-              border: Border(
-                top: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.8),
-                  width: 1.5,
-                ),
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.78),
+            border: Border(
+              top: BorderSide(
+                color: Colors.white.withValues(alpha: 0.8),
+                width: 1.5,
               ),
             ),
-            child: SafeArea(
-              top: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 6),
-                    child: Container(
-                      width: 42,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: ac.textSecondary.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 10, bottom: 6),
+                  child: Container(
+                    width: 42,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: ac.textSecondary.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  Flexible(
-                    child: scrollable
-                        ? SingleChildScrollView(child: body)
-                        : body,
-                  ),
-                ],
-              ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+                  child: child,
+                ),
+              ],
             ),
           ),
         ),

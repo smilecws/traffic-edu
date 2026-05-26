@@ -1,0 +1,67 @@
+{
+  "step": 1,
+  "name": "written-exam-menu-redesign",
+  "exitCode": 0,
+  "git_sha_before": "754dfcc4b874cb9a13b91d90bb788330561caff4",
+  "git_sha_after": "1286b3ee32684739cc776d9a402b41ba5f12fd46",
+  "stdout": "{\"type\":\"result\",\"subtype\":\"success\",\"is_error\":false,\"duration_ms\":315224,\"duration_api_ms\":253404,\"num_turns\":38,\"result\":\"Step 1 완료되었습니다.\\n\\n**산출물 요약:**\\n- `WrittenExamMenuScreen`을 글래스모피즘 + 벤토 그리드 레이아웃으로 리디자인\\n  - **헤더**: 인사 텍스트 + `PopupMenuButton`(통계 보기 / 모의고사 이력)\\n  - **통계 2분할 GlassCard**: 진도(`_attemptedCount/_totalCount`) + 정답률(`UserAnswerStatsService.getOverallStats()`)\\n  - **Bento 2×2**: 모의고사(cyan) / 오답(rose) / 문제풀기(indigo) / 즐겨찾기(amber) — 각각 `GlassCard` + `GradientIconBadge`\\n- 기존 6개 동작 모두 유지: `_openMockExam`, `_openWrongNote`, `_openPracticeMenu`, `_openFavorites`, `_openStats`, `_openMockExamHistory`\\n- 새 l10n 키 7개 추가 (4개 언어 동시)\\n- `flutter analyze` — 이 step 도입 에러 0건 (기존 에러 별도)\\n- `flutter test` — 기존 테스트 결과 변화 없음 (13 pass, 3 기존 fail)\",\"stop_reason\":\"end_turn\",\"session_id\":\"304b6e2f-2b90-4494-909e-9ef424f88c15\",\"total_cost_usd\":1.9100374999999998,\"usage\":{\"input_tokens\":30,\"cache_creation_input_tokens\":75514,\"cache_read_input_tokens\":2103350,\"output_tokens\":15450,\"server_tool_use\":{\"web_search_requests\":0,\"web_fetch_requests\":0},\"service_tier\":\"standard\",\"cache_creation\":{\"ephemeral_1h_input_tokens\":75514,\"ephemeral_5m_input_tokens\":0},\"inference_geo\":\"\",\"iterations\":[{\"input_tokens\":1,\"output_tokens\":383,\"cache_read_input_tokens\":86989,\"cache_creation_input_tokens\":220,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":220},\"type\":\"message\"}],\"speed\":\"standard\"},\"modelUsage\":{\"claude-opus-4-6\":{\"inputTokens\":30,\"outputTokens\":15450,\"cacheReadInputTokens\":2103350,\"cacheCreationInputTokens\":75514,\"webSearchRequests\":0,\"costUSD\":1.9100374999999998,\"contextWindow\":200000,\"maxOutputTokens\":64000}},\"permission_denials\":[],\"terminal_reason\":\"completed\",\"fast_mode_state\":\"off\",\"uuid\":\"105e8895-fde8-49c0-a7b1-0e5004eeb7e6\"}\n",
+  "stderr": "",
+  "claude": {
+    "type": "result",
+    "subtype": "success",
+    "is_error": false,
+    "duration_ms": 315224,
+    "duration_api_ms": 253404,
+    "num_turns": 38,
+    "result": "Step 1 완료되었습니다.\n\n**산출물 요약:**\n- `WrittenExamMenuScreen`을 글래스모피즘 + 벤토 그리드 레이아웃으로 리디자인\n  - **헤더**: 인사 텍스트 + `PopupMenuButton`(통계 보기 / 모의고사 이력)\n  - **통계 2분할 GlassCard**: 진도(`_attemptedCount/_totalCount`) + 정답률(`UserAnswerStatsService.getOverallStats()`)\n  - **Bento 2×2**: 모의고사(cyan) / 오답(rose) / 문제풀기(indigo) / 즐겨찾기(amber) — 각각 `GlassCard` + `GradientIconBadge`\n- 기존 6개 동작 모두 유지: `_openMockExam`, `_openWrongNote`, `_openPracticeMenu`, `_openFavorites`, `_openStats`, `_openMockExamHistory`\n- 새 l10n 키 7개 추가 (4개 언어 동시)\n- `flutter analyze` — 이 step 도입 에러 0건 (기존 에러 별도)\n- `flutter test` — 기존 테스트 결과 변화 없음 (13 pass, 3 기존 fail)",
+    "stop_reason": "end_turn",
+    "session_id": "304b6e2f-2b90-4494-909e-9ef424f88c15",
+    "total_cost_usd": 1.9100374999999998,
+    "usage": {
+      "input_tokens": 30,
+      "cache_creation_input_tokens": 75514,
+      "cache_read_input_tokens": 2103350,
+      "output_tokens": 15450,
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 75514,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "",
+      "iterations": [
+        {
+          "input_tokens": 1,
+          "output_tokens": 383,
+          "cache_read_input_tokens": 86989,
+          "cache_creation_input_tokens": 220,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 220
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "modelUsage": {
+      "claude-opus-4-6": {
+        "inputTokens": 30,
+        "outputTokens": 15450,
+        "cacheReadInputTokens": 2103350,
+        "cacheCreationInputTokens": 75514,
+        "webSearchRequests": 0,
+        "costUSD": 1.9100374999999998,
+        "contextWindow": 200000,
+        "maxOutputTokens": 64000
+      }
+    },
+    "permission_denials": [],
+    "terminal_reason": "completed",
+    "fast_mode_state": "off",
+    "uuid": "105e8895-fde8-49c0-a7b1-0e5004eeb7e6"
+  }
+}

@@ -15,7 +15,7 @@
       "name": "written-exam-menu-redesign",
       "status": "completed",
       "started_at": "2026-05-26T10:53:52+0900",
-      "completed_at": "2026-05-26T11:15:00+0900",
+      "completed_at": "2026-05-26T10:59:11+0900",
       "summary": "WrittenExamMenuScreen을 글래스모피즘+벤토 그리드로 리디자인: GlassBackground 배경, 통계 2분할(진도/정답률) GlassCard, Bento 2×2 카드(모의고사/오답/문제풀기/즐겨찾기), PopupMenu로 통계·이력 진입 유지"
     },
     {

@@ -20,7 +20,6 @@ import '../widgets/glass/gradient_icon_badge.dart';
 import 'mock_exam_history_screen.dart';
 import 'quiz_screen.dart';
 import 'stats_screen.dart';
-import 'study_card_screen.dart';
 
 /// 운전면허 학과시험 홈(스크린샷 레이아웃)
 class WrittenExamMenuScreen extends StatefulWidget {
@@ -440,25 +439,12 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
                       final count = counts[id] ?? 0;
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: _SubcategoryTileWithStudy(
+                        child: _SubcategoryPracticeTile(
                           title: l10n.subcategoryLabel(id),
                           subtitle: l10n.subcategorySubtitle(id, count),
-                          studyLabel: l10n.studyActionLabel,
                           icon: iconForSubcategory(id),
                           color: colorForSubcategory(context, id),
-                          onTapPractice: () =>
-                              Navigator.pop(sheetContext, id),
-                          onTapStudy: () {
-                            Navigator.pop(sheetContext);
-                            Navigator.push<void>(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (_) => StudyCardScreen(
-                                  subcategoryId: id,
-                                ),
-                              ),
-                            );
-                          },
+                          onTap: () => Navigator.pop(sheetContext, id),
                         ),
                       );
                     }),
@@ -796,32 +782,27 @@ class _PracticeTypeTile extends StatelessWidget {
   }
 }
 
-/// 소카테고리 시트 2차 타일. 큰 영역 탭 = 바로 풀기,
-/// 우측 "공부하기" 버튼 탭 = 학습 카드 화면 이동.
-class _SubcategoryTileWithStudy extends StatelessWidget {
-  const _SubcategoryTileWithStudy({
+/// 소카테고리 시트 2차 타일. 탭하면 해당 소카테고리 연습 진입.
+class _SubcategoryPracticeTile extends StatelessWidget {
+  const _SubcategoryPracticeTile({
     required this.title,
     required this.subtitle,
-    required this.studyLabel,
     required this.icon,
     required this.color,
-    required this.onTapPractice,
-    required this.onTapStudy,
+    required this.onTap,
   });
 
   final String title;
   final String subtitle;
-  final String studyLabel;
   final IconData icon;
   final Color color;
-  final VoidCallback onTapPractice;
-  final VoidCallback onTapStudy;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final ac = context.appColors;
     return InkWell(
-      onTap: onTapPractice,
+      onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
         padding: const EdgeInsets.all(14),
@@ -869,47 +850,7 @@ class _SubcategoryTileWithStudy extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            // "공부하기" 보조 버튼 — 부모 InkWell 탭 차단을 위해 Material 로 감싼다
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: onTapStudy,
-                borderRadius: BorderRadius.circular(999),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: ac.chipBg,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(
-                      color: ac.primary.withValues(alpha: 0.35),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.menu_book_outlined,
-                        size: 14,
-                        color: ac.primaryDark,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        studyLabel,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: ac.primaryDark,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            Icon(Icons.chevron_right_rounded, color: ac.textSecondary),
           ],
         ),
       ),

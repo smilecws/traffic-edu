@@ -88,11 +88,10 @@ screens/  →  services/  →  models/
    └─ material.dart     └─ shared_preferences / rootBundle / http
    └─ video_player      └─ dart:convert
    └─ url_launcher      └─ firebase_auth / cloud_firestore
-   └─ google_fonts
 ```
 - `models/` 는 Flutter 의존 없음 (video_player/shared_preferences import 금지). 순수 Dart 로 테스트 가능.
 - `services/` 는 Flutter `services.dart`(rootBundle), `shared_preferences`, `http` 만. `firebase_auth`/`cloud_firestore` 는 `user_answer_log_service.dart` 만 사용. Material 위젯 import 금지.
-- `screens/` 만 `material.dart` / `video_player` / `url_launcher` / `google_fonts` 를 사용.
+- `screens/` 만 `material.dart` / `video_player` / `url_launcher` 를 사용. 폰트는 `pubspec.yaml` 의 `flutter.fonts` 에 등록된 Pretendard 만 사용.
 - 한 파일은 한 레이어만 참조한다. 역방향 의존(services → screens, models → services) 금지.
 
 ## 상태 관리

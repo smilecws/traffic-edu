@@ -1,0 +1,72 @@
+{
+  "project": "quiz_app",
+  "phase": "feat-ui-tone-unify",
+  "steps": [
+    {
+      "step": 0,
+      "name": "foundation",
+      "status": "completed",
+      "started_at": "2026-05-26T11:30:00+0900",
+      "completed_at": "2026-05-26T11:45:00+0900",
+      "summary": "공용 위젯 GlassAppBar/GlassScaffold 신설, GradientIconBadge child 슬롯 추가, GlassCard borderColor 추가, AppThemeColors 시맨틱 색 7개(success/successBg/danger/dangerBg/dangerBorder/warning/warningBg) 추가, topic_palette.dart 신설. landing 골든 2개 갱신(_BentoSmallCard Visibility 변경 반영)."
+    },
+    {
+      "step": 1,
+      "name": "low-impact-screens",
+      "status": "completed",
+      "started_at": "2026-05-26T11:45:00+0900",
+      "completed_at": "2026-05-26T11:55:00+0900",
+      "summary": "mock_exam_history_screen, disqualification_detail_screen 글래스화. GlassScaffold/GlassAppBar 적용, 합격/불합격 pill 시맨틱 색(successBg/dangerBg/success/danger) 적용, TabBar in GlassAppBar 정상 동작 검증. ListView padding.top 보정 패턴 확립(kToolbarHeight + 추가 컴포넌트 높이)."
+    },
+    {
+      "step": 2,
+      "name": "exam-guide-and-question-detail",
+      "status": "completed",
+      "started_at": "2026-05-26T11:55:00+0900",
+      "completed_at": "2026-05-26T12:10:00+0900",
+      "summary": "exam_guide_screen 두 클래스 + _StepCard + _DisqualSection (0xFFFFE8E8 박스 → GradientIconBadge(gradientRose), 0xFF15803D → ac.success) 글래스화. question_detail_screen 3개 카드 GlassCard 적용 + Color(0xFF22C55E)/Colors.red.shade700/400 → 시맨틱 색."
+    },
+    {
+      "step": 3,
+      "name": "result-screen",
+      "status": "completed",
+      "started_at": "2026-05-26T12:10:00+0900",
+      "completed_at": "2026-05-26T12:20:00+0900",
+      "summary": "result_screen 글래스화. 점수 카드 GlassCard, 오답 카드 GlassCard borderColor=dangerBorder, _scoreColor 분기 시맨틱 색(success/danger/warning), Colors.red/green 아이콘·텍스트 → ac.danger/success, Colors.grey.shade700 → ac.textSecondary."
+    },
+    {
+      "step": 4,
+      "name": "stats-screen",
+      "status": "completed",
+      "started_at": "2026-05-26T12:20:00+0900",
+      "completed_at": "2026-05-26T12:35:00+0900",
+      "summary": "stats_screen 글래스화: GlassScaffold + GlassAppBar, _OverallStatsCard/_MockExamChart/_HardestQuestionsList/_GlobalHardestQuestionsList/_GlobalSubcategoryAccuracyList/_GlobalUnsupportedCard 모두 GlassCard. _StatChip 시그니처 (iconColor/iconBg → gradient) 변경, _StatChip 의 40×40 박스 + 두 hardest 목록의 32×32 번호 박스 모두 GradientIconBadge(cyan/emerald/rose). 모든 직접 hex/Material 색을 시맨틱 색으로 매핑."
+    },
+    {
+      "step": 5,
+      "name": "study-screens",
+      "status": "completed",
+      "started_at": "2026-05-26T12:35:00+0900",
+      "completed_at": "2026-05-26T12:50:00+0900",
+      "summary": "study_screen + study_card_screen 글래스화. _accentFor 8색 hex 팔레트 중복 정의 제거 → topic_palette.dart 의 topicGradient/topicAccent 사용. _StudyTopicTile/_SubTopicTile 외곽 GlassCard, 번호·marker 박스 → GradientIconBadge(child). GlassCard.borderColor 옵션으로 아코디언 토글 시 accent border. _RoundButton 의 Color(0xFF334155) → ac.textPrimary."
+    },
+    {
+      "step": 6,
+      "name": "quiz-screen-and-pretendard",
+      "status": "completed",
+      "started_at": "2026-05-26T12:50:00+0900",
+      "completed_at": "2026-05-26T13:05:00+0900",
+      "summary": "quiz_screen 외곽 GlassScaffold + GlassAppBar (loading + 본문 2곳), GoogleFonts.jua 4곳 (이미지 캡션/보기 번호/보기 본문/해설) → Pretendard, google_fonts import 제거. _optionColor/_optionBorderColor 의 hex → 시맨틱 (successBg/dangerBg/success/danger), 타이머 chip + 정답/오답 아이콘 + 즐겨찾기(Colors.amber.shade700 → ac.warning) 시맨틱화. 본문 평면 유지(가독성)."
+    },
+    {
+      "step": 7,
+      "name": "cleanup",
+      "status": "completed",
+      "started_at": "2026-05-26T13:05:00+0900",
+      "completed_at": "2026-05-26T13:20:00+0900",
+      "summary": "test/golden/_helpers.dart 에서 google_fonts import + GoogleFonts.config 라인 제거, pubspec.yaml 의 google_fonts 의존성·Jua-Regular.ttf 자산 제거, google_fonts/ 폴더 삭제, flutter pub get. CLAUDE.md/README.md/UI_GUIDE.md/ARCHITECTURE.md 의 Jua/google_fonts 언급 정리, docs/ADR-015(UI 톤 통일 확산) 추가. flutter analyze 무이슈, flutter test 40개 전체 통과."
+    }
+  ],
+  "created_at": "2026-05-26T11:30:00+0900",
+  "completed_at": "2026-05-26T13:20:00+0900"
+}

@@ -4,6 +4,9 @@ import '../models/mock_exam_license_kind.dart';
 import '../models/session_result.dart';
 import '../services/global_answer_stats_service.dart';
 import '../theme/app_theme_colors.dart';
+import '../widgets/glass/glass_app_bar.dart';
+import '../widgets/glass/glass_card.dart';
+import '../widgets/glass/glass_scaffold.dart';
 import 'home_screen.dart';
 import 'question_detail_screen.dart';
 
@@ -41,13 +44,13 @@ class ResultScreen extends StatelessWidget {
     if (mockExamLicenseKind != null) {
       final passed = _scaledScoreOutOf100 >=
           mockExamLicenseKind!.passScoreMinOutOf100;
-      return passed ? const Color(0xFF15803D) : Colors.red.shade700;
+      return passed ? ac.success : ac.danger;
     }
     final ratio = total <= 0 ? 0.0 : score / total;
-    if (ratio >= 0.9) return const Color(0xFF15803D);
+    if (ratio >= 0.9) return ac.success;
     if (ratio >= 0.7) return ac.primaryDark;
-    if (ratio >= 0.5) return Colors.orange;
-    return Colors.red;
+    if (ratio >= 0.5) return ac.warning;
+    return ac.danger;
   }
 
   String _indicesToLabels(SessionResult r, Iterable<int> indices) {
@@ -66,31 +69,21 @@ class ResultScreen extends StatelessWidget {
     final incorrectResults =
         results.where((r) => !r.isCorrect).toList();
 
-    return Scaffold(
-      backgroundColor: ac.background,
-      appBar: AppBar(
-        title: const Text('시험 결과'),
+    return GlassScaffold(
+      appBar: const GlassAppBar(
+        title: Text('시험 결과'),
         automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 14),
-            decoration: BoxDecoration(
-              color: ac.surfaceWhite,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: ac.borderLight),
-              boxShadow: [
-                BoxShadow(
-                  color: ac.textPrimary.withValues(alpha: 0.04),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: kind == null
+          SizedBox(height: kToolbarHeight + 8),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            child: GlassCard(
+              borderRadius: 16,
+              padding:
+                  const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+              child: kind == null
                 ? Column(
                     children: [
                       Text(
@@ -202,6 +195,7 @@ class ResultScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
@@ -312,127 +306,129 @@ class _IncorrectCardState extends State<_IncorrectCard> {
         ? null
         : (_global!.accuracyRate * 100).round();
 
-    return InkWell(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => QuestionDetailScreen(question: question),
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: ac.surfaceCard,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: GlassCard(
+        borderRadius: 12,
+        padding: EdgeInsets.zero,
+        borderColor: ac.dangerBorder,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => QuestionDetailScreen(question: question),
+              ),
+            );
+          },
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.red.shade200),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    'Q${widget.questionNumber}. ${question.question}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: ac.textPrimary,
-                    ),
-                  ),
-                ),
-                if (globalPct != null) ...[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: ac.chipBg,
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: ac.borderLight),
-                    ),
-                    child: Text(
-                      l10n.statsGlobalAccuracyBadge('$globalPct'),
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: ac.textSecondary,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 8),
-            if (question.isMultipleChoice) ...[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.close, color: Colors.red, size: 18),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      '내 답: ${selected.isNotEmpty ? widget.indicesToLabels(r, selected) : "(선택 없음)"}',
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.check, color: Colors.green, size: 18),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      '정답: ${widget.indicesToLabels(r, question.correctIndices)}',
-                      style: const TextStyle(color: Colors.green),
-                    ),
-                  ),
-                ],
-              ),
-            ] else ...[
-              if (selected.isNotEmpty)
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.close, color: Colors.red, size: 18),
-                    const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        '내 답: ${question.options[selected.first]}',
-                        style: const TextStyle(color: Colors.red),
+                        'Q${widget.questionNumber}. ${question.question}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: ac.textPrimary,
+                        ),
                       ),
                     ),
+                    if (globalPct != null) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: ac.chipBg,
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: ac.borderLight),
+                        ),
+                        child: Text(
+                          l10n.statsGlobalAccuracyBadge('$globalPct'),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: ac.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  const Icon(Icons.check, color: Colors.green, size: 18),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      '정답: ${question.options[question.correctIndices.first]}',
-                      style: const TextStyle(color: Colors.green),
+                const SizedBox(height: 8),
+                if (question.isMultipleChoice) ...[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.close, color: ac.danger, size: 18),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          '내 답: ${selected.isNotEmpty ? widget.indicesToLabels(r, selected) : "(선택 없음)"}',
+                          style: TextStyle(color: ac.danger),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.check, color: ac.success, size: 18),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          '정답: ${widget.indicesToLabels(r, question.correctIndices)}',
+                          style: TextStyle(color: ac.success),
+                        ),
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  if (selected.isNotEmpty)
+                    Row(
+                      children: [
+                        Icon(Icons.close, color: ac.danger, size: 18),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            '내 답: ${question.options[selected.first]}',
+                            style: TextStyle(color: ac.danger),
+                          ),
+                        ),
+                      ],
                     ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.check, color: ac.success, size: 18),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          '정답: ${question.options[question.correctIndices.first]}',
+                          style: TextStyle(color: ac.success),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-              ),
-            ],
-            const SizedBox(height: 8),
-            Text(
-              question.explanation,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey.shade700,
-              ),
+                const SizedBox(height: 8),
+                Text(
+                  question.explanation,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: ac.textSecondary,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

@@ -5,6 +5,9 @@ import '../models/question.dart';
 import '../services/global_answer_stats_service.dart';
 import '../services/user_answer_stats_service.dart';
 import '../theme/app_theme_colors.dart';
+import '../widgets/glass/glass_app_bar.dart';
+import '../widgets/glass/glass_card.dart';
+import '../widgets/glass/glass_scaffold.dart';
 import 'quiz_screen.dart';
 
 /// "내 정답률 vs 전체 사용자 정답률" + 보기별 선택 분포 를 보여주는 화면.
@@ -54,14 +57,8 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     final l10n = AppLocalizations.of(context);
     final ac = context.appColors;
 
-    return Scaffold(
-      backgroundColor: ac.background,
-      appBar: AppBar(
-        title: Text(
-          l10n.qdetailTitle,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
+    return GlassScaffold(
+      appBar: GlassAppBar(title: Text(l10n.qdetailTitle)),
       body: _loading
           ? const Center(
               child: SizedBox(
@@ -73,7 +70,8 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                padding:
+                    EdgeInsets.fromLTRB(16, kToolbarHeight + 12, 16, 24),
                 children: [
                   _QuestionBodyCard(question: widget.question),
                   const SizedBox(height: 16),
@@ -143,21 +141,18 @@ class _QuestionBodyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ac = context.appColors;
     final correctSet = question.correctIndexSet;
-    return Container(
+    return GlassCard(
+      borderRadius: 16,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: ac.surfaceWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ac.borderLight),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Q.${question.id}',
             style: TextStyle(
+              fontFamily: 'Pretendard',
               fontSize: 12,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
               color: ac.textSecondary,
             ),
           ),
@@ -165,6 +160,7 @@ class _QuestionBodyCard extends StatelessWidget {
           Text(
             question.question,
             style: TextStyle(
+              fontFamily: 'Pretendard',
               fontSize: 15,
               height: 1.5,
               fontWeight: FontWeight.w600,
@@ -183,7 +179,7 @@ class _QuestionBodyCard extends StatelessWidget {
                     height: 24,
                     decoration: BoxDecoration(
                       color: correctSet.contains(i)
-                          ? const Color(0xFFDCFCE7)
+                          ? ac.successBg
                           : ac.chipBg,
                       borderRadius: BorderRadius.circular(6),
                     ),
@@ -191,10 +187,11 @@ class _QuestionBodyCard extends StatelessWidget {
                     child: Text(
                       '${i + 1}',
                       style: TextStyle(
+                        fontFamily: 'Pretendard',
                         fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                         color: correctSet.contains(i)
-                            ? const Color(0xFF15803D)
+                            ? ac.success
                             : ac.textSecondary,
                       ),
                     ),
@@ -260,23 +257,19 @@ class _AccuracyCompareCard extends StatelessWidget {
       final diff = myPct - globalPct;
       if (diff > 3) {
         diffText = l10n.qdetailDiffHigher(diff);
-        diffColor = const Color(0xFF15803D);
+        diffColor = ac.success;
       } else if (diff < -3) {
         diffText = l10n.qdetailDiffLower(-diff);
-        diffColor = Colors.red.shade700;
+        diffColor = ac.danger;
       } else {
         diffText = l10n.qdetailDiffSame;
         diffColor = ac.textSecondary;
       }
     }
 
-    return Container(
+    return GlassCard(
+      borderRadius: 16,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: ac.surfaceWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ac.borderLight),
-      ),
       child: Column(
         children: [
           Row(
@@ -400,13 +393,9 @@ class _OptionDistributionCard extends StatelessWidget {
       }
     });
 
-    return Container(
+    return GlassCard(
+      borderRadius: 16,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: ac.surfaceWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ac.borderLight),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -462,11 +451,11 @@ class _OptionBar extends StatelessWidget {
 
     final Color barColor;
     if (isCorrect) {
-      barColor = const Color(0xFF22C55E);
+      barColor = ac.success;
     } else if (isMostWrong && count > 0) {
-      barColor = Colors.red.shade400;
+      barColor = ac.danger;
     } else {
-      barColor = Colors.grey.shade400;
+      barColor = ac.textSecondary.withValues(alpha: 0.5);
     }
 
     return Column(

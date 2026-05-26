@@ -10,6 +10,10 @@ import '../services/question_service.dart';
 import '../services/user_answer_stats_service.dart';
 import '../services/wrong_note_service.dart';
 import '../theme/app_theme_colors.dart';
+import '../widgets/glass/glass_app_bar.dart';
+import '../widgets/glass/glass_card.dart';
+import '../widgets/glass/glass_scaffold.dart';
+import '../widgets/glass/gradient_icon_badge.dart';
 import 'question_detail_screen.dart';
 
 class StatsScreen extends StatefulWidget {
@@ -79,14 +83,8 @@ class _StatsScreenState extends State<StatsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      backgroundColor: context.appColors.background,
-      appBar: AppBar(
-        title: Text(
-          l10n.statsTitle,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
+    return GlassScaffold(
+      appBar: GlassAppBar(title: Text(l10n.statsTitle)),
       body: _loading
           ? const Center(
               child: SizedBox(
@@ -98,7 +96,8 @@ class _StatsScreenState extends State<StatsScreen> {
           : RefreshIndicator(
               onRefresh: () => _load(forceRefresh: true),
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+                padding:
+                    EdgeInsets.fromLTRB(16, kToolbarHeight + 12, 16, 32),
                 children: [
                   _SectionHeader(title: l10n.statsSectionOverall),
                   const SizedBox(height: 8),
@@ -237,13 +236,10 @@ class _OverallStatsCard extends StatelessWidget {
         ? (overall.accuracyRate * 100).toStringAsFixed(1)
         : '—';
 
-    return Container(
+    final ac = context.appColors;
+    return GlassCard(
+      borderRadius: 16,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.appColors.surfaceWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.appColors.borderLight),
-      ),
       child: Row(
         children: [
           Expanded(
@@ -251,8 +247,7 @@ class _OverallStatsCard extends StatelessWidget {
               icon: Icons.quiz_outlined,
               label: l10n.statsLabelAttempted,
               value: l10n.statsQuestionsUnit(attemptedCount),
-              iconColor: context.appColors.primaryDark,
-              iconBg: context.appColors.chipBg,
+              gradient: ac.gradientCyan,
             ),
           ),
           const SizedBox(width: 10),
@@ -261,8 +256,7 @@ class _OverallStatsCard extends StatelessWidget {
               icon: Icons.check_circle_outline,
               label: l10n.statsLabelAccuracy,
               value: '$accuracy%',
-              iconColor: const Color(0xFF15803D),
-              iconBg: const Color(0xFFDCFCE7),
+              gradient: ac.gradientEmerald,
             ),
           ),
           const SizedBox(width: 10),
@@ -271,8 +265,7 @@ class _OverallStatsCard extends StatelessWidget {
               icon: Icons.close_rounded,
               label: l10n.statsLabelWrongNow,
               value: l10n.statsQuestionsUnit(wrongCount),
-              iconColor: Colors.red.shade700,
-              iconBg: const Color(0xFFFEE2E2),
+              gradient: ac.gradientRose,
             ),
           ),
         ],
@@ -286,36 +279,33 @@ class _StatChip extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
-    required this.iconColor,
-    required this.iconBg,
+    required this.gradient,
   });
 
   final IconData icon;
   final String label;
   final String value;
-  final Color iconColor;
-  final Color iconBg;
+  final List<Color> gradient;
 
   @override
   Widget build(BuildContext context) {
+    final ac = context.appColors;
     return Column(
       children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: iconBg,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: iconColor, size: 22),
+        GradientIconBadge(
+          gradient: gradient,
+          icon: icon,
+          size: 40,
+          iconSize: 22,
         ),
         const SizedBox(height: 8),
         Text(
           value,
           style: TextStyle(
+            fontFamily: 'Pretendard',
             fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: context.appColors.textPrimary,
+            fontWeight: FontWeight.w800,
+            color: ac.textPrimary,
           ),
         ),
         const SizedBox(height: 2),
@@ -324,7 +314,7 @@ class _StatChip extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 11,
-            color: context.appColors.textSecondary,
+            color: ac.textSecondary,
           ),
         ),
       ],
@@ -344,14 +334,11 @@ class _MockExamChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ac = context.appColors;
     if (history.isEmpty) {
-      return Container(
+      return GlassCard(
+        borderRadius: 16,
         padding: const EdgeInsets.symmetric(vertical: 28),
-        decoration: BoxDecoration(
-          color: context.appColors.surfaceWhite,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: context.appColors.borderLight),
-        ),
         child: Center(
           child: Text(
             l10n.statsMockExamChartEmpty,
@@ -359,7 +346,7 @@ class _MockExamChart extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               height: 1.5,
-              color: context.appColors.textSecondary,
+              color: ac.textSecondary,
             ),
           ),
         ),
@@ -374,13 +361,9 @@ class _MockExamChart extends StatelessWidget {
     const double chartHeight = 120;
     const double barMaxHeight = 90;
 
-    return Container(
+    return GlassCard(
+      borderRadius: 16,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      decoration: BoxDecoration(
-        color: context.appColors.surfaceWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.appColors.borderLight),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -390,7 +373,7 @@ class _MockExamChart extends StatelessWidget {
                 width: 10,
                 height: 10,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF15803D),
+                  color: ac.success,
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),
@@ -399,7 +382,7 @@ class _MockExamChart extends StatelessWidget {
                 l10n.mockResultPass,
                 style: TextStyle(
                   fontSize: 11,
-                  color: context.appColors.textSecondary,
+                  color: ac.textSecondary,
                 ),
               ),
               const SizedBox(width: 10),
@@ -407,7 +390,7 @@ class _MockExamChart extends StatelessWidget {
                 width: 10,
                 height: 10,
                 decoration: BoxDecoration(
-                  color: Colors.red.shade400,
+                  color: ac.danger,
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),
@@ -416,7 +399,7 @@ class _MockExamChart extends StatelessWidget {
                 l10n.mockResultFail,
                 style: TextStyle(
                   fontSize: 11,
-                  color: context.appColors.textSecondary,
+                  color: ac.textSecondary,
                 ),
               ),
             ],
@@ -430,8 +413,7 @@ class _MockExamChart extends StatelessWidget {
                 final ratio = e.scaledScoreOutOf100 / 100.0;
                 final barH = (ratio * barMaxHeight).clamp(4.0, barMaxHeight);
                 final pass = e.passed;
-                final barColor =
-                    pass ? const Color(0xFF22C55E) : Colors.red.shade400;
+                final barColor = pass ? ac.success : ac.danger;
                 return Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3),
@@ -443,9 +425,7 @@ class _MockExamChart extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
-                            color: pass
-                                ? const Color(0xFF15803D)
-                                : Colors.red.shade700,
+                            color: pass ? ac.success : ac.danger,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -471,14 +451,14 @@ class _MockExamChart extends StatelessWidget {
                 l10n.statsChartOldestFirst,
                 style: TextStyle(
                   fontSize: 10,
-                  color: context.appColors.textSecondary,
+                  color: ac.textSecondary,
                 ),
               ),
               Text(
                 l10n.statsChartRecentAttempts(recent.length),
                 style: TextStyle(
                   fontSize: 10,
-                  color: context.appColors.textSecondary,
+                  color: ac.textSecondary,
                 ),
               ),
             ],
@@ -506,19 +486,17 @@ class _HardestQuestionsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: context.appColors.surfaceWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.appColors.borderLight),
-      ),
+    final ac = context.appColors;
+    return GlassCard(
+      borderRadius: 16,
+      padding: EdgeInsets.zero,
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: questions.length,
         separatorBuilder: (_, __) => Divider(
           height: 1,
-          color: context.appColors.borderLight,
+          color: ac.borderLight,
           indent: 16,
           endIndent: 16,
         ),
@@ -535,21 +513,16 @@ class _HardestQuestionsList extends StatelessWidget {
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEE2E2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${i + 1}',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red.shade700,
-                        ),
+                  GradientIconBadge(
+                    gradient: ac.gradientRose,
+                    size: 32,
+                    child: Text(
+                      '${i + 1}',
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -563,7 +536,7 @@ class _HardestQuestionsList extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: context.appColors.textPrimary,
+                            color: ac.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -572,7 +545,7 @@ class _HardestQuestionsList extends StatelessWidget {
                               s.attempts, s.wrongCount),
                           style: TextStyle(
                             fontSize: 12,
-                            color: context.appColors.textSecondary,
+                            color: ac.textSecondary,
                           ),
                         ),
                       ],
@@ -586,7 +559,7 @@ class _HardestQuestionsList extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: Colors.red.shade700,
+                          color: ac.danger,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -621,12 +594,9 @@ class _GlobalHardestQuestionsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ac = context.appColors;
-    return Container(
-      decoration: BoxDecoration(
-        color: ac.surfaceWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ac.borderLight),
-      ),
+    return GlassCard(
+      borderRadius: 16,
+      padding: EdgeInsets.zero,
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -647,21 +617,16 @@ class _GlobalHardestQuestionsList extends StatelessWidget {
                   horizontal: 16, vertical: 12),
               child: Row(
                 children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEE2E2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${i + 1}',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red.shade700,
-                        ),
+                  GradientIconBadge(
+                    gradient: ac.gradientRose,
+                    size: 32,
+                    child: Text(
+                      '${i + 1}',
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -697,7 +662,7 @@ class _GlobalHardestQuestionsList extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: Colors.red.shade700,
+                          color: ac.danger,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -729,14 +694,9 @@ class _GlobalSubcategoryAccuracyList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ac = context.appColors;
-    return Container(
+    return GlassCard(
+      borderRadius: 16,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      decoration: BoxDecoration(
-        color: ac.surfaceWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ac.borderLight),
-      ),
       child: Column(
         children: [
           for (int i = 0; i < aggregates.length; i++) ...[
@@ -779,7 +739,7 @@ class _SubcategoryRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
-                color: Colors.red.shade700,
+                color: ac.danger,
               ),
             ),
           ],
@@ -791,7 +751,7 @@ class _SubcategoryRow extends StatelessWidget {
             value: (1 - agg.accuracyRate).clamp(0.0, 1.0),
             minHeight: 7,
             backgroundColor: ac.chipBg,
-            color: Colors.red.shade400,
+            color: ac.danger,
           ),
         ),
         const SizedBox(height: 2),
@@ -815,13 +775,9 @@ class _GlobalUnsupportedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ac = context.appColors;
-    return Container(
+    return GlassCard(
+      borderRadius: 16,
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-      decoration: BoxDecoration(
-        color: ac.surfaceWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ac.borderLight),
-      ),
       child: Center(
         child: Text(
           message,
@@ -862,6 +818,7 @@ class _AccuracyBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ac = context.appColors;
     return SizedBox(
       width: 80,
       height: 6,
@@ -869,8 +826,8 @@ class _AccuracyBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(3),
         child: LinearProgressIndicator(
           value: rate,
-          backgroundColor: Colors.red.shade100,
-          color: rate >= 0.6 ? context.appColors.primary : Colors.red.shade400,
+          backgroundColor: ac.dangerBg,
+          color: rate >= 0.6 ? ac.success : ac.danger,
           minHeight: 6,
         ),
       ),

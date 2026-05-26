@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:quiz_app/app_settings_scope.dart';
 import 'package:quiz_app/l10n/app_localizations.dart';
 import 'package:quiz_app/models/question.dart';
@@ -18,10 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 const Size goldenSurface = Size(390, 844);
 
 /// 매 테스트 setUp 에 호출해 뷰포트·캐시 기본값을 세팅합니다.
-/// Jua 폰트는 `google_fonts/Jua-Regular.ttf` 로컬 에셋을 씁니다 (네트워크 불필요).
 Future<void> setGoldenDefaults(WidgetTester tester) async {
-  GoogleFonts.config.allowRuntimeFetching = true;
-
   tester.view.devicePixelRatio = 1.0;
   tester.view.physicalSize = goldenSurface;
   await tester.binding.setSurfaceSize(goldenSurface);
@@ -96,7 +92,7 @@ Future<void> primeQuestionBankCache(WidgetTester tester) async {
 
 /// 스크린을 MaterialApp + 로컬라이저 + AppSettingsScope 로 감쌉니다. main.dart 와 동일 구조.
 ///
-/// Jua 폰트에 없는 기호(`·` 가운뎃점 등)는 fontFamilyFallback 으로 시스템 폰트가
+/// Pretendard 에 없는 기호는 fontFamilyFallback 으로 시스템 폰트가
 /// 담당하도록 기본 텍스트 테마에 폴백을 주입합니다.
 Widget wrapForGolden(
   Widget child, {

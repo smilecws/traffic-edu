@@ -525,9 +525,15 @@ class _BentoSmallCard extends StatelessWidget {
                   color: colors.textPrimary,
                 ),
               ),
-              if (badgeText != null) ...[
-                const SizedBox(height: 8),
-                Container(
+              const SizedBox(height: 8),
+              // 배지 자리 — badgeText 가 없어도 동일한 높이를 차지해
+              // 가로 3분할 카드의 높이를 통일한다.
+              Visibility(
+                visible: badgeText != null,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
@@ -535,7 +541,7 @@ class _BentoSmallCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    badgeText!,
+                    badgeText ?? '',
                     style: TextStyle(
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w700,
@@ -544,7 +550,7 @@ class _BentoSmallCard extends StatelessWidget {
                     ),
                   ),
                 ),
-              ],
+              ),
             ],
           ),
         ),

@@ -19,6 +19,11 @@
       "dir": "feat-ui-redesign",
       "status": "completed",
       "completed_at": "2026-05-26T11:09:58+0900"
+    },
+    {
+      "dir": "feat-ui-tone-unify",
+      "status": "completed",
+      "completed_at": "2026-05-26T13:20:00+0900"
     }
   ]
 }

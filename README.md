@@ -27,7 +27,6 @@
 
 - **Flutter 3.x / Dart 3** — 단일 코드베이스 멀티 플랫폼
 - **shared_preferences** — 로컬 영속 저장
-- **google_fonts** — Jua 폰트
 - **video_player** — 동영상 문제 재생
 - **url_launcher** — 도로교통공단 외부 링크
 - **firebase_core / firebase_auth / cloud_firestore** — 익명 학습 통계 집계 (Web · Android · iOS)

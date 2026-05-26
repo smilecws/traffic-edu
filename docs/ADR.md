@@ -74,3 +74,8 @@
 **결정**: `HomeScreen` 과 `WrittenExamMenuScreen` 에 글래스모피즘 + 벤토 그리드 + 그라데이션 아이콘 + Pretendard 폰트를 적용한다. 공용 위젯은 `lib/widgets/glass/` 에 두고, 그라데이션 색은 `AppThemeColors` 의 미리 정의된 팔레트를 사용한다.
 **이유**: 시안(`driving-license-app-redesign.tsx`) 적용. 시각적 풍부함과 한국어 가독성(Pretendard) 개선.
 **트레이드오프**: `BackdropFilter` 는 모든 플랫폼에서 성능 영향 가능 (특히 웹과 구형 데스크톱). 추후 프레임 드롭이 보이면 블러 강도 낮추거나 정적 그라데이션으로 폴백.
+
+### ADR-015: UI 톤 통일 (글래스 시스템 확산)
+**결정**: 메인 화면(`HomeScreen`/`WrittenExamMenuScreen`)에만 적용되어 있던 글래스 디자인 시스템을 모든 내부 화면(`study_*`, `exam_guide`, `preparation`, `result`, `stats`, `mock_history`, `question_detail`, `disqualification_detail`, `quiz`)으로 확산한다. 신규 공용 위젯 `GlassAppBar`(`PreferredSizeWidget`, 투명+블러+자동 leading), `GlassScaffold`(`Scaffold + extendBodyBehindAppBar + GlassBackground + SafeArea`) 를 추가하고, `GradientIconBadge` 에 `child` 슬롯, `GlassCard` 에 `borderColor` 옵션을 추가했다. 흩어진 직접 hex 색(`0xFF15803D`/`0xFFDCFCE7`/`0xFFFEE2E2`/`Colors.red.shade700` 등)을 `AppThemeColors` 의 시맨틱 색 7개(`success`/`successBg`/`danger`/`dangerBg`/`dangerBorder`/`warning`/`warningBg`)로 흡수해 다크 모드와 일관성을 통일했다. `quiz_screen` 의 `GoogleFonts.jua` 의존을 제거하고 Pretendard 로 통일, `google_fonts` 패키지와 Jua 자산도 함께 제거. 학습 화면 두 곳의 `_accentFor` 중복 8색 hex 팔레트는 `lib/utils/topic_palette.dart` (16 토픽 ↔ 7 그라데이션 순환 매핑) 로 추출.
+**이유**: 메인 화면과 내부 화면 사이의 톤 단절이 사용자 체감 품질을 크게 떨어뜨렸다. 직접 hex 색이 7곳 이상 중복돼 다크 모드 대응과 유지보수가 힘들었다. Pretendard 가 이미 전역 테마에 등록돼 있어 Jua 는 quiz 4곳에서만 부분 사용되고 있었고, 단일 폰트로 통일하는 편이 가독성·번들 크기·일관성 모두 이득이었다.
+**트레이드오프**: `BackdropFilter` 사용 카드가 화면당 늘어 웹/구형 데스크톱에서 성능 영향 가능. `quiz_screen` 본문 컨테이너는 시인성 위해 평면 유지(글래스 미적용)로 보수적 절충. Jua 의 손글씨 톤이 사라져 일부 사용자는 분위기 변화를 느낄 수 있음. 학습 토픽 16개를 7개 그라데이션에 순환 매핑하므로 같은 그라데이션을 공유하는 토픽이 있음(허용).

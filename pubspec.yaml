@@ -14,7 +14,6 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   shared_preferences: ^2.2.2
-  google_fonts: ^6.2.1
   url_launcher: ^6.3.1
   video_player: ^2.10.0
   http: ^1.2.2
@@ -55,7 +54,6 @@ flutter:
         - asset: assets/fonts/Pretendard-Black.otf
           weight: 900
   assets:
-    - google_fonts/Jua-Regular.ttf
     - assets/questions_kor.json
     - assets/questions_eng.json
     - assets/questions_chi.json

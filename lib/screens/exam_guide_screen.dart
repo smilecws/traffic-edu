@@ -5,6 +5,10 @@ import '../l10n/app_localizations.dart';
 import '../models/disqualification_catalog.dart';
 import '../services/disqualification_catalog_service.dart';
 import '../theme/app_theme_colors.dart';
+import '../widgets/glass/glass_app_bar.dart';
+import '../widgets/glass/glass_card.dart';
+import '../widgets/glass/glass_scaffold.dart';
+import '../widgets/glass/gradient_icon_badge.dart';
 import 'disqualification_detail_screen.dart';
 
 /// 한국도로교통공단 안전운전 통합민원 「면허시험순서」 안내 요약.
@@ -193,13 +197,10 @@ class _ExamGuideScreenState extends State<ExamGuideScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      backgroundColor: context.appColors.background,
-      appBar: AppBar(
-        title: const Text('면허시험 순서'),
-      ),
+    return GlassScaffold(
+      appBar: const GlassAppBar(title: Text('면허시험 순서')),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+        padding: EdgeInsets.fromLTRB(20, kToolbarHeight + 12, 20, 32),
         children: [
           Text(
             '응시 전 교통안전교육부터 면허증 발급까지의 흐름입니다. '
@@ -276,40 +277,30 @@ class _DisqualSection extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: c.surfaceWhite,
-        borderRadius: BorderRadius.circular(16),
+      child: GlassCard(
+        borderRadius: 16,
+        padding: EdgeInsets.zero,
         child: InkWell(
           onTap: loading ? null : onOpen,
           borderRadius: BorderRadius.circular(16),
-          child: Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: c.borderLight),
-            ),
+          child: Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFE8E8),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(
-                    Icons.gpp_bad_outlined,
-                    color: c.primaryDark,
-                  ),
+                GradientIconBadge(
+                  gradient: c.gradientRose,
+                  icon: Icons.gpp_bad_outlined,
+                  size: 40,
+                  iconSize: 20,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     title,
                     style: TextStyle(
+                      fontFamily: 'Pretendard',
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
                       color: c.textPrimary,
@@ -318,10 +309,11 @@ class _DisqualSection extends StatelessWidget {
                 ),
                 Text(
                   l10n.disqualificationViewAll,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    fontFamily: 'Pretendard',
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF15803D),
+                    color: c.success,
                   ),
                 ),
               ],
@@ -340,13 +332,10 @@ class PreparationGuideScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.appColors.background,
-      appBar: AppBar(
-        title: const Text('준비물 가이드'),
-      ),
+    return GlassScaffold(
+      appBar: const GlassAppBar(title: Text('준비물 가이드')),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+        padding: EdgeInsets.fromLTRB(20, kToolbarHeight + 12, 20, 32),
         children: [
           Text(
             '시험 종류별 수수료·준비물·접수 방법 요약입니다. '
@@ -527,22 +516,18 @@ class _StepCard extends StatelessWidget {
     final c = context.appColors;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        width: double.infinity,
+      child: GlassCard(
+        borderRadius: 16,
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: c.surfaceWhite,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: c.borderLight),
-        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               step.title,
               style: TextStyle(
+                fontFamily: 'Pretendard',
                 fontSize: 16,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
                 color: c.textPrimary,
                 height: 1.3,
               ),

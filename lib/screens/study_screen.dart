@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import '../models/study_card.dart';
 import '../services/study_card_service.dart';
 import '../theme/app_theme_colors.dart';
+import '../utils/topic_palette.dart';
+import '../widgets/glass/glass_app_bar.dart';
+import '../widgets/glass/glass_card.dart';
+import '../widgets/glass/glass_scaffold.dart';
+import '../widgets/glass/gradient_icon_badge.dart';
 import 'study_card_screen.dart';
 
 /// 학습하기 랜딩. 16개 학습 토픽을 리스트로 보여주고, 탭하면 해당
@@ -39,44 +44,36 @@ class _StudyScreenState extends State<StudyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
-    return Scaffold(
-      backgroundColor: colors.background,
-      appBar: AppBar(
-        title: const Text(
-          '학습하기',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: colors.background,
-        foregroundColor: colors.textPrimary,
-        elevation: 0,
-      ),
+    final ac = context.appColors;
+    return GlassScaffold(
+      appBar: const GlassAppBar(title: Text('학습하기')),
       body: _loading
           ? Center(
               child: CircularProgressIndicator(
-                color: colors.primary,
+                color: ac.primary,
                 strokeWidth: 3,
               ),
             )
           : ListView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+              padding:
+                  EdgeInsets.fromLTRB(20, kToolbarHeight + 12, 20, 24),
               children: [
                 Text(
                   '주제별 학습 카드로 핵심 개념과 시험 출제 포인트를 정리해 보세요.',
                   style: TextStyle(
+                    fontFamily: 'Pretendard',
                     fontSize: 14,
                     height: 1.5,
-                    color: colors.textSecondary,
+                    color: ac.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 16),
                 ..._topics.map((topic) {
-                  final accent = _accentFor(topic.id);
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: _StudyTopicTile(
                       topic: topic,
-                      accent: accent,
+                      gradient: topicGradient(context, topic.id),
                       onTap: () {
                         Navigator.push<void>(
                           context,
@@ -94,63 +91,40 @@ class _StudyScreenState extends State<StudyScreen> {
   }
 }
 
-/// 토픽 id 별 강조색. 16개를 4계열로 순환.
-Color _accentFor(int id) {
-  const palette = <Color>[
-    Color(0xFF22C55E), // green
-    Color(0xFF3B82F6), // blue
-    Color(0xFFF59E0B), // amber
-    Color(0xFFEF4444), // red
-    Color(0xFF8B5CF6), // violet
-    Color(0xFF06B6D4), // cyan
-    Color(0xFFEC4899), // pink
-    Color(0xFF14B8A6), // teal
-  ];
-  return palette[(id - 1) % palette.length];
-}
-
 class _StudyTopicTile extends StatelessWidget {
   const _StudyTopicTile({
     required this.topic,
-    required this.accent,
+    required this.gradient,
     required this.onTap,
   });
 
   final StudyTopic topic;
-  final Color accent;
+  final List<Color> gradient;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final ac = context.appColors;
-    return Material(
-      color: ac.surfaceWhite,
-      borderRadius: BorderRadius.circular(16),
+    return GlassCard(
+      borderRadius: 16,
+      padding: EdgeInsets.zero,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        child: Container(
+        child: Padding(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: ac.borderLight),
-          ),
           child: Row(
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                alignment: Alignment.center,
+              GradientIconBadge(
+                gradient: gradient,
+                size: 44,
                 child: Text(
                   topic.id.toString().padLeft(2, '0'),
-                  style: TextStyle(
+                  style: const TextStyle(
+                    fontFamily: 'Pretendard',
                     fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: accent,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -162,6 +136,7 @@ class _StudyTopicTile extends StatelessWidget {
                     Text(
                       topic.title,
                       style: TextStyle(
+                        fontFamily: 'Pretendard',
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                         color: ac.textPrimary,

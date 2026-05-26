@@ -3,16 +3,21 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 /// 글래스 카드. BackdropFilter 블러 + 반투명 흰색 배경 + 흰 보더.
+///
+/// `borderColor` 를 지정하면 흰색 기본 보더 대신 강조 색 보더로 그린다
+/// (예: study 카드의 아코디언 토글 시 accent border).
 class GlassCard extends StatelessWidget {
   const GlassCard({
     super.key,
     this.borderRadius = 20,
     this.padding = const EdgeInsets.all(16),
+    this.borderColor,
     this.child,
   });
 
   final double borderRadius;
   final EdgeInsetsGeometry padding;
+  final Color? borderColor;
   final Widget? child;
 
   @override
@@ -27,7 +32,7 @@ class GlassCard extends StatelessWidget {
             color: Colors.white.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(borderRadius),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.6),
+              color: borderColor ?? Colors.white.withValues(alpha: 0.6),
             ),
           ),
           child: child,

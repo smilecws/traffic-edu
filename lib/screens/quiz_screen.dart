@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -16,6 +15,8 @@ import '../services/user_answer_log_service.dart';
 import '../services/user_answer_stats_service.dart';
 import '../services/wrong_note_service.dart';
 import '../theme/app_theme_colors.dart';
+import '../widgets/glass/glass_app_bar.dart';
+import '../widgets/glass/glass_scaffold.dart';
 import 'result_screen.dart';
 
 class QuizScreen extends StatefulWidget {
@@ -447,11 +448,11 @@ class _QuizScreenState extends State<QuizScreen> {
     if (widget.showTimerAndScore || !_answered) return ac.surfaceCard;
     final q = _q;
     final isCorrect = q.correctIndexSet.contains(index);
-    if (isCorrect) return const Color(0xFFDCFCE7);
+    if (isCorrect) return ac.successBg;
     if (q.isMultipleChoice) {
-      if (_selectedMultiple.contains(index)) return const Color(0xFFFEE2E2);
+      if (_selectedMultiple.contains(index)) return ac.dangerBg;
     } else {
-      if (index == _selectedSingle) return const Color(0xFFFEE2E2);
+      if (index == _selectedSingle) return ac.dangerBg;
     }
     return ac.surfaceCard;
   }
@@ -467,11 +468,11 @@ class _QuizScreenState extends State<QuizScreen> {
       return ac.borderLight;
     }
     final q = _q;
-    if (q.correctIndexSet.contains(index)) return Colors.green;
+    if (q.correctIndexSet.contains(index)) return ac.success;
     if (q.isMultipleChoice && _selectedMultiple.contains(index)) {
-      return Colors.red;
+      return ac.danger;
     }
-    if (!q.isMultipleChoice && index == _selectedSingle) return Colors.red;
+    if (!q.isMultipleChoice && index == _selectedSingle) return ac.danger;
     return ac.borderLight;
   }
 
@@ -479,8 +480,7 @@ class _QuizScreenState extends State<QuizScreen> {
   Widget build(BuildContext context) {
     final ac = context.appColors;
     if (_loading) {
-      return Scaffold(
-        backgroundColor: ac.background,
+      return GlassScaffold(
         body: Center(
           child: CircularProgressIndicator(
             color: ac.primary,
@@ -507,12 +507,10 @@ class _QuizScreenState extends State<QuizScreen> {
           navigator.pop(result);
         }));
       },
-      child: Scaffold(
-        backgroundColor: ac.background,
-        appBar: AppBar(
+      child: GlassScaffold(
+        appBar: GlassAppBar(
           title: Text(
             widget.title ?? '${_currentIndex + 1} / ${_questions.length}',
-            style: TextStyle(fontWeight: FontWeight.bold),
           ),
           actions: [
           IconButton(
@@ -525,7 +523,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   ? Icons.star_rounded
                   : Icons.star_outline_rounded,
               color: _favoriteIds.contains(question.id)
-                  ? Colors.amber.shade700
+                  ? ac.warning
                   : ac.textSecondary,
             ),
           ),
@@ -538,12 +536,12 @@ class _QuizScreenState extends State<QuizScreen> {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: (_remainingSeconds <= 60)
-                        ? const Color(0xFFFEE2E2)
+                        ? ac.dangerBg
                         : ac.surfaceCard,
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
                       color: (_remainingSeconds <= 60)
-                          ? Colors.red.shade200
+                          ? ac.dangerBorder
                           : ac.borderLight,
                     ),
                   ),
@@ -552,7 +550,7 @@ class _QuizScreenState extends State<QuizScreen> {
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: (_remainingSeconds <= 60)
-                          ? Colors.red.shade700
+                          ? ac.danger
                           : ac.textPrimary,
                     ),
                   ),
@@ -599,6 +597,7 @@ class _QuizScreenState extends State<QuizScreen> {
         ),
       body: Column(
         children: [
+          SizedBox(height: kToolbarHeight),
           LinearProgressIndicator(
             value: progress,
             backgroundColor: ac.borderLight,
@@ -676,7 +675,8 @@ class _QuizScreenState extends State<QuizScreen> {
                         padding: const EdgeInsets.only(bottom: 12),
                         child: LayoutBuilder(
                           builder: (context, constraints) {
-                            final imageCaptionStyle = GoogleFonts.jua(
+                            final imageCaptionStyle = TextStyle(
+                              fontFamily: 'Pretendard',
                               fontSize: 14,
                               height: 1.3,
                               color: ac.textSecondary,
@@ -811,8 +811,9 @@ class _QuizScreenState extends State<QuizScreen> {
                                 child: Center(
                                   child: Text(
                                     '${i + 1}',
-                                    style: GoogleFonts.jua(
-                                      fontWeight: FontWeight.bold,
+                                    style: TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontWeight: FontWeight.w700,
                                       color: ac.primaryDark,
                                     ),
                                   ),
@@ -822,8 +823,10 @@ class _QuizScreenState extends State<QuizScreen> {
                               Expanded(
                                 child: Text(
                                   question.options[i],
-                                  style: GoogleFonts.jua(
+                                  style: TextStyle(
+                                    fontFamily: 'Pretendard',
                                     fontSize: 16,
+                                    fontWeight: FontWeight.w500,
                                     color: ac.textPrimary,
                                   ),
                                 ),
@@ -831,15 +834,14 @@ class _QuizScreenState extends State<QuizScreen> {
                               if (!widget.showTimerAndScore &&
                                   _answered &&
                                   question.correctIndexSet.contains(i))
-                                const Icon(Icons.check_circle,
-                                    color: Colors.green),
+                                Icon(Icons.check_circle, color: ac.success),
                               if (!widget.showTimerAndScore &&
                                   _answered &&
                                   !question.correctIndexSet.contains(i) &&
                                   (question.isMultipleChoice
                                       ? _selectedMultiple.contains(i)
                                       : _selectedSingle == i))
-                                const Icon(Icons.cancel, color: Colors.red),
+                                Icon(Icons.cancel, color: ac.danger),
                             ],
                           ),
                         ),
@@ -866,8 +868,10 @@ class _QuizScreenState extends State<QuizScreen> {
                           Expanded(
                             child: Text(
                               question.explanation,
-                              style: GoogleFonts.jua(
+                              style: TextStyle(
+                                fontFamily: 'Pretendard',
                                 fontSize: 14,
+                                fontWeight: FontWeight.w500,
                                 color: ac.textPrimary,
                                 height: 1.4,
                               ),

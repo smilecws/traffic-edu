@@ -60,7 +60,7 @@
 접근 규칙: 위젯은 반드시 `context.appColors.xxx` 로 읽는다. `Theme.of(context).colorScheme` 을 직접 참조하지 말 것 (다크 분기가 ThemeExtension 에 있어서 컬러스킴만 보면 틀림).
 
 ## 타이포그래피
-- **전체 폰트**: `google_fonts` 의 **Jua** (`GoogleFonts.juaTextTheme`). `main.dart` 의 `_lightTheme` / `_darkTheme` 에서 일괄 적용.
+- **전체 폰트**: **Pretendard** (Regular/Medium/Bold/ExtraBold/Black 5종). `pubspec.yaml` 의 `flutter.fonts` 에 등록, 테마(`app_theme.dart`)에서 일괄 적용.
 - 앱바 제목 18pt W600
 - 섹션 제목 16pt W800
 - 본문(문항 텍스트) 18pt W600 height 1.5

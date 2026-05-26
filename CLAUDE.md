@@ -8,7 +8,6 @@
 ## 기술 스택
 - Flutter 3.x, Dart 3 (SDK `>=3.0.0 <4.0.0`)
 - `shared_preferences` — 로컬 영속 저장 (ID 목록 / JSON 문자열)
-- `google_fonts` — Jua 폰트
 - `video_player` — 동영상 문제 재생 (iOS/Android/macOS/Windows 네이티브, 웹은 HTML5 video)
 - `url_launcher` — 도로교통공단 외부 링크
 - `flutter_localizations` + 자체 `AppLocalizations` (gen-l10n 미사용)

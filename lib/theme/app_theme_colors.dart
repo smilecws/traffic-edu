@@ -14,6 +14,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.textSecondary,
     required this.borderLight,
     required this.chipBg,
+    required this.success,
+    required this.successBg,
+    required this.danger,
+    required this.dangerBg,
+    required this.dangerBorder,
+    required this.warning,
+    required this.warningBg,
     required this.gradientCyan,
     required this.gradientRose,
     required this.gradientEmerald,
@@ -33,6 +40,15 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color textSecondary;
   final Color borderLight;
   final Color chipBg;
+  // 시맨틱 색 — 합격/정답/불합격/오답/경고 등.
+  // 화면 코드에서 hex 직접 사용 대신 이 키를 통해 접근한다.
+  final Color success;
+  final Color successBg;
+  final Color danger;
+  final Color dangerBg;
+  final Color dangerBorder;
+  final Color warning;
+  final Color warningBg;
   final List<Color> gradientCyan;
   final List<Color> gradientRose;
   final List<Color> gradientEmerald;
@@ -60,6 +76,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     textSecondary: Color(0xFF64748B),
     borderLight: Color(0xFFD1FAE5),
     chipBg: Color(0xFFDCFCE7),
+    success: Color(0xFF15803D),
+    successBg: Color(0xFFDCFCE7),
+    danger: Color(0xFFB91C1C),
+    dangerBg: Color(0xFFFEE2E2),
+    dangerBorder: Color(0xFFFECACA),
+    warning: Color(0xFFB45309),
+    warningBg: Color(0xFFFEF3C7),
     gradientCyan: _gradientCyan,
     gradientRose: _gradientRose,
     gradientEmerald: _gradientEmerald,
@@ -80,6 +103,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     textSecondary: Color(0xFF94A3B8),
     borderLight: Color(0xFF2D4A38),
     chipBg: Color(0xFF166534),
+    success: Color(0xFF4ADE80),
+    successBg: Color(0xFF14532D),
+    danger: Color(0xFFFCA5A5),
+    dangerBg: Color(0xFF7F1D1D),
+    dangerBorder: Color(0xFF991B1B),
+    warning: Color(0xFFFCD34D),
+    warningBg: Color(0xFF78350F),
     gradientCyan: _gradientCyan,
     gradientRose: _gradientRose,
     gradientEmerald: _gradientEmerald,
@@ -101,6 +131,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? textSecondary,
     Color? borderLight,
     Color? chipBg,
+    Color? success,
+    Color? successBg,
+    Color? danger,
+    Color? dangerBg,
+    Color? dangerBorder,
+    Color? warning,
+    Color? warningBg,
     List<Color>? gradientCyan,
     List<Color>? gradientRose,
     List<Color>? gradientEmerald,
@@ -120,6 +157,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       textSecondary: textSecondary ?? this.textSecondary,
       borderLight: borderLight ?? this.borderLight,
       chipBg: chipBg ?? this.chipBg,
+      success: success ?? this.success,
+      successBg: successBg ?? this.successBg,
+      danger: danger ?? this.danger,
+      dangerBg: dangerBg ?? this.dangerBg,
+      dangerBorder: dangerBorder ?? this.dangerBorder,
+      warning: warning ?? this.warning,
+      warningBg: warningBg ?? this.warningBg,
       gradientCyan: gradientCyan ?? this.gradientCyan,
       gradientRose: gradientRose ?? this.gradientRose,
       gradientEmerald: gradientEmerald ?? this.gradientEmerald,
@@ -144,6 +188,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       borderLight: Color.lerp(borderLight, other.borderLight, t)!,
       chipBg: Color.lerp(chipBg, other.chipBg, t)!,
+      success: Color.lerp(success, other.success, t)!,
+      successBg: Color.lerp(successBg, other.successBg, t)!,
+      danger: Color.lerp(danger, other.danger, t)!,
+      dangerBg: Color.lerp(dangerBg, other.dangerBg, t)!,
+      dangerBorder: Color.lerp(dangerBorder, other.dangerBorder, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      warningBg: Color.lerp(warningBg, other.warningBg, t)!,
       gradientCyan: _lerpColorList(gradientCyan, other.gradientCyan, t),
       gradientRose: _lerpColorList(gradientRose, other.gradientRose, t),
       gradientEmerald: _lerpColorList(gradientEmerald, other.gradientEmerald, t),

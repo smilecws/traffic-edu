@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import '../models/study_card.dart';
 import '../services/study_card_service.dart';
 import '../theme/app_theme_colors.dart';
+import '../utils/topic_palette.dart';
+import '../widgets/glass/glass_app_bar.dart';
+import '../widgets/glass/glass_card.dart';
+import '../widgets/glass/glass_scaffold.dart';
+import '../widgets/glass/gradient_icon_badge.dart';
 
 /// 학습 토픽 상세 화면.
 ///
@@ -43,9 +48,8 @@ class _StudyCardScreenState extends State<StudyCardScreen> {
   Widget build(BuildContext context) {
     final ac = context.appColors;
     if (_loading) {
-      return Scaffold(
-        backgroundColor: ac.background,
-        appBar: AppBar(),
+      return GlassScaffold(
+        appBar: const GlassAppBar(title: SizedBox.shrink()),
         body: Center(
           child: CircularProgressIndicator(color: ac.primary, strokeWidth: 3),
         ),
@@ -54,9 +58,8 @@ class _StudyCardScreenState extends State<StudyCardScreen> {
 
     final topic = _topic;
     if (topic == null) {
-      return Scaffold(
-        backgroundColor: ac.background,
-        appBar: AppBar(),
+      return GlassScaffold(
+        appBar: const GlassAppBar(title: SizedBox.shrink()),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -69,40 +72,30 @@ class _StudyCardScreenState extends State<StudyCardScreen> {
       );
     }
 
-    final accent = _accentFor(topic.id);
+    final gradient = topicGradient(context, topic.id);
+    final accent = gradient[0];
 
-    return Scaffold(
-      backgroundColor: ac.background,
-      appBar: AppBar(
-        title: Text(
-          topic.title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
+    return GlassScaffold(
+      appBar: GlassAppBar(title: Text(topic.title)),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        padding:
+            EdgeInsets.fromLTRB(20, kToolbarHeight + 16, 20, 24),
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
+          GlassCard(
+            borderRadius: 12,
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Row(
               children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: accent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  alignment: Alignment.center,
+                GradientIconBadge(
+                  gradient: gradient,
+                  size: 36,
                   child: Text(
                     topic.id.toString().padLeft(2, '0'),
                     style: const TextStyle(
+                      fontFamily: 'Pretendard',
                       color: Colors.white,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w900,
                       fontSize: 14,
                     ),
                   ),
@@ -112,6 +105,7 @@ class _StudyCardScreenState extends State<StudyCardScreen> {
                   child: Text(
                     '세부 주제 ${topic.subTopics.length}개 · 카드 ${topic.totalCards}장',
                     style: TextStyle(
+                      fontFamily: 'Pretendard',
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: accent,
@@ -125,7 +119,7 @@ class _StudyCardScreenState extends State<StudyCardScreen> {
           for (final st in topic.subTopics) ...[
             _SubTopicTile(
               subTopic: st,
-              accent: accent,
+              gradient: gradient,
               isOpen: _openSubTopicMarker == st.marker,
               onToggle: () => setState(() {
                 _openSubTopicMarker =
@@ -142,45 +136,27 @@ class _StudyCardScreenState extends State<StudyCardScreen> {
   }
 }
 
-Color _accentFor(int id) {
-  const palette = <Color>[
-    Color(0xFF22C55E),
-    Color(0xFF3B82F6),
-    Color(0xFFF59E0B),
-    Color(0xFFEF4444),
-    Color(0xFF8B5CF6),
-    Color(0xFF06B6D4),
-    Color(0xFFEC4899),
-    Color(0xFF14B8A6),
-  ];
-  return palette[(id - 1) % palette.length];
-}
-
 class _SubTopicTile extends StatelessWidget {
   const _SubTopicTile({
     required this.subTopic,
-    required this.accent,
+    required this.gradient,
     required this.isOpen,
     required this.onToggle,
   });
 
   final StudySubTopic subTopic;
-  final Color accent;
+  final List<Color> gradient;
   final bool isOpen;
   final VoidCallback onToggle;
 
   @override
   Widget build(BuildContext context) {
     final ac = context.appColors;
-    return Container(
-      decoration: BoxDecoration(
-        color: ac.surfaceWhite,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: isOpen ? accent.withValues(alpha: 0.45) : ac.borderLight,
-        ),
-      ),
-      clipBehavior: Clip.antiAlias,
+    final accent = gradient[0];
+    return GlassCard(
+      borderRadius: 18,
+      padding: EdgeInsets.zero,
+      borderColor: isOpen ? accent.withValues(alpha: 0.45) : null,
       child: Column(
         children: [
           InkWell(
@@ -189,20 +165,16 @@ class _SubTopicTile extends StatelessWidget {
               padding: const EdgeInsets.all(14),
               child: Row(
                 children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: accent.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    alignment: Alignment.center,
+                  GradientIconBadge(
+                    gradient: gradient,
+                    size: 44,
                     child: Text(
                       subTopic.marker,
-                      style: TextStyle(
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
                         fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: accent,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -214,6 +186,7 @@ class _SubTopicTile extends StatelessWidget {
                         Text(
                           subTopic.title,
                           style: TextStyle(
+                            fontFamily: 'Pretendard',
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
                             color: ac.textPrimary,
@@ -325,7 +298,7 @@ class _CardCarouselState extends State<_CardCarousel> {
                 icon: Icons.chevron_left_rounded,
                 onTap: () => _go(-1),
                 background: Colors.white,
-                foreground: const Color(0xFF334155),
+                foreground: context.appColors.textPrimary,
               ),
               const Spacer(),
               for (var i = 0; i < cards.length; i++) ...[

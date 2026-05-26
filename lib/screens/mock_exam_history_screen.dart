@@ -5,6 +5,9 @@ import '../models/mock_exam_history_entry.dart';
 import '../models/mock_exam_license_kind.dart';
 import '../services/mock_exam_history_service.dart';
 import '../theme/app_theme_colors.dart';
+import '../widgets/glass/glass_app_bar.dart';
+import '../widgets/glass/glass_card.dart';
+import '../widgets/glass/glass_scaffold.dart';
 
 class MockExamHistoryScreen extends StatefulWidget {
   const MockExamHistoryScreen({super.key});
@@ -45,11 +48,9 @@ class _MockExamHistoryScreenState extends State<MockExamHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      backgroundColor: context.appColors.background,
-      appBar: AppBar(
-        title: Text(l10n.mockExamHistoryTitle),
-      ),
+    final ac = context.appColors;
+    return GlassScaffold(
+      appBar: GlassAppBar(title: Text(l10n.mockExamHistoryTitle)),
       body: FutureBuilder<List<MockExamHistoryEntry>>(
         future: _future,
         builder: (context, snap) {
@@ -73,7 +74,7 @@ class _MockExamHistoryScreenState extends State<MockExamHistoryScreen> {
                   style: TextStyle(
                     fontSize: 15,
                     height: 1.45,
-                    color: context.appColors.textSecondary,
+                    color: ac.textSecondary,
                   ),
                 ),
               ),
@@ -82,20 +83,19 @@ class _MockExamHistoryScreenState extends State<MockExamHistoryScreen> {
           return RefreshIndicator(
             onRefresh: _reload,
             child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+              padding: EdgeInsets.fromLTRB(
+                16,
+                kToolbarHeight + 12,
+                16,
+                24,
+              ),
               itemCount: list.length,
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, i) {
                 final e = list[i];
                 final pass = e.passed;
-                return Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: context.appColors.surfaceWhite,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: context.appColors.borderLight),
-                  ),
+                return GlassCard(
+                  borderRadius: 16,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -105,9 +105,10 @@ class _MockExamHistoryScreenState extends State<MockExamHistoryScreen> {
                             child: Text(
                               l10n.mockLicenseLabel(e.licenseKind),
                               style: TextStyle(
+                                fontFamily: 'Pretendard',
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
-                                color: context.appColors.textPrimary,
+                                color: ac.textPrimary,
                               ),
                             ),
                           ),
@@ -117,19 +118,16 @@ class _MockExamHistoryScreenState extends State<MockExamHistoryScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: pass
-                                  ? const Color(0xFFDCFCE7)
-                                  : const Color(0xFFFEE2E2),
+                              color: pass ? ac.successBg : ac.dangerBg,
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Text(
                               pass ? l10n.mockResultPass : l10n.mockResultFail,
                               style: TextStyle(
+                                fontFamily: 'Pretendard',
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
-                                color: pass
-                                    ? const Color(0xFF15803D)
-                                    : Colors.red.shade800,
+                                color: pass ? ac.success : ac.danger,
                               ),
                             ),
                           ),
@@ -140,7 +138,7 @@ class _MockExamHistoryScreenState extends State<MockExamHistoryScreen> {
                         '${l10n.mockExamHistoryWhen}: ${_formatWhen(context, e.at)}',
                         style: TextStyle(
                           fontSize: 13,
-                          color: context.appColors.textSecondary,
+                          color: ac.textSecondary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -149,7 +147,7 @@ class _MockExamHistoryScreenState extends State<MockExamHistoryScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           height: 1.4,
-                          color: context.appColors.textPrimary,
+                          color: ac.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -159,7 +157,7 @@ class _MockExamHistoryScreenState extends State<MockExamHistoryScreen> {
                         ),
                         style: TextStyle(
                           fontSize: 12,
-                          color: context.appColors.textSecondary,
+                          color: ac.textSecondary,
                         ),
                       ),
                     ],

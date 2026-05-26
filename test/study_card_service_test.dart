@@ -22,6 +22,10 @@ void main() {
         expect(topic!.id, meta.id);
         expect(topic.title, isNotEmpty,
             reason: '${meta.slug} title 비어있음');
+        // 리스트 화면이 JSON 을 안 읽고 meta.title 로 바로 그리므로
+        // 두 값이 어긋나면 사용자에게 잘못된 제목이 보인다.
+        expect(topic.title, meta.title,
+            reason: '${meta.slug} JSON title 과 meta.title 불일치');
         expect(topic.subTopics, isNotEmpty,
             reason: '${meta.slug} sub_topics 비어있음');
 

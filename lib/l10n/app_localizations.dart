@@ -61,6 +61,62 @@ class AppLocalizations {
         'vi': '0 điểm',
       });
 
+  String get statsProgressLabel => _t({
+        'ko': '진도',
+        'en': 'Progress',
+        'zh': '进度',
+        'vi': 'Tiến độ',
+      });
+
+  String get statsAccuracyLabel => _t({
+        'ko': '정답률',
+        'en': 'Accuracy',
+        'zh': '正确率',
+        'vi': 'Tỷ lệ đúng',
+      });
+
+  String get bentoMockSubtitle => _t({
+        'ko': '실전 40문제 · 40분',
+        'en': '40 questions · 40 min',
+        'zh': '实战 40 题 · 40 分钟',
+        'vi': '40 câu · 40 phút',
+      });
+
+  String get bentoPracticeSubtitle => _t({
+        'ko': '유형별 · 랜덤 40문제',
+        'en': 'By type · Random 40',
+        'zh': '分类 · 随机 40 题',
+        'vi': 'Theo dạng · 40 câu ngẫu nhiên',
+      });
+
+  String get bentoWrongSubtitle => _t({
+        'ko': '틀린 문제 모음',
+        'en': 'Wrong answers collection',
+        'zh': '错题集',
+        'vi': 'Tập câu sai',
+      });
+
+  String get bentoFavoritesSubtitle => _t({
+        'ko': '저장한 문제 모음',
+        'en': 'Saved questions',
+        'zh': '已收藏题目',
+        'vi': 'Câu đã lưu',
+      });
+
+  String get popupStatsView => _t({
+        'ko': '통계 보기',
+        'en': 'View statistics',
+        'zh': '查看统计',
+        'vi': 'Xem thống kê',
+      });
+
+  String get popupMockHistory => _t({
+        'ko': '모의고사 이력',
+        'en': 'Exam history',
+        'zh': '模拟考记录',
+        'vi': 'Lịch sử thi thử',
+      });
+
   String progressQuestions(int attempted, int total) {
     switch (locale.languageCode) {
       case 'en':

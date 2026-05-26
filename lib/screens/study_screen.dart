@@ -50,7 +50,7 @@ class _StudyScreenState extends State<StudyScreen> {
       body: _loading
           ? Center(
               child: CircularProgressIndicator(
-                color: ac.primary,
+                color: ac.gradientIndigo[0],
                 strokeWidth: 3,
               ),
             )

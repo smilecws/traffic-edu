@@ -51,7 +51,10 @@ class _StudyCardScreenState extends State<StudyCardScreen> {
       return GlassScaffold(
         appBar: const GlassAppBar(title: SizedBox.shrink()),
         body: Center(
-          child: CircularProgressIndicator(color: ac.primary, strokeWidth: 3),
+          child: CircularProgressIndicator(
+            color: ac.gradientIndigo[0],
+            strokeWidth: 3,
+          ),
         ),
       );
     }

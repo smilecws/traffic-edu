@@ -82,14 +82,18 @@ class _StatsScreenState extends State<StatsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final ac = context.appColors;
     return GlassScaffold(
       appBar: GlassAppBar(title: Text(l10n.statsTitle)),
       body: _loading
-          ? const Center(
+          ? Center(
               child: SizedBox(
                 width: 28,
                 height: 28,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: ac.gradientIndigo[0],
+                ),
               ),
             )
           : RefreshIndicator(

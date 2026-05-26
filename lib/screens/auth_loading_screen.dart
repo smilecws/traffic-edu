@@ -11,7 +11,7 @@ class AuthLoadingScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: colors.background,
       body: Center(
-        child: CircularProgressIndicator(color: colors.primary),
+        child: CircularProgressIndicator(color: colors.gradientIndigo[0]),
       ),
     );
   }

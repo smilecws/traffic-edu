@@ -417,45 +417,22 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
                         ),
                       ),
                     ),
-                    // 알림 + 더보기 메뉴
-                    PopupMenuButton<_OverflowAction>(
-                      icon: Icon(Icons.more_vert, color: ac.textPrimary),
-                      tooltip: l10n.popupStatsView,
-                      onSelected: (action) {
-                        switch (action) {
-                          case _OverflowAction.stats:
-                            _openStats(context);
-                            break;
-                          case _OverflowAction.history:
-                            _openMockExamHistory(context);
-                            break;
-                        }
-                      },
-                      itemBuilder: (_) => [
-                        PopupMenuItem(
-                          value: _OverflowAction.stats,
-                          child: Text(l10n.popupStatsView),
-                        ),
-                        PopupMenuItem(
-                          value: _OverflowAction.history,
-                          child: Text(l10n.popupMockHistory),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
 
                 // ── 통계 2분할 ──
                 _loading
-                    ? const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 24),
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
                         child: Center(
                           child: SizedBox(
                             width: 28,
                             height: 28,
-                            child:
-                                CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: ac.gradientIndigo[0],
+                            ),
                           ),
                         ),
                       )
@@ -648,8 +625,6 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
     );
   }
 }
-
-enum _OverflowAction { stats, history }
 
 enum _PracticeType { speaking, signAndSituation, videoQuestion, randomAll }
 

@@ -55,11 +55,14 @@ class _MockExamHistoryScreenState extends State<MockExamHistoryScreen> {
         future: _future,
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.waiting) {
-            return const Center(
+            return Center(
               child: SizedBox(
                 width: 28,
                 height: 28,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: ac.gradientIndigo[0],
+                ),
               ),
             );
           }

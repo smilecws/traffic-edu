@@ -235,9 +235,10 @@ class _ExamGuideScreenState extends State<ExamGuideScreen> {
               icon: const Icon(Icons.open_in_new, size: 20),
               label: const Text('공식 안내 페이지에서 자세히 보기'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: context.appColors.primaryDark,
+                foregroundColor: context.appColors.gradientIndigo[0],
                 side: BorderSide(
-                  color: context.appColors.primary.withValues(alpha: 0.45),
+                  color: context.appColors.gradientIndigo[0]
+                      .withValues(alpha: 0.45),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
@@ -312,7 +313,7 @@ class _DisqualSection extends StatelessWidget {
                     fontFamily: 'Pretendard',
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: c.success,
+                    color: c.gradientRose[1],
                   ),
                 ),
               ],
@@ -356,9 +357,10 @@ class PreparationGuideScreen extends StatelessWidget {
               icon: const Icon(Icons.open_in_new, size: 20),
               label: const Text('공식 안내 페이지에서 자세히 보기'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: context.appColors.primaryDark,
+                foregroundColor: context.appColors.gradientIndigo[0],
                 side: BorderSide(
-                  color: context.appColors.primary.withValues(alpha: 0.45),
+                  color: context.appColors.gradientIndigo[0]
+                      .withValues(alpha: 0.45),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(

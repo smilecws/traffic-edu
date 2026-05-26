@@ -120,7 +120,7 @@ class _DrivingTab extends StatelessWidget {
             icon: const Icon(Icons.open_in_new, size: 18),
             label: Text(sourceLabel),
             style: TextButton.styleFrom(
-              foregroundColor: context.appColors.primaryDark,
+              foregroundColor: context.appColors.gradientRose[1],
               alignment: Alignment.centerLeft,
             ),
           ),
@@ -150,7 +150,7 @@ class _DrivingTab extends StatelessWidget {
                         '${c.number}.',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
-                          color: context.appColors.primaryDark,
+                          color: context.appColors.gradientRose[1],
                           fontSize: 14,
                         ),
                       ),
@@ -223,7 +223,7 @@ class _RoadTab extends StatelessWidget {
             icon: const Icon(Icons.open_in_new, size: 18),
             label: Text(sourceLabel),
             style: TextButton.styleFrom(
-              foregroundColor: context.appColors.primaryDark,
+              foregroundColor: context.appColors.gradientRose[1],
               alignment: Alignment.centerLeft,
             ),
           ),

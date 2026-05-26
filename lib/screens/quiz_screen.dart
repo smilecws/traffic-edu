@@ -485,7 +485,7 @@ class _QuizScreenState extends State<QuizScreen> {
       return GlassScaffold(
         body: Center(
           child: CircularProgressIndicator(
-            color: ac.primary,
+            color: ac.gradientIndigo[0],
             strokeWidth: 3,
           ),
         ),
@@ -946,10 +946,13 @@ class _VideoCardState extends State<_VideoCard> {
             ),
             child: Row(
               children: [
-                const SizedBox(
+                SizedBox(
                   width: 18,
                   height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: ac.gradientIndigo[0],
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Text(

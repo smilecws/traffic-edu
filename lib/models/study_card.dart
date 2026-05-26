@@ -4,9 +4,8 @@
 ///
 /// 구조:
 ///   StudyTopic (1~16)
-///     ├ subTopics[3]  (StudySubTopic, marker = "A/B/C" 또는 "1/2/3")
-///     │   └ cards[5]  (StudyCardItem, comparisonTable 필수)
-///     └ examAnalysis  (related_questions + key_content)
+///     └ subTopics[3]  (StudySubTopic, marker = "A/B/C" 또는 "1/2/3")
+///         └ cards[5]  (StudyCardItem, comparisonTable 필수)
 library;
 
 class StudyTopic {
@@ -14,13 +13,11 @@ class StudyTopic {
     required this.id,
     required this.title,
     required this.subTopics,
-    required this.examAnalysis,
   });
 
   final int id;
   final String title;
   final List<StudySubTopic> subTopics;
-  final ExamAnalysis examAnalysis;
 
   int get totalCards =>
       subTopics.fold(0, (sum, st) => sum + st.cards.length);
@@ -33,9 +30,6 @@ class StudyTopic {
           .map((e) =>
               StudySubTopic.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
-      examAnalysis: ExamAnalysis.fromJson(
-        Map<String, dynamic>.from(j['exam_analysis'] as Map),
-      ),
     );
   }
 }
@@ -133,21 +127,3 @@ class ComparisonTable {
   }
 }
 
-class ExamAnalysis {
-  const ExamAnalysis({
-    required this.relatedQuestions,
-    required this.keyContent,
-  });
-
-  final String relatedQuestions;
-  final List<String> keyContent;
-
-  factory ExamAnalysis.fromJson(Map<String, dynamic> j) {
-    return ExamAnalysis(
-      relatedQuestions: j['related_questions'] as String? ?? '',
-      keyContent: (j['key_content'] as List? ?? const [])
-          .map((e) => e.toString())
-          .toList(),
-    );
-  }
-}

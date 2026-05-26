@@ -48,9 +48,6 @@ void main() {
                 reason: '${meta.slug} card ${c.number} tags 비어있음');
           }
         }
-
-        expect(topic.examAnalysis.keyContent, isNotEmpty,
-            reason: '${meta.slug} exam_analysis.key_content 비어있음');
       }
     });
 

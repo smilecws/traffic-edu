@@ -76,14 +76,17 @@ class _StudyCardScreenState extends State<StudyCardScreen> {
 
     final gradient = topicGradient(context, topic.id);
 
-    // 선택된 서브토픽은 맨 위로 끌어올리고, 나머지는 원래 순서를 유지해 그 아래에 둔다.
-    final orderedSubTopics = _openSubTopicMarker == null
-        ? topic.subTopics
+    // 펼침 가능한 항목 = 서브토픽 + (있다면) 기출 분석. 선택된 항목을 맨 위로 끌어올린다.
+    final hasExam = topic.examAnalysis != null;
+    final entryMarkers = <String>[
+      for (final st in topic.subTopics) st.marker,
+      if (hasExam) _examMarker,
+    ];
+    final orderedMarkers = _openSubTopicMarker == null
+        ? entryMarkers
         : [
-            ...topic.subTopics
-                .where((st) => st.marker == _openSubTopicMarker),
-            ...topic.subTopics
-                .where((st) => st.marker != _openSubTopicMarker),
+            ...entryMarkers.where((m) => m == _openSubTopicMarker),
+            ...entryMarkers.where((m) => m != _openSubTopicMarker),
           ];
 
     return GlassScaffold(
@@ -92,39 +95,57 @@ class _StudyCardScreenState extends State<StudyCardScreen> {
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
         child: Column(
           children: [
-            for (var i = 0; i < orderedSubTopics.length; i++) ...[
+            for (var i = 0; i < orderedMarkers.length; i++) ...[
               if (i > 0) const SizedBox(height: 12),
               // 선택된 타일은 남은 세로 공간을 모두 차지하고, 닫힌 타일은 헤더 높이만
               // 차지하므로 항상 화면 안에서 탭할 수 있도록 노출된다.
-              if (orderedSubTopics[i].marker == _openSubTopicMarker)
-                Expanded(
-                  child: _SubTopicTile(
-                    key: ValueKey(orderedSubTopics[i].marker),
-                    subTopic: orderedSubTopics[i],
-                    gradient: gradient,
-                    isOpen: true,
-                    onToggle: () => setState(() {
-                      _openSubTopicMarker = null;
-                    }),
-                  ),
-                )
-              else
-                _SubTopicTile(
-                  key: ValueKey(orderedSubTopics[i].marker),
-                  subTopic: orderedSubTopics[i],
-                  gradient: gradient,
-                  isOpen: false,
-                  onToggle: () => setState(() {
-                    _openSubTopicMarker = orderedSubTopics[i].marker;
-                  }),
-                ),
+              _buildTile(
+                topic: topic,
+                marker: orderedMarkers[i],
+                gradient: gradient,
+              ),
             ],
           ],
         ),
       ),
     );
   }
+
+  Widget _buildTile({
+    required StudyTopic topic,
+    required String marker,
+    required List<Color> gradient,
+  }) {
+    final isOpen = marker == _openSubTopicMarker;
+    void onToggle() => setState(() {
+          _openSubTopicMarker = isOpen ? null : marker;
+        });
+
+    final Widget tile;
+    if (marker == _examMarker) {
+      tile = _ExamAnalysisTile(
+        key: const ValueKey(_examMarker),
+        analysis: topic.examAnalysis!,
+        gradient: gradient,
+        isOpen: isOpen,
+        onToggle: onToggle,
+      );
+    } else {
+      final subTopic =
+          topic.subTopics.firstWhere((st) => st.marker == marker);
+      tile = _SubTopicTile(
+        key: ValueKey(subTopic.marker),
+        subTopic: subTopic,
+        gradient: gradient,
+        isOpen: isOpen,
+        onToggle: onToggle,
+      );
+    }
+    return isOpen ? Expanded(child: tile) : tile;
+  }
 }
+
+const String _examMarker = '★exam';
 
 class _SubTopicTile extends StatelessWidget {
   const _SubTopicTile({
@@ -408,15 +429,21 @@ class _CardView extends StatelessWidget {
                 color: ac.textPrimary,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              card.subtitle,
-              style: TextStyle(
-                fontSize: 12.5,
-                color: ac.textSecondary,
+            if (card.subtitle.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                card.subtitle,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: ac.textSecondary,
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
+            ],
+            if (card.keyPoints.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              _KeyPointsBox(points: card.keyPoints, accent: accent),
+            ],
+            const SizedBox(height: 12),
             Text(
               card.body,
               style: TextStyle(
@@ -425,12 +452,13 @@ class _CardView extends StatelessWidget {
                 color: ac.textPrimary,
               ),
             ),
-            if (card.keyPoints.isNotEmpty) ...[
+            if (!card.comparisonTable.isEmpty) ...[
               const SizedBox(height: 12),
-              _KeyPointsBox(points: card.keyPoints, accent: accent),
+              _ComparisonTableView(
+                table: card.comparisonTable,
+                accent: accent,
+              ),
             ],
-            const SizedBox(height: 12),
-            _ComparisonTableView(table: card.comparisonTable, accent: accent),
             if (card.tags.isNotEmpty) ...[
               const SizedBox(height: 12),
               Wrap(
@@ -525,6 +553,218 @@ class _KeyPointsBox extends StatelessWidget {
               ],
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ExamAnalysisTile extends StatelessWidget {
+  const _ExamAnalysisTile({
+    super.key,
+    required this.analysis,
+    required this.gradient,
+    required this.isOpen,
+    required this.onToggle,
+  });
+
+  final ExamAnalysis analysis;
+  final List<Color> gradient;
+  final bool isOpen;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final ac = context.appColors;
+    final accent = gradient[0];
+    return GlassCard(
+      borderRadius: 18,
+      padding: EdgeInsets.zero,
+      borderColor: isOpen ? accent.withValues(alpha: 0.45) : null,
+      child: Column(
+        children: [
+          InkWell(
+            onTap: onToggle,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(
+                children: [
+                  GradientIconBadge(
+                    gradient: gradient,
+                    size: 34,
+                    child: const Icon(
+                      Icons.star_rounded,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      '대표 기출문제 분석',
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: ac.textPrimary,
+                      ),
+                    ),
+                  ),
+                  AnimatedRotation(
+                    turns: isOpen ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 250),
+                    child: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: ac.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (isOpen)
+            Expanded(
+              child: _ExamAnalysisContent(
+                analysis: analysis,
+                accent: accent,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ExamAnalysisContent extends StatelessWidget {
+  const _ExamAnalysisContent({required this.analysis, required this.accent});
+
+  final ExamAnalysis analysis;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final ac = context.appColors;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (analysis.relatedQuestions.isNotEmpty) ...[
+            Text(
+              '관련 문항',
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w800,
+                color: accent,
+                letterSpacing: 0.3,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              analysis.relatedQuestions,
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.5,
+                color: ac.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 14),
+          ],
+          if (analysis.keyPoints.isNotEmpty) ...[
+            Text(
+              '핵심 내용',
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w800,
+                color: accent,
+                letterSpacing: 0.3,
+              ),
+            ),
+            const SizedBox(height: 6),
+            for (final p in analysis.keyPoints) ...[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      p.title,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: ac.textPrimary,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      p.description,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        height: 1.55,
+                        color: ac.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 4),
+          ],
+          if (analysis.mnemonics.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: accent.withValues(alpha: 0.25)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '암기 공식',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                      color: accent,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  for (var i = 0; i < analysis.mnemonics.length; i++) ...[
+                    if (i > 0) const SizedBox(height: 4),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Container(
+                            width: 4,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: accent,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            analysis.mnemonics[i],
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              height: 1.5,
+                              color: ac.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
         ],
       ),
     );

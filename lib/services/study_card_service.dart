@@ -28,7 +28,7 @@ class StudyCardService {
   StudyCardService._();
 
   static const List<StudyTopicMeta> topics = [
-    StudyTopicMeta(id: 1, slug: '01_speed_and_lane', title: '속도와 차로 통행'),
+    StudyTopicMeta(id: 1, slug: '01_speed_and_lane', title: '속도, 앞지르기, 차로'),
     StudyTopicMeta(
       id: 2,
       slug: '02_highway_tunnel_special_env',

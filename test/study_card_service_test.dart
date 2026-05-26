@@ -42,14 +42,14 @@ void main() {
                 reason: '${meta.slug} card ${c.number} title 비어있음');
             expect(c.body, isNotEmpty,
                 reason: '${meta.slug} card ${c.number} body 비어있음');
-            expect(c.keyPoints, isNotEmpty,
-                reason: '${meta.slug} card ${c.number} key_points 비어있음');
-            expect(c.comparisonTable.headers, isNotEmpty,
-                reason: '${meta.slug} card ${c.number} table.headers 비어있음');
-            expect(c.comparisonTable.rows, isNotEmpty,
-                reason: '${meta.slug} card ${c.number} table.rows 비어있음');
-            expect(c.tags, isNotEmpty,
-                reason: '${meta.slug} card ${c.number} tags 비어있음');
+            // key_points / comparison_table / tags 는 카드별로 비어있을 수
+            // 있도록 허용한다 (작성자가 표만 / 글머리만 / 본문만 두는 패턴).
+            // 다만 표 헤더와 행 개수는 일관성 검증.
+            if (c.comparisonTable.headers.isNotEmpty) {
+              expect(c.comparisonTable.rows, isNotEmpty,
+                  reason:
+                      '${meta.slug} card ${c.number} table headers 만 있고 rows 비어있음');
+            }
           }
         }
       }

@@ -4,8 +4,9 @@
 ///
 /// 구조:
 ///   StudyTopic (1~16)
-///     └ subTopics[3]  (StudySubTopic, marker = "A/B/C" 또는 "1/2/3")
-///         └ cards[5]  (StudyCardItem, comparisonTable 필수)
+///     ├ subTopics[3]  (StudySubTopic, marker = "A/B/C" 또는 "1/2/3")
+///     │   └ cards[]   (StudyCardItem)
+///     └ examAnalysis? (선택, 대표 기출문제 분석 — 토픽별로 점진 채움)
 library;
 
 class StudyTopic {
@@ -13,16 +14,19 @@ class StudyTopic {
     required this.id,
     required this.title,
     required this.subTopics,
+    this.examAnalysis,
   });
 
   final int id;
   final String title;
   final List<StudySubTopic> subTopics;
+  final ExamAnalysis? examAnalysis;
 
   int get totalCards =>
       subTopics.fold(0, (sum, st) => sum + st.cards.length);
 
   factory StudyTopic.fromJson(Map<String, dynamic> j) {
+    final examRaw = j['exam_analysis'];
     return StudyTopic(
       id: (j['id'] as num).toInt(),
       title: j['title'] as String,
@@ -30,6 +34,9 @@ class StudyTopic {
           .map((e) =>
               StudySubTopic.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
+      examAnalysis: examRaw is Map
+          ? ExamAnalysis.fromJson(Map<String, dynamic>.from(examRaw))
+          : null,
     );
   }
 }
@@ -86,13 +93,17 @@ class StudyCardItem {
       title: j['title'] as String,
       badge: StudyBadge.fromJson(Map<String, dynamic>.from(j['badge'] as Map)),
       label: j['label'] as String,
-      subtitle: j['subtitle'] as String,
+      subtitle: (j['subtitle'] ?? '').toString(),
       body: j['body'] as String,
-      keyPoints: (j['key_points'] as List).map((e) => e.toString()).toList(),
+      keyPoints: (j['key_points'] as List? ?? const [])
+          .map((e) => e.toString())
+          .toList(),
       comparisonTable: ComparisonTable.fromJson(
         Map<String, dynamic>.from(j['comparison_table'] as Map),
       ),
-      tags: (j['tags'] as List).map((e) => e.toString()).toList(),
+      tags: (j['tags'] as List? ?? const [])
+          .map((e) => e.toString())
+          .toList(),
     );
   }
 }
@@ -117,13 +128,64 @@ class ComparisonTable {
   final List<String> headers;
   final List<List<String>> rows;
 
+  bool get isEmpty => headers.isEmpty || rows.isEmpty;
+
   factory ComparisonTable.fromJson(Map<String, dynamic> j) {
     return ComparisonTable(
-      headers: (j['headers'] as List).map((e) => e.toString()).toList(),
-      rows: (j['rows'] as List)
+      headers: (j['headers'] as List? ?? const [])
+          .map((e) => e.toString())
+          .toList(),
+      rows: (j['rows'] as List? ?? const [])
           .map((r) => (r as List).map((e) => e.toString()).toList())
           .toList(),
     );
   }
 }
 
+/// 토픽 단위의 "대표 기출문제 분석" 섹션.
+/// 학습 카드 본문과 별개로, 시험에 자주 나오는 포인트와 암기 공식을 따로 정리.
+class ExamAnalysis {
+  const ExamAnalysis({
+    required this.relatedQuestions,
+    required this.keyPoints,
+    required this.mnemonics,
+  });
+
+  /// 예: "학과시험 문제은행 997번 등 유사 문항"
+  final String relatedQuestions;
+  final List<ExamAnalysisPoint> keyPoints;
+
+  /// 짧은 한 줄 공식들. 예: "비 오면 → 20% 감속!"
+  final List<String> mnemonics;
+
+  factory ExamAnalysis.fromJson(Map<String, dynamic> j) {
+    return ExamAnalysis(
+      relatedQuestions: (j['related_questions'] ?? '').toString(),
+      keyPoints: (j['key_points'] as List? ?? const [])
+          .map((e) => ExamAnalysisPoint.fromJson(
+                Map<String, dynamic>.from(e as Map),
+              ))
+          .toList(),
+      mnemonics: (j['mnemonics'] as List? ?? const [])
+          .map((e) => e.toString())
+          .toList(),
+    );
+  }
+}
+
+class ExamAnalysisPoint {
+  const ExamAnalysisPoint({
+    required this.title,
+    required this.description,
+  });
+
+  final String title;
+  final String description;
+
+  factory ExamAnalysisPoint.fromJson(Map<String, dynamic> j) {
+    return ExamAnalysisPoint(
+      title: (j['title'] ?? '').toString(),
+      description: (j['description'] ?? '').toString(),
+    );
+  }
+}

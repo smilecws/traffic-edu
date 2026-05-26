@@ -1058,3 +1058,58 @@ class _VideoCardState extends State<_VideoCard> {
     );
   }
 }
+
+/// 풀-너비 그라데이션 액션 버튼. 글래스 톤 UI 의 1차 CTA 용.
+/// `onTap == null` 이면 비활성 회색으로 그린다.
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.label,
+    required this.onTap,
+    required this.gradient,
+  });
+
+  final String label;
+  final VoidCallback? onTap;
+  final List<Color> gradient;
+
+  @override
+  Widget build(BuildContext context) {
+    final ac = context.appColors;
+    final disabled = onTap == null;
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: disabled
+                ? null
+                : LinearGradient(
+                    colors: gradient,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+            color: disabled ? ac.borderLight : null,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: onTap,
+            child: Center(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: disabled ? ac.textSecondary : Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

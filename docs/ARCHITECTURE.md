@@ -165,22 +165,43 @@ QuizApp.initState → _bootstrap()
 파싱 시 `images` 는 `data:image/...;base64,...` 또는 `assets/images/...` 로 노멀라이즈. `video` 는 http → https 업그레이드 후 `assets/questions_videos/...` 또는 https URL 로 정리.
 
 ## 학습 카드 포맷
-`assets/study/<subcategoryId>.json` 스키마:
+`assets/study/NN_<slug>.json` 스키마 (NN=01~16, 한국어 단일 언어):
 ```json
 {
-  "subcategory_id": "traffic_signal",
-  "title": { "ko": "신호·지시", "en": "Signals" },
-  "lead": { "ko": "..." },
-  "key_points": [
-    { "heading": { "ko": "..." }, "body": { "ko": "..." }, "law_refs": ["도로교통법 §5"] }
+  "id": 1,
+  "title": "속도와 차로 통행",
+  "sub_topics": [
+    {
+      "marker": "A",
+      "title": "속도 제한과 안전 속도",
+      "cards": [
+        {
+          "number": 1,
+          "title": "법정 제한속도의 기본 원칙",
+          "badge": { "number": "01", "code": "LAW" },
+          "label": "속도 제한",
+          "subtitle": "일반도로와 고속도로의 기본 속도 규정",
+          "body": "...",
+          "key_points": ["일반도로 편도 1차로: 시속 60km", "..."],
+          "comparison_table": {
+            "headers": ["도로 구분", "최저 속도", "최고 속도"],
+            "rows": [["일반도로 1차로", "제한 없음", "60km/h"], ["..."]]
+          },
+          "tags": ["#법정속도", "#일반도로"]
+        }
+      ]
+    }
   ],
-  "numbers": [
-    { "label": { "ko": "황색 점멸" }, "value": { "ko": "서행" } }
-  ],
-  "example_question_ids": [1, 42, 337]
+  "exam_analysis": {
+    "related_questions": "학과시험 문제은행 997번 등 유사 문항",
+    "key_content": ["기상 악화 시 감속 기준: ...", "..."]
+  }
 }
 ```
-`StudyCard.fromJson` 이 파싱. `LocalizedText` 는 `{ "ko": "...", "en": "..." }` 맵이며 없는 언어는 ko 폴백.
+- 1 파일 = 1 토픽. 토픽 16개, 각 토픽당 sub_topic 3개(`marker`는 `A/B/C` 또는 `1/2/3`), 카드 5장 → 총 240 카드.
+- 카드는 모두 `comparison_table` 을 포함 (`StudyCardScreen` 의 `DataTable` 로 렌더링).
+- 파싱은 `StudyTopic.fromJson`. 다국어 미사용 (`String` 직접).
+- 파일명 슬러그 ↔ id 매핑은 `StudyCardService.topics` 리스트가 단일 진실 소스.
 
 ## 영속 저장 키 (SharedPreferences)
 | 키 | 타입 | 용도 |

@@ -31,6 +31,15 @@ class _ConsentScreenState extends State<ConsentScreen> {
   bool _globalStatsAgreed = false;
   bool _submitting = false;
 
+  // 한글 IME 조합 중 자모(ㄱ-ㅎ, ㅏ-ㅣ)도 허용해야 입력이 막히지 않는다.
+  // 숫자·이모지·특수기호는 키 입력 단계에서 차단.
+  static final RegExp _allowedCharsRegExp =
+      RegExp(r'[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z ]');
+
+  // 검증 단계에서는 완성형 한글 또는 영문 알파벳이 1자 이상 있어야 통과.
+  // 자모(ㅋㅋㅋ)·공백·기호만으로 구성된 이름은 거부.
+  static final RegExp _letterRegExp = RegExp(r'[가-힣a-zA-Z]');
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -42,7 +51,8 @@ class _ConsentScreenState extends State<ConsentScreen> {
     if (!_collectionAgreed) return;
 
     setState(() => _submitting = true);
-    final name = _nameController.text.trim();
+    final name =
+        _nameController.text.trim().replaceAll(RegExp(r'\s+'), ' ');
     final record = ConsentRecord(
       name: name,
       grantedAt: DateTime.now().toUtc(),
@@ -152,6 +162,9 @@ class _ConsentScreenState extends State<ConsentScreen> {
                       maxLength: 30,
                       onChanged: (_) => setState(() {}),
                       cursorColor: indigo,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(_allowedCharsRegExp),
+                      ],
                       decoration: InputDecoration(
                         labelText: l10n.consentNameLabel,
                         hintText: l10n.consentNameHint,
@@ -171,9 +184,13 @@ class _ConsentScreenState extends State<ConsentScreen> {
                         ),
                       ),
                       validator: (value) {
-                        final v = value?.trim() ?? '';
+                        final v = (value ?? '').trim();
                         if (v.isEmpty) return l10n.consentNameRequired;
+                        if (v.length < 2) return l10n.consentNameTooShort;
                         if (v.length > 30) return l10n.consentNameTooLong;
+                        if (!_letterRegExp.hasMatch(v)) {
+                          return l10n.consentNameInvalid;
+                        }
                         return null;
                       },
                     ),
@@ -304,17 +321,21 @@ class _PrivacyTableSection extends StatelessWidget {
                 for (final row in rows)
                   TableRow(
                     children: [
-                      Container(
-                        color: indigo.withValues(alpha: 0.12),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 10),
-                        child: Text(
-                          row.label,
-                          style: TextStyle(
-                            fontFamily: 'Pretendard',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: indigo,
+                      TableCell(
+                        verticalAlignment: TableCellVerticalAlignment.fill,
+                        child: Container(
+                          color: indigo.withValues(alpha: 0.12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 10),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            row.label,
+                            style: TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: indigo,
+                            ),
                           ),
                         ),
                       ),

@@ -1119,6 +1119,20 @@ class AppLocalizations {
         'vi': 'Tên không quá 30 ký tự.',
       });
 
+  String get consentNameTooShort => _t({
+        'ko': '이름은 2자 이상으로 입력해 주세요.',
+        'en': 'Name must be at least 2 characters.',
+        'zh': '姓名至少需要 2 个字符。',
+        'vi': 'Tên phải có ít nhất 2 ký tự.',
+      });
+
+  String get consentNameInvalid => _t({
+        'ko': '한글 또는 영문이 1자 이상 포함되어야 합니다.',
+        'en': 'Must include at least one Korean or English letter.',
+        'zh': '至少需包含一个韩文或英文字母。',
+        'vi': 'Phải chứa ít nhất một chữ cái tiếng Hàn hoặc tiếng Anh.',
+      });
+
   String get consentCollectionAgreeCheckbox => _t({
         'ko': '[필수] 개인정보 수집·이용 및 제3자 제공에 동의합니다.',
       });

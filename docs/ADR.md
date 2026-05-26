@@ -69,3 +69,8 @@
 **결정**: GitHub Actions cron(4시간 주기)이 `tool/aggregate_stats.js` 로 `user_answers` 세션 로그를 서버사이드 집계해 `aggregates.json` 을 별도 `data-aggregates` 브랜치에 커밋한다. 클라이언트는 GitHub raw URL 로 HTTP fetch 하고, SharedPreferences 에 1시간 TTL 로 캐시한다. P0-2 이후 `question_stats` 컬렉션이 폐기되어 집계 소스는 `user_answers` 만 사용한다.
 **이유**: Firestore 무료 티어의 일일 read 한도(50,000)를 사용자 수 증가 시 빠르게 소진. 사전 집계로 클라이언트 read 를 0 으로 줄이고, GitHub raw URL 은 CDN 이라 추가 비용 없음. write 통합(P0-2)으로 세션당 Firestore write 가 41회(question_stats 40 + user_answers 1)에서 1회(user_answers)로 감소해 무료 한도 부담이 대폭 줄었다.
 **트레이드오프**: 통계 신선도가 최대 4시간 지연된다. GitHub Actions Secrets 에 Firebase 서비스 계정 키 등록이 필요. 집계 시 `user_answers` 전체를 read 하므로 세션 수 증가 시 집계 시간이 늘어날 수 있다. `data-aggregates` 브랜치를 별도로 사용하는 이유는 (1) Flutter 웹 service worker 가 `main` 브랜치의 파일을 공격적으로 캐싱해 집계 갱신이 반영되지 않는 문제 회피, (2) 자동 생성 파일로 `main` 커밋 이력을 오염시키지 않기 위함.
+
+### ADR-014: 글래스모피즘 UI 디자인 도입
+**결정**: `HomeScreen` 과 `WrittenExamMenuScreen` 에 글래스모피즘 + 벤토 그리드 + 그라데이션 아이콘 + Pretendard 폰트를 적용한다. 공용 위젯은 `lib/widgets/glass/` 에 두고, 그라데이션 색은 `AppThemeColors` 의 미리 정의된 팔레트를 사용한다.
+**이유**: 시안(`driving-license-app-redesign.tsx`) 적용. 시각적 풍부함과 한국어 가독성(Pretendard) 개선.
+**트레이드오프**: `BackdropFilter` 는 모든 플랫폼에서 성능 영향 가능 (특히 웹과 구형 데스크톱). 추후 프레임 드롭이 보이면 블러 강도 낮추거나 정적 그라데이션으로 폴백.

@@ -12,8 +12,7 @@ import '../widgets/glass/gradient_icon_badge.dart';
 /// 학습 토픽 상세 화면.
 ///
 /// `assets/study/NN_<slug>.json` 의 토픽 한 개를 로드해, 세부 주제(A/B/C 또는
-/// 1/2/3) 아코디언과 그 안의 가로 스와이프 카드뉴스(카드 5장), 그리고 하단의
-/// "시험 출제 분석" 섹션을 보여줍니다.
+/// 1/2/3) 아코디언과 그 안의 가로 스와이프 카드뉴스(카드 5장)를 보여줍니다.
 class StudyCardScreen extends StatefulWidget {
   const StudyCardScreen({super.key, required this.topicId});
 
@@ -76,28 +75,52 @@ class _StudyCardScreenState extends State<StudyCardScreen> {
     }
 
     final gradient = topicGradient(context, topic.id);
-    final accent = gradient[0];
+
+    // 선택된 서브토픽은 맨 위로 끌어올리고, 나머지는 원래 순서를 유지해 그 아래에 둔다.
+    final orderedSubTopics = _openSubTopicMarker == null
+        ? topic.subTopics
+        : [
+            ...topic.subTopics
+                .where((st) => st.marker == _openSubTopicMarker),
+            ...topic.subTopics
+                .where((st) => st.marker != _openSubTopicMarker),
+          ];
 
     return GlassScaffold(
       appBar: GlassAppBar(title: Text(topic.title)),
-      body: ListView(
+      body: Padding(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-        children: [
-          for (final st in topic.subTopics) ...[
-            _SubTopicTile(
-              subTopic: st,
-              gradient: gradient,
-              isOpen: _openSubTopicMarker == st.marker,
-              onToggle: () => setState(() {
-                _openSubTopicMarker =
-                    _openSubTopicMarker == st.marker ? null : st.marker;
-              }),
-            ),
-            const SizedBox(height: 12),
+        child: Column(
+          children: [
+            for (var i = 0; i < orderedSubTopics.length; i++) ...[
+              if (i > 0) const SizedBox(height: 12),
+              // 선택된 타일은 남은 세로 공간을 모두 차지하고, 닫힌 타일은 헤더 높이만
+              // 차지하므로 항상 화면 안에서 탭할 수 있도록 노출된다.
+              if (orderedSubTopics[i].marker == _openSubTopicMarker)
+                Expanded(
+                  child: _SubTopicTile(
+                    key: ValueKey(orderedSubTopics[i].marker),
+                    subTopic: orderedSubTopics[i],
+                    gradient: gradient,
+                    isOpen: true,
+                    onToggle: () => setState(() {
+                      _openSubTopicMarker = null;
+                    }),
+                  ),
+                )
+              else
+                _SubTopicTile(
+                  key: ValueKey(orderedSubTopics[i].marker),
+                  subTopic: orderedSubTopics[i],
+                  gradient: gradient,
+                  isOpen: false,
+                  onToggle: () => setState(() {
+                    _openSubTopicMarker = orderedSubTopics[i].marker;
+                  }),
+                ),
+            ],
           ],
-          const SizedBox(height: 10),
-          _ExamAnalysisCard(analysis: topic.examAnalysis, accent: accent),
-        ],
+        ),
       ),
     );
   }
@@ -105,6 +128,7 @@ class _StudyCardScreenState extends State<StudyCardScreen> {
 
 class _SubTopicTile extends StatelessWidget {
   const _SubTopicTile({
+    super.key,
     required this.subTopic,
     required this.gradient,
     required this.isOpen,
@@ -169,13 +193,10 @@ class _SubTopicTile extends StatelessWidget {
               ),
             ),
           ),
-          AnimatedSize(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeInOut,
-            child: isOpen
-                ? _CardCarousel(cards: subTopic.cards, accent: accent)
-                : const SizedBox(width: double.infinity, height: 0),
-          ),
+          if (isOpen)
+            Expanded(
+              child: _CardCarousel(cards: subTopic.cards, accent: accent),
+            ),
         ],
       ),
     );
@@ -230,19 +251,20 @@ class _CardCarouselState extends State<_CardCarousel> {
       padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
       child: Column(
         children: [
-          Container(
-            height: 540,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: PageView.builder(
-              controller: _controller,
-              itemCount: cards.length,
-              onPageChanged: (i) => setState(() => _index = i),
-              itemBuilder: (_, i) =>
-                  _CardView(card: cards[i], accent: accent),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: PageView.builder(
+                controller: _controller,
+                itemCount: cards.length,
+                onPageChanged: (i) => setState(() => _index = i),
+                itemBuilder: (_, i) =>
+                    _CardView(card: cards[i], accent: accent),
+              ),
             ),
           ),
           const SizedBox(height: 10),
@@ -560,98 +582,3 @@ class _ComparisonTableView extends StatelessWidget {
   }
 }
 
-class _ExamAnalysisCard extends StatelessWidget {
-  const _ExamAnalysisCard({required this.analysis, required this.accent});
-
-  final ExamAnalysis analysis;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    final ac = context.appColors;
-    if (analysis.relatedQuestions.isEmpty && analysis.keyContent.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: ac.surfaceWhite,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: ac.borderLight),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.menu_book_rounded, color: accent, size: 18),
-              const SizedBox(width: 6),
-              Text(
-                '시험 출제 분석',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: ac.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          if (analysis.relatedQuestions.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 8,
-              ),
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                analysis.relatedQuestions,
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w700,
-                  color: accent,
-                ),
-              ),
-            ),
-          ],
-          if (analysis.keyContent.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            for (var i = 0; i < analysis.keyContent.length; i++) ...[
-              if (i > 0) const SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Container(
-                      width: 5,
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: accent.withValues(alpha: 0.7),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      analysis.keyContent[i],
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        height: 1.55,
-                        color: ac.textPrimary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ],
-        ],
-      ),
-    );
-  }
-}

@@ -20,7 +20,7 @@ class AppLocalizations {
 
   // ——— 일반 ———
   String get appTitle => _t({
-        'ko': '학습',
+        'ko': '초심찾기 도로교통법',
         'en': '학습',
         'zh': '학습',
         'vi': '학습',
@@ -34,7 +34,7 @@ class AppLocalizations {
       });
 
   String get titleMain => _t({
-        'ko': '학습',
+        'ko': '초심찾기 도로교통법',
         'en': '학습',
         'zh': '학습',
         'vi': '학습',

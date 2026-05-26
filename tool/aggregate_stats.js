@@ -154,7 +154,7 @@ function buildFullReportJson(stats, totalUsers, totalSessions, updatedAt) {
 
 function buildReportMd(fullReport) {
   const lines = [
-    '# 운전면허 학과시험 1000제 통계 리포트',
+    '# 테스트 통계자료',
     '',
     `> 최근 업데이트: ${fullReport.updated_at}`,
     '',

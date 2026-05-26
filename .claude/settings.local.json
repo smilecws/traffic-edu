@@ -20,7 +20,8 @@
       "Bash(git log *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(grep -B1 \"-1:\")"
+      "Bash(grep -B1 \"-1:\")",
+      "Bash(node -e ' *)"
     ],
     "additionalDirectories": [
       "\\tmp",

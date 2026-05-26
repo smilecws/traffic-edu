@@ -21,7 +21,10 @@
     {
       "step": 2,
       "name": "home-screen-redesign",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-05-26T10:59:15+0900",
+      "completed_at": "2026-05-26T11:15:00+0900",
+      "summary": "HomeScreen을 글래스모피즘+벤토 레이아웃으로 리디자인: 헤더(초심찾기/도로교통법)+PopupMenu, 통계바 3분할(준비 중 플레이스홀더), 메인 2분할(학습하기/문제풀기), 가로 3분할(면허시험순서/준비물/FAQ), 외부페이지 섹션(특별교육·면허시험 일정). 신규 l10n 키 15개 추가."
     },
     {
       "step": 3,

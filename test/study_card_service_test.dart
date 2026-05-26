@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:quiz_app/models/study_card.dart';
 import 'package:quiz_app/services/study_card_service.dart';
-import 'package:quiz_app/services/subcategory_classifier.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -9,102 +7,62 @@ void main() {
   tearDown(StudyCardService.clearCache);
 
   group('StudyCardService', () {
-    test('10개 태그 전부 로드 성공, 필수 필드 존재', () async {
-      for (final id in SubcategoryIds.verbalSubcategoryIds) {
-        final card = await StudyCardService.loadCard(id);
-        expect(card, isNotNull, reason: '$id 로드 실패');
-        expect(card!.subcategoryId, id);
-        expect(card.titleFor('ko'), isNotEmpty, reason: '$id title ko 비어있음');
-        expect(card.leadFor('ko'), isNotEmpty, reason: '$id lead ko 비어있음');
-
-        if (card.topics.isNotEmpty) {
-          final totalSlides =
-              card.topics.fold<int>(0, (a, t) => a + t.slides.length);
-          expect(totalSlides, greaterThanOrEqualTo(3),
-              reason: '$id 슬라이드 총 3개 미만');
-        } else {
-          expect(card.legacyKeyPoints.length, greaterThanOrEqualTo(3),
-              reason: '$id key_points 3개 미만');
-          expect(card.legacyNumbers.length, greaterThanOrEqualTo(2),
-              reason: '$id numbers 2개 미만');
-        }
-
-        expect(card.exampleQuestionIds.length, greaterThanOrEqualTo(1),
-            reason: '$id example_question_ids 비어있음');
+    test('16개 토픽 메타가 id 1..16 으로 연속한다', () {
+      final ids = StudyCardService.topics.map((m) => m.id).toList();
+      expect(ids, [for (var i = 1; i <= 16; i++) i]);
+      for (final m in StudyCardService.topics) {
+        expect(m.slug, startsWith(m.id.toString().padLeft(2, '0')));
       }
     });
 
-    test('example_question_ids 가 1..1000 범위 내', () async {
-      for (final id in SubcategoryIds.verbalSubcategoryIds) {
-        final card = await StudyCardService.loadCard(id);
-        for (final qn in card!.exampleQuestionIds) {
-          expect(qn, inInclusiveRange(1, 1000),
-              reason: '$id 의 Q$qn 이 유효 범위 밖');
+    test('16개 토픽 전부 로드 성공, 필수 필드 존재', () async {
+      for (final meta in StudyCardService.topics) {
+        final topic = await StudyCardService.loadTopic(meta.id);
+        expect(topic, isNotNull, reason: '${meta.slug} 로드 실패');
+        expect(topic!.id, meta.id);
+        expect(topic.title, isNotEmpty,
+            reason: '${meta.slug} title 비어있음');
+        expect(topic.subTopics, isNotEmpty,
+            reason: '${meta.slug} sub_topics 비어있음');
+
+        for (final st in topic.subTopics) {
+          expect(st.marker, isNotEmpty,
+              reason: '${meta.slug} marker 비어있음');
+          expect(st.title, isNotEmpty,
+              reason: '${meta.slug} sub_topic title 비어있음');
+          expect(st.cards, isNotEmpty,
+              reason: '${meta.slug} ${st.marker} cards 비어있음');
+
+          for (final c in st.cards) {
+            expect(c.title, isNotEmpty,
+                reason: '${meta.slug} card ${c.number} title 비어있음');
+            expect(c.body, isNotEmpty,
+                reason: '${meta.slug} card ${c.number} body 비어있음');
+            expect(c.keyPoints, isNotEmpty,
+                reason: '${meta.slug} card ${c.number} key_points 비어있음');
+            expect(c.comparisonTable.headers, isNotEmpty,
+                reason: '${meta.slug} card ${c.number} table.headers 비어있음');
+            expect(c.comparisonTable.rows, isNotEmpty,
+                reason: '${meta.slug} card ${c.number} table.rows 비어있음');
+            expect(c.tags, isNotEmpty,
+                reason: '${meta.slug} card ${c.number} tags 비어있음');
+          }
         }
+
+        expect(topic.examAnalysis.keyContent, isNotEmpty,
+            reason: '${meta.slug} exam_analysis.key_content 비어있음');
       }
     });
 
-    test('슬라이드 / key_points 본문이 비어있지 않다', () async {
-      for (final id in SubcategoryIds.verbalSubcategoryIds) {
-        final card = await StudyCardService.loadCard(id);
-        if (card!.topics.isNotEmpty) {
-          for (final t in card.topics) {
-            expect(t.labelFor('ko'), isNotEmpty,
-                reason: '$id topic ${t.id} label 비어있음');
-            expect(t.slides, isNotEmpty,
-                reason: '$id topic ${t.id} slides 비어있음');
-            for (final s in t.slides) {
-              switch (s) {
-                case ContentSlide():
-                  expect(s.titleFor('ko'), isNotEmpty,
-                      reason: '$id ${t.id} content title 비어있음');
-                  expect(s.bodyFor('ko'), isNotEmpty,
-                      reason: '$id ${t.id} content body 비어있음');
-                case SummarySlide():
-                  expect(s.titleFor('ko'), isNotEmpty,
-                      reason: '$id ${t.id} summary title 비어있음');
-                  expect(s.items, isNotEmpty,
-                      reason: '$id ${t.id} summary items 비어있음');
-              }
-            }
-          }
-        } else {
-          for (final kp in card.legacyKeyPoints) {
-            expect(kp.headingFor('ko'), isNotEmpty, reason: '$id heading 비어있음');
-            expect(kp.bodyFor('ko'), isNotEmpty, reason: '$id body 비어있음');
-          }
-        }
-      }
+    test('존재하지 않는 토픽 id 는 null 반환', () async {
+      expect(await StudyCardService.loadTopic(999), isNull);
+      expect(await StudyCardService.loadTopic(0), isNull);
     });
 
-    test('summary 슬라이드 / numbers 라벨·값이 비어있지 않다', () async {
-      for (final id in SubcategoryIds.verbalSubcategoryIds) {
-        final card = await StudyCardService.loadCard(id);
-        if (card!.topics.isNotEmpty) {
-          for (final t in card.topics) {
-            for (final s in t.slides) {
-              if (s is SummarySlide) {
-                for (final it in s.items) {
-                  expect(it.labelFor('ko'), isNotEmpty,
-                      reason: '$id ${t.id} summary item label 비어있음');
-                  expect(it.valueFor('ko'), isNotEmpty,
-                      reason: '$id ${t.id} summary item value 비어있음');
-                }
-              }
-            }
-          }
-        } else {
-          for (final n in card.legacyNumbers) {
-            expect(n.labelFor('ko'), isNotEmpty, reason: '$id number label 비어있음');
-            expect(n.valueFor('ko'), isNotEmpty, reason: '$id number value 비어있음');
-          }
-        }
-      }
-    });
-
-    test('존재하지 않는 태그는 null 반환', () async {
-      final card = await StudyCardService.loadCard('nonexistent');
-      expect(card, isNull);
+    test('캐시 동작: 두 번째 호출은 동일 인스턴스 반환', () async {
+      final a = await StudyCardService.loadTopic(1);
+      final b = await StudyCardService.loadTopic(1);
+      expect(identical(a, b), isTrue);
     });
   });
 }

@@ -60,12 +60,17 @@
 **이유**: Firebase 무료 티어(Spark)로 운영 비용 0. 익명 인증 UID 기반 보안 규칙으로 write 를 제어하고, 운영자는 Firebase 콘솔에서 직접 조회한다. 클라이언트 read 는 보안 규칙으로 차단해 비용을 억제한다.
 **트레이드오프**: 클라이언트 read 는 ADR-013 의 외부 집계로 해결. App Check 미도입 상태라 write 검증이 약함.
 
-### ADR-012: 학습 카드를 에셋 JSON 으로 관리
-**결정**: 소카테고리별 핵심 개념·수치·법령 출처를 `assets/study/<subcategoryId>.json` 파일에 저장하고 `StudyCardService` 가 로드한다. 콘텐츠는 사람이 직접 작성; `tool/extract_study_seeds.dart` 는 초안 seed 만 생성.
-**이유**: 문제 은행과 동일하게 오프라인·번들 접근 방식을 유지. 별도 CMS 없이 파일 편집만으로 콘텐츠 추가 가능. LocalizedText(`{ko, en, zh, vi}`) 맵으로 다국어 지원.
-**트레이드오프**: 콘텐츠 업데이트마다 앱 재배포 필요. 카드 스키마 변경 시 `StudyCard` 모델과 `StudyCardScreen` 을 함께 갱신해야 함.
+### ADR-012: 학습 카드를 에셋 JSON 으로 관리 (16개 토픽 구조)
+**결정**: 학습 자료를 도로교통법 출제 영역 기준 16개 토픽(`assets/study/NN_<slug>.json`, NN=01~16) 으로 나눠 1 파일 = 1 토픽으로 저장하고 `StudyCardService` 가 로드한다. 각 토픽은 3개 sub_topic × 5장 카드(뱃지·본문·핵심 포인트·비교 표·태그) + 시험 출제 분석 섹션으로 구성. 콘텐츠는 사람이 직접 작성하며 한국어 단일 언어; `tool/extract_study_seeds.dart` 는 법조문·수치 빈도 통계 seed 만 생성.
+**이유**: 문제 은행과 동일하게 오프라인·번들 접근 방식을 유지. 별도 CMS 없이 파일 편집만으로 콘텐츠 추가 가능. 학습 토픽 16개 분류는 문제 분류 축(`verbalSubcategoryIds` 10개) 과 직교 — 학습은 출제 영역 중심으로, 연습/통계는 키워드 기반 분류로 운영해 각자 최적화한다. 초기에는 LocalizedText 다국어를 시도했으나 콘텐츠 작성·검수 부담이 커서 한국어 단일로 단순화.
+**트레이드오프**: 콘텐츠 업데이트마다 앱 재배포 필요. 카드 스키마 변경 시 `StudyTopic` 모델과 `StudyCardScreen` 을 함께 갱신해야 함. 다국어 사용자에게 학습 카드가 한국어로만 노출됨 — 추후 번역 추가 예정. 학습/문제 분류 축이 분리되어 있어, "이 학습 토픽의 관련 기출"을 1:1 매핑으로 보여주는 기능은 별도 매핑 데이터가 필요하다.
 
 ### ADR-013: 글로벌 통계 읽기를 GitHub Actions 외부 집계로 전환
 **결정**: GitHub Actions cron(4시간 주기)이 `tool/aggregate_stats.js` 로 `user_answers` 세션 로그를 서버사이드 집계해 `aggregates.json` 을 별도 `data-aggregates` 브랜치에 커밋한다. 클라이언트는 GitHub raw URL 로 HTTP fetch 하고, SharedPreferences 에 1시간 TTL 로 캐시한다. P0-2 이후 `question_stats` 컬렉션이 폐기되어 집계 소스는 `user_answers` 만 사용한다.
 **이유**: Firestore 무료 티어의 일일 read 한도(50,000)를 사용자 수 증가 시 빠르게 소진. 사전 집계로 클라이언트 read 를 0 으로 줄이고, GitHub raw URL 은 CDN 이라 추가 비용 없음. write 통합(P0-2)으로 세션당 Firestore write 가 41회(question_stats 40 + user_answers 1)에서 1회(user_answers)로 감소해 무료 한도 부담이 대폭 줄었다.
 **트레이드오프**: 통계 신선도가 최대 4시간 지연된다. GitHub Actions Secrets 에 Firebase 서비스 계정 키 등록이 필요. 집계 시 `user_answers` 전체를 read 하므로 세션 수 증가 시 집계 시간이 늘어날 수 있다. `data-aggregates` 브랜치를 별도로 사용하는 이유는 (1) Flutter 웹 service worker 가 `main` 브랜치의 파일을 공격적으로 캐싱해 집계 갱신이 반영되지 않는 문제 회피, (2) 자동 생성 파일로 `main` 커밋 이력을 오염시키지 않기 위함.
+
+### ADR-014: 글래스모피즘 UI 디자인 도입
+**결정**: `HomeScreen` 과 `WrittenExamMenuScreen` 에 글래스모피즘 + 벤토 그리드 + 그라데이션 아이콘 + Pretendard 폰트를 적용한다. 공용 위젯은 `lib/widgets/glass/` 에 두고, 그라데이션 색은 `AppThemeColors` 의 미리 정의된 팔레트를 사용한다.
+**이유**: 시안(`driving-license-app-redesign.tsx`) 적용. 시각적 풍부함과 한국어 가독성(Pretendard) 개선.
+**트레이드오프**: `BackdropFilter` 는 모든 플랫폼에서 성능 영향 가능 (특히 웹과 구형 데스크톱). 추후 프레임 드롭이 보이면 블러 강도 낮추거나 정적 그라데이션으로 폴백.

@@ -13,6 +13,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 import types
@@ -239,9 +240,10 @@ class StepExecutor:
                 f"\n## ⚠ 이전 시도 실패 — 아래 에러를 반드시 참고하여 수정하라\n\n"
                 f"{prev_error}\n\n---\n\n"
             )
+        # guardrails 는 _invoke_claude 에서 --append-system-prompt-file 로 별도 전달.
+        # 여기서는 user prompt 만 만든다 (Windows CreateProcess 명령행 한계 회피).
         return (
             f"당신은 {self._project} 프로젝트의 개발자입니다. 아래 step을 수행하세요.\n\n"
-            f"{guardrails}\n\n---\n\n"
             f"{step_context}{retry_section}"
             f"## 작업 규칙\n\n"
             f"1. 이전 step에서 작성된 코드를 확인하고 일관성을 유지하라.\n"
@@ -259,7 +261,7 @@ class StepExecutor:
 
     # --- Claude 호출 ---
 
-    def _invoke_claude(self, step: dict, preamble: str) -> dict:
+    def _invoke_claude(self, step: dict, preamble: str, guardrails: str) -> dict:
         step_num, step_name = step["step"], step["name"]
         step_file = self._phase_dir / f"step{step_num}.md"
 
@@ -269,10 +271,34 @@ class StepExecutor:
 
         prompt = preamble + step_file.read_text(encoding="utf-8")
         sha_before = self._git_head_sha()
-        result = subprocess.run(
-            ["claude", "-p", "--dangerously-skip-permissions", "--output-format", "json", prompt],
-            cwd=self._root, capture_output=True, text=True, timeout=1800,
-        )
+
+        # 가드레일(CLAUDE.md + docs/*.md ≈ 40KB)을 임시 파일에 쓰고
+        # --append-system-prompt-file 로 전달. 명령행 인자로 통째 넘기면
+        # Windows CreateProcess 의 ~32K 한계를 초과한다.
+        guardrails_path: Optional[str] = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".md", delete=False, encoding="utf-8"
+            ) as f:
+                f.write(guardrails)
+                guardrails_path = f.name
+
+            result = subprocess.run(
+                [
+                    "claude", "-p",
+                    "--dangerously-skip-permissions",
+                    "--output-format", "json",
+                    "--append-system-prompt-file", guardrails_path,
+                    prompt,
+                ],
+                cwd=self._root, capture_output=True, text=True, timeout=1800,
+            )
+        finally:
+            if guardrails_path is not None:
+                try:
+                    os.unlink(guardrails_path)
+                except OSError:
+                    pass
         sha_after = self._git_head_sha()
 
         if result.returncode != 0:
@@ -404,7 +430,7 @@ class StepExecutor:
                 tag += f" [retry {attempt}/{self.MAX_RETRIES}]"
 
             with progress_indicator(tag) as pi:
-                self._invoke_claude(step, preamble)
+                self._invoke_claude(step, preamble, guardrails)
                 elapsed = int(pi.elapsed)
 
             index = self._read_json(self._index_file)

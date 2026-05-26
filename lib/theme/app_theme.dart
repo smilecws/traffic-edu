@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_theme_colors.dart';
+
+const _fontFamily = 'Pretendard';
 
 /// 앱 전역 라이트 테마. main.dart 와 골든 테스트에서 동일하게 참조합니다.
 ThemeData buildLightTheme() {
@@ -20,8 +21,9 @@ ThemeData buildLightTheme() {
     colorScheme: colorScheme,
     extensions: const [AppThemeColors.light],
     scaffoldBackgroundColor: ac.background,
-    textTheme: GoogleFonts.juaTextTheme(
-      ThemeData(brightness: Brightness.light).textTheme,
+    fontFamily: _fontFamily,
+    textTheme: ThemeData(brightness: Brightness.light).textTheme.apply(
+      fontFamily: _fontFamily,
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: ac.surfaceWhite,
@@ -36,7 +38,8 @@ ThemeData buildLightTheme() {
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       centerTitle: true,
-      titleTextStyle: GoogleFonts.jua(
+      titleTextStyle: TextStyle(
+        fontFamily: _fontFamily,
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: ac.textPrimary,
@@ -72,8 +75,9 @@ ThemeData buildDarkTheme() {
     colorScheme: colorScheme,
     extensions: const [AppThemeColors.dark],
     scaffoldBackgroundColor: ac.background,
-    textTheme: GoogleFonts.juaTextTheme(
-      ThemeData(brightness: Brightness.dark).textTheme,
+    fontFamily: _fontFamily,
+    textTheme: ThemeData(brightness: Brightness.dark).textTheme.apply(
+      fontFamily: _fontFamily,
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: ac.surfaceWhite,
@@ -88,7 +92,8 @@ ThemeData buildDarkTheme() {
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       centerTitle: true,
-      titleTextStyle: GoogleFonts.jua(
+      titleTextStyle: TextStyle(
+        fontFamily: _fontFamily,
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: ac.textPrimary,

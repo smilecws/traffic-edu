@@ -14,6 +14,11 @@
       "dir": "p0-2-write-merge",
       "status": "completed",
       "completed_at": "2026-05-20T17:07:17+0900"
+    },
+    {
+      "dir": "feat-ui-redesign",
+      "status": "completed",
+      "completed_at": "2026-05-26T11:09:58+0900"
     }
   ]
 }

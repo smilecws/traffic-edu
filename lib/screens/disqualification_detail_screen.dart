@@ -240,7 +240,7 @@ class _RoadTab extends StatelessWidget {
                     '${c.number}.',
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      color: context.appColors.primaryDark,
+                      color: context.appColors.gradientRose[1],
                       fontSize: 14,
                     ),
                   ),

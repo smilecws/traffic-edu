@@ -148,6 +148,7 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
     final choice = await showModalBottomSheet<MockExamLicenseKind>(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (sheetContext) {
         final ac = sheetContext.appColors;
         return _GlassBottomSheet(
@@ -261,6 +262,7 @@ class _WrittenExamMenuScreenState extends State<WrittenExamMenuScreen> {
     final choice = await showModalBottomSheet<_PracticeType>(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (sheetContext) {
         final ac = sheetContext.appColors;
         return _GlassBottomSheet(
@@ -823,9 +825,11 @@ class _GlassBottomSheet extends StatelessWidget {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-                  child: child,
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+                    child: child,
+                  ),
                 ),
               ],
             ),

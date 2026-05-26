@@ -153,23 +153,23 @@ class _SubTopicTile extends StatelessWidget {
           InkWell(
             onTap: onToggle,
             child: Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 children: [
                   GradientIconBadge(
                     gradient: gradient,
-                    size: 44,
+                    size: 34,
                     child: Text(
                       subTopic.marker,
                       style: const TextStyle(
                         fontFamily: 'Pretendard',
-                        fontSize: 18,
+                        fontSize: 15,
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       subTopic.title,

@@ -765,21 +765,22 @@ class _QuizScreenState extends State<QuizScreen> {
                   ],
                   const SizedBox(height: 20),
                   ...List.generate(question.options.length, (i) {
+                    final rawBg = _optionColor(ac, i);
+                    // 기본(미선택) 상태에서는 GlassCard 의 흰색 반투명을 그대로
+                    // 쓰고, 선택/정답/오답 상태에서는 톤만 살짝 입힌다 (alpha
+                    // 0.55) — backdrop blur 가 비치도록.
+                    final glassBg = rawBg == ac.surfaceCard
+                        ? null
+                        : rawBg.withValues(alpha: 0.55);
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: GestureDetector(
                         onTap: () => _onOptionTap(i),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
+                        child: GlassCard(
+                          borderRadius: 12,
                           padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: _optionColor(ac, i),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: _optionBorderColor(ac, i),
-                              width: 2,
-                            ),
-                          ),
+                          backgroundColor: glassBg,
+                          borderColor: _optionBorderColor(ac, i),
                           child: Row(
                             children: [
                               if (question.isMultipleChoice)
@@ -879,57 +880,23 @@ class _QuizScreenState extends State<QuizScreen> {
                 if (!widget.showTimerAndScore &&
                     question.isMultipleChoice &&
                     !_answered) ...[
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: _canSubmitMultiple ? _submitMultiple : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ac.primaryDark,
-                        foregroundColor: ac.onPrimary,
-                        disabledBackgroundColor: ac.borderLight,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text(
-                        '정답 확인',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                  _ActionButton(
+                    label: '정답 확인',
+                    onTap: _canSubmitMultiple ? _submitMultiple : null,
+                    gradient: ac.gradientIndigo,
                   ),
                   const SizedBox(height: 12),
                 ],
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: _canProceed
-                        ? () async {
-                            await _nextQuestion();
-                          }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ac.primary,
-                      foregroundColor: ac.onPrimary,
-                      disabledBackgroundColor: ac.borderLight,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    child: Text(
-                      _currentIndex + 1 < _questions.length
-                          ? '다음 문제'
-                          : '결과 보기',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                _ActionButton(
+                  label: _currentIndex + 1 < _questions.length
+                      ? '다음 문제'
+                      : '결과 보기',
+                  onTap: _canProceed
+                      ? () async {
+                          await _nextQuestion();
+                        }
+                      : null,
+                  gradient: ac.gradientEmerald,
                 ),
               ],
             ),

@@ -324,7 +324,7 @@ class _BentoMainCard extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w900,
-                        fontSize: 20,
+                        fontSize: 16,
                         color: colors.textPrimary,
                       ),
                     ),
@@ -336,7 +336,7 @@ class _BentoMainCard extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w500,
-                        fontSize: 15,
+                        fontSize: 10,
                         color: colors.textSecondary,
                       ),
                     ),
@@ -387,7 +387,7 @@ class _ExternalLinkTile extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w900,
-                      fontSize: 20,
+                      fontSize: 16,
                       color: colors.textPrimary,
                     ),
                   ),
@@ -397,7 +397,7 @@ class _ExternalLinkTile extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w500,
-                      fontSize: 15,
+                      fontSize: 10,
                       color: colors.textSecondary,
                     ),
                   ),

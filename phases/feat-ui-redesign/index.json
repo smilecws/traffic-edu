@@ -1,0 +1,10 @@
+{
+  "project": "quiz_app",
+  "phase": "feat-ui-redesign",
+  "steps": [
+    { "step": 0, "name": "design-system", "status": "pending" },
+    { "step": 1, "name": "written-exam-menu-redesign", "status": "pending" },
+    { "step": 2, "name": "home-screen-redesign", "status": "pending" },
+    { "step": 3, "name": "docs-update", "status": "pending" }
+  ]
+}

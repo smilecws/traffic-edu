@@ -7,6 +7,9 @@ import '../services/consent_service.dart';
 import '../services/global_answer_stats_service.dart';
 import '../services/global_stats_consent_service.dart';
 import '../theme/app_theme_colors.dart';
+import '../widgets/glass/glass_action_button.dart';
+import '../widgets/glass/glass_background.dart';
+import '../widgets/glass/glass_card.dart';
 
 /// 첫 실행 게이트. 이름 입력 + 동의 체크 2개 만족해야 통과.
 ///
@@ -101,145 +104,152 @@ class _ConsentScreenState extends State<ConsentScreen> {
         _nameController.text.trim().isNotEmpty &&
         !_submitting;
 
+    final indigo = colors.gradientIndigo[0];
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: colors.background,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    l10n.consentTitle,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: colors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  _PrivacyTableSection(
-                    title: l10n.consentCollectionTitle,
-                    rows: l10n.consentCollectionRows,
-                  ),
-                  const SizedBox(height: 16),
-                  _PrivacyTableSection(
-                    title: l10n.consentThirdPartyTitle,
-                    rows: l10n.consentThirdPartyRows,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    l10n.consentRightToRefuse,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  TextFormField(
-                    controller: _nameController,
-                    enabled: !_submitting,
-                    maxLength: 30,
-                    onChanged: (_) => setState(() {}),
-                    decoration: InputDecoration(
-                      labelText: l10n.consentNameLabel,
-                      hintText: l10n.consentNameHint,
-                      filled: true,
-                      fillColor: colors.surfaceWhite,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: colors.borderLight),
+        backgroundColor: Colors.transparent,
+        body: GlassBackground(
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l10n.consentTitle,
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: colors.textPrimary,
                       ),
                     ),
-                    validator: (value) {
-                      final v = value?.trim() ?? '';
-                      if (v.isEmpty) return l10n.consentNameRequired;
-                      if (v.length > 30) return l10n.consentNameTooLong;
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  CheckboxListTile(
-                    value: _collectionAgreed,
-                    onChanged: _submitting
-                        ? null
-                        : (v) =>
-                            setState(() => _collectionAgreed = v ?? false),
-                    title: Text(
-                      l10n.consentCollectionAgreeCheckbox,
-                      style: TextStyle(color: colors.textPrimary),
+                    const SizedBox(height: 20),
+                    _PrivacyTableSection(
+                      title: l10n.consentCollectionTitle,
+                      rows: l10n.consentCollectionRows,
                     ),
-                    activeColor: colors.primary,
-                    contentPadding: EdgeInsets.zero,
-                    controlAffinity: ListTileControlAffinity.leading,
-                  ),
-                  CheckboxListTile(
-                    value: _globalStatsAgreed,
-                    onChanged: _submitting
-                        ? null
-                        : (v) =>
-                            setState(() => _globalStatsAgreed = v ?? false),
-                    title: Text(
-                      l10n.consentGlobalStatsAgreeCheckbox,
-                      style: TextStyle(color: colors.textPrimary),
+                    const SizedBox(height: 16),
+                    _PrivacyTableSection(
+                      title: l10n.consentThirdPartyTitle,
+                      rows: l10n.consentThirdPartyRows,
                     ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        l10n.consentGlobalStatsDesc,
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 1.4,
-                          color: colors.textSecondary,
+                    const SizedBox(height: 12),
+                    Text(
+                      l10n.consentRightToRefuse,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    TextFormField(
+                      controller: _nameController,
+                      enabled: !_submitting,
+                      maxLength: 30,
+                      onChanged: (_) => setState(() {}),
+                      cursorColor: indigo,
+                      decoration: InputDecoration(
+                        labelText: l10n.consentNameLabel,
+                        hintText: l10n.consentNameHint,
+                        labelStyle: TextStyle(color: colors.textSecondary),
+                        floatingLabelStyle: TextStyle(color: indigo),
+                        filled: true,
+                        fillColor: Colors.white.withValues(alpha: 0.5),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.6),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: indigo, width: 1.5),
                         ),
                       ),
+                      validator: (value) {
+                        final v = value?.trim() ?? '';
+                        if (v.isEmpty) return l10n.consentNameRequired;
+                        if (v.length > 30) return l10n.consentNameTooLong;
+                        return null;
+                      },
                     ),
-                    activeColor: colors.primary,
-                    contentPadding: EdgeInsets.zero,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    titleAlignment: ListTileTitleAlignment.top,
-                  ),
-                  const SizedBox(height: 16),
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: colors.primary,
-                      foregroundColor: colors.onPrimary,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                    const SizedBox(height: 8),
+                    CheckboxListTile(
+                      value: _collectionAgreed,
+                      onChanged: _submitting
+                          ? null
+                          : (v) =>
+                              setState(() => _collectionAgreed = v ?? false),
+                      title: Text(
+                        l10n.consentCollectionAgreeCheckbox,
+                        style: TextStyle(color: colors.textPrimary),
                       ),
+                      activeColor: indigo,
+                      checkColor: Colors.white,
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
                     ),
-                    onPressed: canSubmit ? _handleAgree : null,
-                    child: _submitting
+                    CheckboxListTile(
+                      value: _globalStatsAgreed,
+                      onChanged: _submitting
+                          ? null
+                          : (v) =>
+                              setState(() => _globalStatsAgreed = v ?? false),
+                      title: Text(
+                        l10n.consentGlobalStatsAgreeCheckbox,
+                        style: TextStyle(color: colors.textPrimary),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          l10n.consentGlobalStatsDesc,
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.4,
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                      ),
+                      activeColor: indigo,
+                      checkColor: Colors.white,
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      titleAlignment: ListTileTitleAlignment.top,
+                    ),
+                    const SizedBox(height: 16),
+                    _submitting
                         ? SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: colors.onPrimary,
+                            height: 52,
+                            child: Center(
+                              child: SizedBox(
+                                height: 22,
+                                width: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.4,
+                                  color: indigo,
+                                ),
+                              ),
                             ),
                           )
-                        : Text(
-                            l10n.consentAgreeButton,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
+                        : GlassActionButton(
+                            label: l10n.consentAgreeButton,
+                            onTap: canSubmit ? _handleAgree : null,
+                            gradient: colors.gradientIndigo,
                           ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: _submitting ? null : _handleDecline,
-                    child: Text(
-                      l10n.consentDeclineButton,
-                      style: TextStyle(color: colors.textSecondary),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: _submitting ? null : _handleDecline,
+                      child: Text(
+                        l10n.consentDeclineButton,
+                        style: TextStyle(color: colors.textSecondary),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -258,6 +268,7 @@ class _PrivacyTableSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final indigo = colors.gradientIndigo[0];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -266,17 +277,16 @@ class _PrivacyTableSection extends StatelessWidget {
           child: Text(
             title,
             style: TextStyle(
+              fontFamily: 'Pretendard',
               fontSize: 15,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w800,
               color: colors.textPrimary,
             ),
           ),
         ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            border: Border.all(color: colors.borderLight),
-            borderRadius: BorderRadius.circular(12),
-          ),
+        GlassCard(
+          borderRadius: 12,
+          padding: EdgeInsets.zero,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Table(
@@ -285,27 +295,30 @@ class _PrivacyTableSection extends StatelessWidget {
                 1: FlexColumnWidth(),
               },
               border: TableBorder.symmetric(
-                inside: BorderSide(color: colors.borderLight, width: 0.5),
+                inside: BorderSide(
+                  color: indigo.withValues(alpha: 0.15),
+                  width: 0.5,
+                ),
               ),
               children: [
                 for (final row in rows)
                   TableRow(
                     children: [
                       Container(
-                        color: colors.chipBg,
+                        color: indigo.withValues(alpha: 0.12),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 10),
                         child: Text(
                           row.label,
                           style: TextStyle(
+                            fontFamily: 'Pretendard',
                             fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: colors.textPrimary,
+                            fontWeight: FontWeight.w700,
+                            color: indigo,
                           ),
                         ),
                       ),
-                      Container(
-                        color: colors.surfaceWhite,
+                      Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 10),
                         child: Text(

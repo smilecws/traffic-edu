@@ -15,6 +15,7 @@ import '../services/user_answer_log_service.dart';
 import '../services/user_answer_stats_service.dart';
 import '../services/wrong_note_service.dart';
 import '../theme/app_theme_colors.dart';
+import '../widgets/glass/glass_action_button.dart';
 import '../widgets/glass/glass_app_bar.dart';
 import '../widgets/glass/glass_card.dart';
 import '../widgets/glass/glass_scaffold.dart';
@@ -859,14 +860,14 @@ class _QuizScreenState extends State<QuizScreen> {
                 if (!widget.showTimerAndScore &&
                     question.isMultipleChoice &&
                     !_answered) ...[
-                  _ActionButton(
+                  GlassActionButton(
                     label: '정답 확인',
                     onTap: _canSubmitMultiple ? _submitMultiple : null,
                     gradient: ac.gradientIndigo,
                   ),
                   const SizedBox(height: 12),
                 ],
-                _ActionButton(
+                GlassActionButton(
                   label: _currentIndex + 1 < _questions.length
                       ? '다음 문제'
                       : '결과 보기',
@@ -1037,68 +1038,6 @@ class _VideoCardState extends State<_VideoCard> {
           ),
         );
       },
-    );
-  }
-}
-
-/// 풀-너비 그라데이션 액션 버튼. 글래스 톤 UI 의 1차 CTA 용.
-/// `onTap == null` 이면 비활성 회색으로 그린다.
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.label,
-    required this.onTap,
-    required this.gradient,
-  });
-
-  final String label;
-  final VoidCallback? onTap;
-  final List<Color> gradient;
-
-  @override
-  Widget build(BuildContext context) {
-    final ac = context.appColors;
-    final disabled = onTap == null;
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
-        child: Ink(
-          decoration: BoxDecoration(
-            gradient: disabled
-                ? null
-                : LinearGradient(
-                    colors: gradient,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-            color: disabled
-                ? ac.gradientIndigo[0].withValues(alpha: 0.15)
-                : null,
-            border: disabled
-                ? Border.all(
-                    color: ac.gradientIndigo[0].withValues(alpha: 0.25),
-                  )
-                : null,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(14),
-            onTap: onTap,
-            child: Center(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: disabled ? ac.gradientIndigo[0] : Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

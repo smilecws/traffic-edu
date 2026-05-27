@@ -22,33 +22,32 @@ const db = getFirestore();
 
 // ── Firestore 데이터 수집 ────────────────────────────────────────────────────
 
+// user_answers/{uid} 는 부모 문서를 명시적으로 생성하지 않는 ghost ancestor 라
+// .collection('user_answers').get() 은 0건을 반환한다. collectionGroup('sessions')
+// 로 모든 sessions 서브컬렉션을 한 번에 읽어야 한다 (uid 무관 평면 조회).
 async function fetchQuestionStats() {
-  const usersSnap = await db.collection('user_answers').get();
+  const sessionsSnap = await db.collectionGroup('sessions').get();
   const stats = {};
 
-  for (const userDoc of usersSnap.docs) {
-    const sessionsSnap = await userDoc.ref.collection('sessions').get();
-    for (const sessionDoc of sessionsSnap.docs) {
-      const data = sessionDoc.data();
-      const items = data.items;
-      if (!Array.isArray(items)) continue;
+  for (const sessionDoc of sessionsSnap.docs) {
+    const items = sessionDoc.data().items;
+    if (!Array.isArray(items)) continue;
 
-      for (const item of items) {
-        const qId = String(item.q);
-        if (!stats[qId]) {
-          stats[qId] = { attempts: 0, correct: 0, option_counts: {} };
-        }
-        stats[qId].attempts += 1;
-        if (item.correct === true) {
-          stats[qId].correct += 1;
-        }
-        const sel = item.sel;
-        if (Array.isArray(sel)) {
-          for (const idx of sel) {
-            const key = String(idx);
-            stats[qId].option_counts[key] =
-              (stats[qId].option_counts[key] ?? 0) + 1;
-          }
+    for (const item of items) {
+      const qId = String(item.q);
+      if (!stats[qId]) {
+        stats[qId] = { attempts: 0, correct: 0, option_counts: {} };
+      }
+      stats[qId].attempts += 1;
+      if (item.correct === true) {
+        stats[qId].correct += 1;
+      }
+      const sel = item.sel;
+      if (Array.isArray(sel)) {
+        for (const idx of sel) {
+          const key = String(idx);
+          stats[qId].option_counts[key] =
+            (stats[qId].option_counts[key] ?? 0) + 1;
         }
       }
     }
@@ -58,17 +57,12 @@ async function fetchQuestionStats() {
 }
 
 async function fetchUserCounts() {
-  const usersSnap = await db.collection('user_answers').get();
-  const totalUsers = usersSnap.size;
+  // listDocuments() 는 ghost ancestor 도 포함해 uid ref 를 반환한다.
+  const userRefs = await db.collection('user_answers').listDocuments();
+  const totalUsers = userRefs.length;
 
-  let totalSessions = 0;
-  for (const userDoc of usersSnap.docs) {
-    const countSnap = await userDoc.ref
-      .collection('sessions')
-      .count()
-      .get();
-    totalSessions += countSnap.data().count;
-  }
+  const countSnap = await db.collectionGroup('sessions').count().get();
+  const totalSessions = countSnap.data().count;
 
   return { totalUsers, totalSessions };
 }

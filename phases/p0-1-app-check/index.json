@@ -31,7 +31,7 @@
       "name": "docs-update",
       "status": "completed",
       "started_at": "2026-05-27T10:59:30+0900",
-      "completed_at": "2026-05-27T11:05:00+0900",
+      "completed_at": "2026-05-27T11:04:24+0900",
       "summary": "ARCHITECTURE.md/ADR.md/CLAUDE.md/RELEASE_CHECKLIST.md 갱신, ADR-016(Web App Check 도입) 신설, 운영자 잔여 액션 명시"
     }
   ],

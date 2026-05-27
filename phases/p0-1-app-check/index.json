@@ -13,7 +13,10 @@
     {
       "step": 1,
       "name": "firestore-rules-payload",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-05-27T10:50:53+0900",
+      "completed_at": "2026-05-27T10:58:00+0900",
+      "summary": "firestore.rules 의 user_answers create 에 페이로드 검증 추가 (필드 집합, 타입, score/total 범위, items.size == total)"
     },
     {
       "step": 2,

@@ -10,7 +10,12 @@
       "Bash(git -C \"c:\\\\Users\\\\smile\\\\Desktop\\\\quiz_app\" log -5 --oneline)",
       "Bash(git -C \"c:\\\\Users\\\\smile\\\\Desktop\\\\quiz_app\" check-ignore .claude/commands/harness.md .claude/commands/review.md scripts/execute.py phases/index.json)",
       "PowerShell($env:PYTHONUTF8 = \"1\"; python c:\\\\Users\\\\smile\\\\Desktop\\\\quiz_app\\\\scripts\\\\execute.py validate p0-3-license)",
-      "Bash(PYTHONUTF8=1 python scripts/execute.py p0-3-license)"
+      "Bash(PYTHONUTF8=1 python scripts/execute.py p0-3-license)",
+      "Bash(python -c ' *)",
+      "Bash(gh run *)",
+      "Bash(gh workflow *)",
+      "Bash(gh api *)",
+      "Bash(curl -s https://www.githubstatus.com/api/v2/components.json)"
     ]
   }
 }

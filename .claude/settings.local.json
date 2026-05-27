@@ -21,7 +21,18 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(grep -B1 \"-1:\")",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 curl -s https://www.githubstatus.com/api/v2/components.json)",
+      "Bash(python -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)",
+      "Bash(git update-index *)",
+      "Bash(ls c:\\\\Users\\\\Josh\\\\Desktop\\\\quiz\\\\docs)",
+      "Bash(ls c:\\\\Users\\\\Josh\\\\Desktop\\\\quiz\\\\phases)",
+      "Bash(PYTHONUTF8=1 python scripts/execute.py validate p0-1-app-check)",
+      "PowerShell(firebase --version)",
+      "PowerShell(firebase projects:list 2>&1)",
+      "PowerShell(npx --yes firebase-tools --version 2>&1)",
+      "PowerShell(Get-Command node, npm, firebase, npx -ErrorAction SilentlyContinue)"
     ],
     "additionalDirectories": [
       "\\tmp",

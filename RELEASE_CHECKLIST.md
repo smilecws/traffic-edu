@@ -90,17 +90,21 @@ on:
 > P0-2 옵션 C 로 `question_stats` 클라이언트 write 가 제거되면서 위조 카운터 조작 / 필드 화이트리스트 관련 위험은 자연 해소됐다. 남은 위험은 봇이 REST API 로 직접 익명 로그인 + `user_answers` 에 가짜 세션 로그를 적재하는 시나리오뿐 — 이는 App Check 로 방어한다.
 
 **현재 상태**
-- 현재 룰(`firestore.rules`)은 `user_answers/{uid}/sessions/{sid}` 만 인증된 자기 uid 에 한해 create 허용. 필드 검증은 없음.
-- App Check 미적용 → 봇이 REST API 로 직접 익명 로그인 + 가짜 세션 write 가능 (Spark 한도 소진, 통계 오염 위험).
+- 클라이언트(Web) 에 `firebase_app_check` 추가 완료. `lib/main.dart` 의 `_initFirebase()` 가 `kIsWeb && _recaptchaV3SiteKey.isNotEmpty` 일 때만 `FirebaseAppCheck.instance.activate(ReCaptchaV3Provider(...))` 호출, 실패/미주입 시 silent skip.
+- `.github/workflows/deploy_github_pages.yml` 의 `flutter build web` 에 `--dart-define=RECAPTCHA_V3_SITE_KEY=${{ secrets.RECAPTCHA_V3_SITE_KEY }}` 주입.
+- `firestore.rules` 의 `user_answers/{uid}/sessions/{sid}` create 에 페이로드 검증 추가 (필드 집합 정확 일치·타입·`score`/`total` 범위·`items.size() == total`). App Check 우회 시 한 줄 방어선.
+- Android/iOS 의 Play Integrity / DeviceCheck 는 이번 phase 범위 밖, P2-2 (앱스토어 배포 준비) 와 함께 처리.
 
-**조치**
-- [ ] Firebase Console → App Check → Web 앱에 reCAPTCHA v3 등록
-- [ ] Android/iOS는 Play Integrity / DeviceCheck 등록
-- [ ] `pubspec.yaml`에 `firebase_app_check` 추가
-- [ ] `lib/main.dart` 초기화부에 `FirebaseAppCheck.instance.activate(...)` 추가
-- [ ] (선택) `firestore.rules` 의 `user_answers` create 에 `items` 크기·필드 형태 검증 추가
-- [ ] `firebase deploy --only firestore:rules`로 재배포
-- [ ] Emulator로 악성 페이로드 거부 단위 테스트
+**조치 — 운영자 직접 수행 (잔여)**
+- [x] `pubspec.yaml`에 `firebase_app_check` 추가
+- [x] `lib/main.dart` 초기화부에 `FirebaseAppCheck.instance.activate(...)` 추가 (Web 한정, dart-define 으로 사이트 키 주입)
+- [x] `firestore.rules` 의 `user_answers` create 에 `items` 크기·필드 형태 검증 추가
+- [x] `.github/workflows/deploy_github_pages.yml` 의 `flutter build web` 에 dart-define 인자 추가
+- [ ] Firebase Console → App Check → Web 앱에 reCAPTCHA v3 사이트 키 등록 (운영자 직접 수행)
+- [ ] GitHub 저장소 Settings → Secrets → `RECAPTCHA_V3_SITE_KEY` 추가 (운영자 직접 수행)
+- [ ] `firebase deploy --only firestore:rules` 로 룰 재배포 (운영자 직접 수행)
+- [ ] Firebase Console App Check enforcement: 우선 **모니터링** 모드로 시작 → 1~2주 정상 트래픽 확인 후 **enforce** 로 전환 (운영자 직접 수행)
+- [ ] Android/iOS Play Integrity / DeviceCheck — P2-2 와 함께 처리 (이번 phase 범위 외)
 
 ### ✅ P0-2. Firestore write 한도 — 완료 (세션당 1 write)
 
@@ -365,7 +369,7 @@ SharedPreferences 영구 캐시 갱신
 
 | 단계 | 작업 | 소요 | 선결 조건 | 상태 |
 |------|------|------|----------|------|
-| 1 | P0-1 App Check (보안 규칙 강화는 P0-2 로 자연 해소) | 1~2시간 | - | ⬜ |
+| 1 | P0-1 App Check (보안 규칙 강화는 P0-2 로 자연 해소) | 1~2시간 | - | ✅ (코드/룰/워크플로 완료, 운영자 콘솔 잔여) |
 | 2 | P0-4 Step 1 영구 캐시(SharedPreferences) | 1~2시간 | - | ✅ |
 | 3 | P0-4 Step 2 GitHub Actions 외부 집계 | 3~5시간 | - | ✅ |
 | 3.5 | P0-2 옵션 C write 통합 (Step 3 과 시너지) | 3~4시간 | P0-4 | ✅ |
@@ -376,7 +380,7 @@ SharedPreferences 영구 캐시 갱신
 | 8 | P1-1 에셋 압축 | 4~8시간 | - | ⬜ |
 | 9 | P2-2 앱스토어 ID 변경 | 1~2일 | 스토어 배포 시 | ⬜ |
 
-**남은 P0 작업은 P0-1(App Check) 하나뿐**. P0-2 와 P0-4 가 끝나면서 클라이언트 read 0 / write 세션당 1 로 Spark 한도 부담이 모두 해소됐다. P0-1 은 봇/REST 남용 방어 목적으로만 의미가 남았다. 7번(개인정보)은 법적 리스크라 가능한 빨리, 5번(P0-3)은 공단 허락 확보로 긴급도가 낮아져 위생 작업 수준, 8·9번은 트래픽/배포 확장 단계에서 진행.
+**P0-1 (App Check) 의 코드/룰/워크플로 변경은 모두 끝났다**. 남은 작업은 운영자 콘솔 잔여 항목(reCAPTCHA v3 사이트 키 등록, GitHub Secrets 추가, 룰 재배포, enforcement 모니터링→enforce 전환) 뿐이며 위 P0-1 섹션의 체크리스트로 추적한다. P0-2 와 P0-4 가 끝나면서 클라이언트 read 0 / write 세션당 1 로 Spark 한도 부담이 모두 해소됐다. 7번(개인정보)은 법적 리스크라 가능한 빨리, 5번(P0-3)은 공단 허락 확보로 긴급도가 낮아져 위생 작업 수준, 8·9번은 트래픽/배포 확장 단계에서 진행.
 
 ---
 

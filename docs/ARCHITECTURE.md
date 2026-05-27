@@ -99,8 +99,11 @@ screens/  →  services/  →  models/
 ```
 main() → _initFirebase() → runApp(QuizApp)
       │
-      ├─ [isSupported] → Firebase.initializeApp + FirebaseAuth.signInAnonymously
-      └─ [미지원 플랫폼/실패] → silent skip (앱 정상 구동)
+      ├─ [isSupported] → Firebase.initializeApp
+      │                  → [kIsWeb && _recaptchaV3SiteKey.isNotEmpty]
+      │                        FirebaseAppCheck.activate(ReCaptchaV3Provider)
+      │                  → FirebaseAuth.signInAnonymously
+      └─ [미지원 플랫폼/실패] → silent skip (앱 정상 구동, App Check 도 함께 skip)
 
 QuizApp.initState → _bootstrap()
       ├─ LocaleService.loadPreferredLocale()   ─┐
@@ -213,7 +216,8 @@ QuizApp.initState → _bootstrap()
 ## 플랫폼별 주의
 - **웹 (Chrome)**: HTML5 video 가 WMV 미지원 → `quiz_screen.dart` 의 `_VideoCard` 가 "Windows 앱으로 실행" 카드로 폴백. 새 비디오 포맷 추가 시 이 분기도 업데이트.
 - **웹 핫 리스타트**: `VideoPlayerController` 를 즉시 `dispose` 하면 다음 프레임의 `VideoPlayer` 위젯이 disposed 컨트롤러에 붙어 충돌. 반드시 `_disposeVideoLater` 로 다음 프레임 미룸.
-- **데스크톱 (Windows/macOS/Linux)**: Firebase(`firebase_core`/`firebase_auth`/`cloud_firestore`) 미지원. `GlobalAnswerStatsService.isSupported` 가 `false` 를 반환해 Firebase 기능이 자동 비활성화된다.
+- **데스크톱 (Windows/macOS/Linux)**: Firebase(`firebase_core`/`firebase_auth`/`cloud_firestore`/`firebase_app_check`) 미지원. `GlobalAnswerStatsService.isSupported` 가 `false` 를 반환해 Firebase 기능과 App Check 가 함께 자동 비활성화된다.
+- **App Check (Web 한정)**: `firebase_app_check` 의 `ReCaptchaV3Provider` 만 활성화한다. 사이트 키는 `--dart-define=RECAPTCHA_V3_SITE_KEY=...` 빌드 인자로 주입하며, 빈 키면 activate 를 skip 한다(로컬 dev / 키 미등록 빌드 대응). Android/iOS 의 Play Integrity / DeviceCheck 는 P2-2 와 함께 처리한다.
 - **GitHub Pages 배포**: `flutter build web` → `docs/` 또는 Pages 브랜치. base href 주의 (빌드 옵션으로 조정).
 
 ## 데이터 흐름 — 글로벌 통계 외부 집계

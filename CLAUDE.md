@@ -12,7 +12,7 @@
 - `url_launcher` — 도로교통공단 외부 링크
 - `flutter_localizations` + 자체 `AppLocalizations` (gen-l10n 미사용)
 - `flutter_launcher_icons` — 멀티 플랫폼 아이콘 생성
-- `firebase_core` / `firebase_auth` (익명 로그인) / `cloud_firestore` — 익명 학습 통계 집계용. Web/Android/iOS 만 지원하며 Windows/macOS 데스크톱에서는 기능이 자동 비활성화된다. Firebase 프로젝트는 `quiz-ace9a`, 설정은 `lib/firebase_options.dart` (flutterfire CLI 자동 생성), 보안 규칙은 `firestore.rules` (`firebase deploy --only firestore:rules` 로 배포).
+- `firebase_core` / `firebase_auth` (익명 로그인) / `cloud_firestore` / `firebase_app_check` — 익명 학습 통계 집계용. Web/Android/iOS 만 지원하며 Windows/macOS 데스크톱에서는 기능이 자동 비활성화된다. Firebase 프로젝트는 `quiz-ace9a`, 설정은 `lib/firebase_options.dart` (flutterfire CLI 자동 생성), 보안 규칙은 `firestore.rules` (`firebase deploy --only firestore:rules` 로 배포). Web 클라이언트 App Check (reCAPTCHA v3) 활성화. 사이트 키는 `--dart-define=RECAPTCHA_V3_SITE_KEY` 로 주입.
 
 ## 아키텍처 규칙
 - CRITICAL: 레이어 경계 — `lib/models/` ← `lib/services/` ← `lib/screens/`. 역방향 import 금지. `services/` 는 `models/` 와 플러그인(`shared_preferences`, `flutter/services` rootBundle)에만 의존한다. `screens/` 만 Flutter `material.dart` 에 의존한다.
@@ -40,7 +40,7 @@ flutter pub get                          # 의존성
 flutter run                              # 기본 디바이스 실행
 flutter run -d chrome                    # 웹 (dev)
 flutter run -d windows                   # Windows 데스크톱 (WMV 재생 가능)
-flutter build web                        # GitHub Pages 배포 빌드
+flutter build web --dart-define=RECAPTCHA_V3_SITE_KEY=<reCAPTCHA v3 사이트 키>  # GitHub Pages 배포 빌드
 flutter build apk --release              # Android 릴리즈
 flutter test                             # 전체 위젯 테스트
 flutter analyze                          # 린트

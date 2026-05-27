@@ -21,7 +21,10 @@
     {
       "step": 2,
       "name": "workflow-define",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-05-27T10:52:39+0900",
+      "completed_at": "2026-05-27T10:58:00+0900",
+      "summary": "deploy_github_pages.yml 의 flutter build web 에 --dart-define=RECAPTCHA_V3_SITE_KEY=secrets.RECAPTCHA_V3_SITE_KEY 추가"
     },
     {
       "step": 3,

@@ -34,7 +34,7 @@ jobs:
       - run: flutter pub get
 
       - name: Build web (base-href = /repo name/)
-        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/" --dart-define=RECAPTCHA_V3_SITE_KEY=${{ secrets.RECAPTCHA_V3_SITE_KEY }}
 
       - uses: actions/upload-pages-artifact@v3
         with:

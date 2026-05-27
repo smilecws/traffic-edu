@@ -1,5 +1,7 @@
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -18,13 +20,20 @@ import 'services/question_service.dart';
 import 'services/theme_mode_service.dart';
 import 'theme/app_theme.dart';
 
+/// reCAPTCHA v3 site key for Firebase App Check (Web).
+/// 빌드 시 `--dart-define=RECAPTCHA_V3_SITE_KEY=...` 로 주입한다.
+/// 비어 있으면 App Check activate 를 skip 한다 (로컬 dev / 키 미등록 빌드 대응).
+const String _recaptchaV3SiteKey =
+    String.fromEnvironment('RECAPTCHA_V3_SITE_KEY');
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _initFirebase();
   runApp(const QuizApp());
 }
 
-/// Firebase 초기화 + 익명 로그인. 미지원 플랫폼/네트워크 실패는 silent.
+/// Firebase 초기화 + (Web) App Check activate + 익명 로그인.
+/// 미지원 플랫폼/네트워크 실패는 silent.
 /// 실패해도 앱 자체는 정상 구동되어야 하므로 throw 하지 않는다.
 Future<void> _initFirebase() async {
   if (!GlobalAnswerStatsService.isSupported) return;
@@ -32,6 +41,11 @@ Future<void> _initFirebase() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    if (kIsWeb && _recaptchaV3SiteKey.isNotEmpty) {
+      await FirebaseAppCheck.instance.activate(
+        webProvider: ReCaptchaV3Provider(_recaptchaV3SiteKey),
+      );
+    }
     if (FirebaseAuth.instance.currentUser == null) {
       await FirebaseAuth.instance.signInAnonymously();
     }

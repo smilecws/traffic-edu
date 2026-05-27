@@ -24,6 +24,10 @@
       "dir": "feat-ui-tone-unify",
       "status": "completed",
       "completed_at": "2026-05-26T13:20:00+0900"
+    },
+    {
+      "dir": "p0-1-app-check",
+      "status": "pending"
     }
   ]
 }

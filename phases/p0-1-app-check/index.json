@@ -1,0 +1,30 @@
+{
+  "project": "quiz_app",
+  "phase": "p0-1-app-check",
+  "steps": [
+    {
+      "step": 0,
+      "name": "appcheck-client",
+      "status": "completed",
+      "started_at": "2026-05-27T10:41:35+0900",
+      "completed_at": "2026-05-27T10:55:00+0900",
+      "summary": "firebase_app_check 추가, main.dart 에서 Web 전용 ReCaptchaV3Provider activate (사이트 키는 dart-define 으로 주입, 빈 키면 skip). flutter analyze 통과."
+    },
+    {
+      "step": 1,
+      "name": "firestore-rules-payload",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "workflow-define",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "docs-update",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-05-27T10:41:35+0900"
+}

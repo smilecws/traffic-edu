@@ -449,9 +449,11 @@ class _QuizScreenState extends State<QuizScreen> {
   /// 옵션 카드의 글래스 배경(alpha 적용 완료) + 보더 색을 한 번에 계산.
   /// - 응답 전 선택 상태: indigo 톤 (전체 화면 indigo 통일감)
   /// - 응답 후 정답/오답: 시맨틱 success/danger 톤 유지 (피드백 기능)
-  /// `bg == null` 이면 GlassCard 기본 흰색 반투명.
+  /// - 그 외(미선택 / 응답 후 미선택 오답): GlassCard 기본 흰색 반투명 + 흰색 보더.
+  /// `bg == null` 이면 GlassCard 기본 흰색 반투명을 사용한다.
   ({Color? bg, Color border}) _optionStyle(AppThemeColors ac, int index) {
     final indigo = ac.gradientIndigo[0];
+    final neutralBorder = Colors.white.withValues(alpha: 0.6);
     final isSelected = _q.isMultipleChoice
         ? _selectedMultiple.contains(index)
         : _selectedSingle == index;
@@ -460,7 +462,7 @@ class _QuizScreenState extends State<QuizScreen> {
       if (isSelected) {
         return (bg: indigo.withValues(alpha: 0.18), border: indigo);
       }
-      return (bg: null, border: ac.borderLight);
+      return (bg: null, border: neutralBorder);
     }
 
     final q = _q;
@@ -476,7 +478,7 @@ class _QuizScreenState extends State<QuizScreen> {
         border: ac.danger,
       );
     }
-    return (bg: null, border: ac.borderLight);
+    return (bg: null, border: neutralBorder);
   }
 
   @override
@@ -598,11 +600,10 @@ class _QuizScreenState extends State<QuizScreen> {
             child: SingleChildScrollView(
               key: const PageStorageKey('quiz_scroll'),
               controller: _scrollController,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(20, 15, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 8),
                   if (question.isMultipleChoice)
                     const Padding(
                       padding: EdgeInsets.only(bottom: 8),
@@ -613,7 +614,7 @@ class _QuizScreenState extends State<QuizScreen> {
                     ),
                   GlassCard(
                     borderRadius: 16,
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(14),
                     child: SizedBox(
                       width: double.infinity,
                       child: Text(
@@ -621,7 +622,7 @@ class _QuizScreenState extends State<QuizScreen> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          height: 1.5,
+                          height: 1.35,
                           color: ac.textPrimary,
                         ),
                       ),
@@ -647,7 +648,7 @@ class _QuizScreenState extends State<QuizScreen> {
                       final isSignAndSituation =
                           question.category == '표지 및 상황문제';
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.only(bottom: 5),
                         child: LayoutBuilder(
                           builder: (context, constraints) {
                             final imageCaptionStyle = TextStyle(
@@ -747,7 +748,7 @@ class _QuizScreenState extends State<QuizScreen> {
                       );
                     }),
                   ],
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 8),
                   ...List.generate(question.options.length, (i) {
                     final style = _optionStyle(ac, i);
                     return Padding(
@@ -763,34 +764,38 @@ class _QuizScreenState extends State<QuizScreen> {
                             children: [
                               if (question.isMultipleChoice)
                                 Padding(
-                                  padding: const EdgeInsets.only(right: 8),
+                                  padding: const EdgeInsets.only(right: 12),
                                   child: Icon(
                                     _selectedMultiple.contains(i)
                                         ? Icons.check_box
                                         : Icons.check_box_outline_blank,
                                     color: ac.gradientIndigo[0],
                                   ),
-                                ),
-                              Container(
-                                width: 32,
-                                height: 32,
-                                decoration: BoxDecoration(
-                                  color: ac.gradientIndigo[0]
-                                      .withValues(alpha: 0.15),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '${i + 1}',
-                                    style: TextStyle(
-                                      fontFamily: 'Pretendard',
-                                      fontWeight: FontWeight.w700,
-                                      color: ac.gradientIndigo[0],
+                                )
+                              else ...[
+                                // 단답형은 보기 번호를 함께 표기 (해설/문제은행 관행).
+                                // 다답형은 체크박스만으로 선택 상태가 충분히 식별되므로 번호 생략.
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    color: ac.gradientIndigo[0]
+                                        .withValues(alpha: 0.15),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '${i + 1}',
+                                      style: TextStyle(
+                                        fontFamily: 'Pretendard',
+                                        fontWeight: FontWeight.w700,
+                                        color: ac.gradientIndigo[0],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
+                                const SizedBox(width: 12),
+                              ],
                               Expanded(
                                 child: Text(
                                   question.options[i],
@@ -854,7 +859,7 @@ class _QuizScreenState extends State<QuizScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
             child: Column(
               children: [
                 if (!widget.showTimerAndScore &&

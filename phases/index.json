@@ -27,7 +27,8 @@
     },
     {
       "dir": "p0-1-app-check",
-      "status": "pending"
+      "status": "completed",
+      "completed_at": "2026-05-27T11:04:26+0900"
     }
   ]
 }

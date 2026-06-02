@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/study_card.dart';
 import '../services/study_card_service.dart';
 import '../theme/app_theme_colors.dart';
+import '../utils/korean_wrap.dart';
 import '../utils/topic_palette.dart';
 import '../widgets/glass/glass_app_bar.dart';
 import '../widgets/glass/glass_card.dart';
@@ -400,7 +401,7 @@ class _CardView extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              card.title,
+              wrapByEojeol(card.title),
               style: TextStyle(
                 fontSize: 17,
                 height: 1.3,
@@ -411,7 +412,7 @@ class _CardView extends StatelessWidget {
             if (card.subtitle.isNotEmpty) ...[
               const SizedBox(height: 4),
               Text(
-                card.subtitle,
+                wrapByEojeol(card.subtitle),
                 style: TextStyle(
                   fontSize: 12.5,
                   color: ac.textSecondary,
@@ -424,7 +425,7 @@ class _CardView extends StatelessWidget {
             ],
             const SizedBox(height: 12),
             Text(
-              card.body,
+              wrapByEojeol(card.body),
               style: TextStyle(
                 fontSize: 13.5,
                 height: 1.55,
@@ -519,7 +520,7 @@ class _KeyPointsBox extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    points[i],
+                    wrapByEojeol(points[i]),
                     style: TextStyle(
                       fontSize: 12.5,
                       height: 1.5,

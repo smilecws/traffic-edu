@@ -25,9 +25,9 @@ class ExamGuideScreen extends StatefulWidget {
 
   /// 특별교통안전교육 교육장·날짜 선택 (모바일 웹)
   static const String _officialEducationScheduleUrl =
-      'https://www.safedriving.or.kr/spcTraSafeEdu/selectSpcTraSafeEduGuide.do';
+      'https://www.safedriving.or.kr/';
   static const String _officialPreparationGuideUrl =
-      'https://www.safedriving.or.kr/guide/rerGuide07View.do?menuCode=MN-PO-1117';
+      'https://www.safedriving.or.kr/';
 
   static Future<void> openOfficialPage(BuildContext context) async {
     final uri = Uri.parse(_officialGuideUrl);

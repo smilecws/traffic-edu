@@ -88,7 +88,17 @@ class _StudyCardScreenState extends State<StudyCardScreen> {
           ];
 
     return GlassScaffold(
-      appBar: GlassAppBar(title: Text(topic.title)),
+      appBar: GlassAppBar(
+        title: Text(topic.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home_outlined),
+            tooltip: '홈으로',
+            onPressed: () =>
+                Navigator.of(context).popUntil((r) => r.isFirst),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
         child: Column(
@@ -423,15 +433,21 @@ class _CardView extends StatelessWidget {
               const SizedBox(height: 12),
               _KeyPointsBox(points: card.keyPoints, accent: accent),
             ],
-            const SizedBox(height: 12),
-            Text(
-              wrapByEojeol(card.body),
-              style: TextStyle(
-                fontSize: 13.5,
-                height: 1.55,
-                color: ac.textPrimary,
+            if (card.body.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                wrapByEojeol(card.body),
+                style: TextStyle(
+                  fontSize: 13.5,
+                  height: 1.55,
+                  color: ac.textPrimary,
+                ),
               ),
-            ),
+            ],
+            if (card.imageGrid != null) ...[
+              const SizedBox(height: 12),
+              _ImageGridView(grid: card.imageGrid!, accent: accent),
+            ],
             for (final table in card.comparisonTables)
               if (!table.isEmpty) ...[
                 const SizedBox(height: 12),
@@ -549,42 +565,182 @@ class _ComparisonTableView extends StatelessWidget {
     if (table.headers.isEmpty || table.rows.isEmpty) {
       return const SizedBox.shrink();
     }
-    return ClipRRect(
+    final headerStyle = TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w800,
+      color: accent,
+    );
+    final cellStyle = TextStyle(
+      fontSize: 12,
+      color: ac.textPrimary,
+      height: 1.4,
+    );
+    final dividerColor = ac.textPrimary.withValues(alpha: 0.08);
+
+    // DataTable 은 컨텐츠 폭에 맞춰 좁아져 우측 여백이 남고 가로 스크롤이
+    // 필요했다. Table + FlexColumnWidth 로 바꿔서 가용 폭을 가득 채운다.
+    // 컬럼 폭 규칙: 1번 컬럼은 카테고리/라벨 컬럼인 경우가 많아 짧은 내용에
+    // 과도한 폭이 할당되는 문제가 있었다. Intrinsic 폭을 쓰되 등분 폭(1/N)을
+    // 상한으로 캡해서, 짧을 때만 줄어들고 길면 기존 균등 분할과 동일하게
+    // 동작하도록 한다. 나머지 컬럼은 남은 공간을 동일 flex 로 나눠 갖는다.
+    final colCount = table.headers.length;
+    final tableWidget = ClipRRect(
       borderRadius: BorderRadius.circular(10),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          headingRowColor: WidgetStateProperty.all(
-            accent.withValues(alpha: 0.14),
+      child: Table(
+        columnWidths: {
+          0: MinColumnWidth(
+            const IntrinsicColumnWidth(),
+            FractionColumnWidth(1 / colCount),
           ),
-          headingTextStyle: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: accent,
-          ),
-          dataTextStyle: TextStyle(
-            fontSize: 12,
-            color: ac.textPrimary,
-            height: 1.4,
-          ),
-          dividerThickness: 0.6,
-          columnSpacing: 18,
-          horizontalMargin: 12,
-          dataRowMinHeight: 32,
-          dataRowMaxHeight: 64,
-          columns: [
-            for (final h in table.headers) DataColumn(label: Text(h)),
-          ],
-          rows: [
-            for (final row in table.rows)
-              DataRow(cells: [
-                for (var i = 0; i < table.headers.length; i++)
-                  DataCell(Text(i < row.length ? row[i] : '')),
-              ]),
-          ],
+          for (var i = 1; i < colCount; i++)
+            i: const FlexColumnWidth(),
+        },
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        border: TableBorder(
+          horizontalInside: BorderSide(width: 0.6, color: dividerColor),
         ),
+        children: [
+          TableRow(
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.14),
+            ),
+            children: [
+              for (final h in table.headers)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8, horizontal: 8),
+                  child: Text(
+                    wrapByEojeol(h),
+                    style: headerStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+            ],
+          ),
+          for (final row in table.rows)
+            TableRow(
+              children: [
+                for (var i = 0; i < table.headers.length; i++)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8, horizontal: 8),
+                    child: Text(
+                      wrapByEojeol(i < row.length ? row[i] : ''),
+                      style: cellStyle,
+                    ),
+                  ),
+              ],
+            ),
+        ],
       ),
+    );
+    if (table.title.isEmpty) return tableWidget;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6, left: 2),
+          child: Text(
+            wrapByEojeol(table.title),
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: accent,
+            ),
+          ),
+        ),
+        tableWidget,
+      ],
     );
   }
 }
 
+class _ImageGridView extends StatelessWidget {
+  const _ImageGridView({required this.grid, required this.accent});
+
+  final ImageGrid grid;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final cells = grid.cells;
+    if (cells.isEmpty) return const SizedBox.shrink();
+    final cols = grid.columns < 1 ? 1 : grid.columns;
+    const spacing = 8.0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cellWidth =
+            (constraints.maxWidth - spacing * (cols - 1)) / cols;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final cell in cells)
+              SizedBox(
+                width: cellWidth,
+                child: _ImageGridCellView(cell: cell, accent: accent),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ImageGridCellView extends StatelessWidget {
+  const _ImageGridCellView({required this.cell, required this.accent});
+
+  final ImageGridCell cell;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final ac = context.appColors;
+    return Container(
+      decoration: BoxDecoration(
+        color: ac.surfaceWhite,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: accent.withValues(alpha: 0.25)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AspectRatio(
+            aspectRatio: 16 / 11,
+            child: Image.asset(
+              cell.image,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => Center(
+                child: Icon(
+                  Icons.broken_image_outlined,
+                  color: ac.textSecondary,
+                  size: 28,
+                ),
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.08),
+              border: Border(
+                top: BorderSide(color: accent.withValues(alpha: 0.2)),
+              ),
+            ),
+            child: Text(
+              cell.caption,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: ac.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

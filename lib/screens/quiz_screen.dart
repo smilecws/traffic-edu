@@ -20,6 +20,7 @@ import '../widgets/glass/glass_app_bar.dart';
 import '../widgets/glass/glass_card.dart';
 import '../widgets/glass/glass_scaffold.dart';
 import 'result_screen.dart';
+import 'written_exam_menu_screen.dart';
 
 class QuizScreen extends StatefulWidget {
   final List<Question>? questions;
@@ -414,6 +415,79 @@ class _QuizScreenState extends State<QuizScreen> {
     _finalizeAndGoToResults();
   }
 
+  /// 이전 문제로 되돌아간다. AppBar 좌측 ← 가 호출.
+  ///
+  /// - `_currentIndex == 0` 이면 호출자(=AppBar 콜백) 쪽에서 가드되므로 여기서는
+  ///   가정만 한다.
+  /// - 이전 문제에 대해 기록된 [SessionResult] 가 있으면 선택 상태를 복원한다.
+  ///   기존 결과는 _results 에서 제거하지 않고 그대로 둔다. 다시 forward 할 때
+  ///   _nextQuestion 이 새 결과를 append 하며, finalize 시 `byId` 가 questionId
+  ///   기준으로 dedupe 하여 가장 최근 결과만 살아남기 때문이다.
+  /// - 연습 모드(`!showTimerAndScore`)에서 이전에 답안 선택을 마쳤다면
+  ///   `_answered=true` 로 복원해 해설이 다시 보이도록 한다. 모의고사 모드는
+  ///   언제든 답을 바꿀 수 있어야 하므로 `_answered=false` 유지.
+  Future<void> _goToPreviousQuestion() async {
+    if (_currentIndex == 0) return;
+    final prevQ = _questions[_currentIndex - 1];
+
+    SessionResult? prevResult;
+    for (int i = _results.length - 1; i >= 0; i--) {
+      if (_results[i].questionId == prevQ.id) {
+        prevResult = _results[i];
+        break;
+      }
+    }
+
+    await _prepareVideoForQuestion(prevQ);
+    if (!mounted) return;
+
+    setState(() {
+      _currentIndex--;
+      _selectedSingle = null;
+      _selectedMultiple.clear();
+      _answered = false;
+
+      if (prevResult != null) {
+        if (prevQ.isMultipleChoice) {
+          _selectedMultiple.addAll(prevResult.selectedIndices);
+        } else if (prevResult.selectedIndices.isNotEmpty) {
+          _selectedSingle = prevResult.selectedIndices.first;
+        }
+        if (!widget.showTimerAndScore &&
+            prevResult.selectedIndices.isNotEmpty) {
+          _answered = true;
+        }
+      }
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      _scrollController.jumpTo(0);
+    });
+  }
+
+  /// AppBar 의 홈 아이콘이 호출. 진행 중인 풀이의 부분 진행을 저장한 뒤
+  /// 필기시험 메뉴로 이동한다.
+  ///
+  /// 스택은 `[HomeScreen, WrittenExamMenuScreen]` 으로 정리되어, 이후 ← 한 번에
+  /// 홈으로 빠질 수 있다. QuizScreen 진입 경로가 WrittenExamMenuScreen 이 아닌
+  /// 경우(예: QuestionDetailScreen 의 다시 풀기)에도 항상 동일한 결과 스택이
+  /// 보장된다.
+  void _goToMenu() {
+    final navigator = Navigator.of(context);
+    unawaited(Future.wait([
+      _saveAttemptedSoFar(),
+      _saveWrongNoteSoFar(),
+      _saveStatsSoFar(),
+    ]).whenComplete(() {
+      if (!mounted) return;
+      navigator.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const WrittenExamMenuScreen()),
+        (r) => r.isFirst,
+      );
+    }));
+  }
+
   Future<void> _nextQuestion() async {
     if (!_canProceed) return;
     final q = _q;
@@ -514,10 +588,31 @@ class _QuizScreenState extends State<QuizScreen> {
       },
       child: GlassScaffold(
         appBar: GlassAppBar(
+          leading: IconButton(
+            // 첫 문제에서는 기존처럼 PopScope 의 저장 로직을 거쳐 화면을 나가고,
+            // 그 외 문제에서는 한 문제씩 거꾸로 이동한다.
+            icon: const Icon(Icons.arrow_back),
+            tooltip: _currentIndex > 0 ? '이전 문제' : '뒤로',
+            onPressed: () {
+              if (_currentIndex > 0) {
+                _goToPreviousQuestion();
+              } else {
+                Navigator.of(context).maybePop();
+              }
+            },
+          ),
           title: Text(
             widget.title ?? '${_currentIndex + 1} / ${_questions.length}',
           ),
           actions: [
+          IconButton(
+            tooltip: '필기시험 메뉴',
+            onPressed: _goToMenu,
+            icon: Icon(
+              Icons.home_outlined,
+              color: ac.textSecondary,
+            ),
+          ),
           IconButton(
             tooltip: _favoriteIds.contains(question.id)
                 ? '즐겨찾기 해제'

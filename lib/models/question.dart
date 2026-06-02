@@ -51,10 +51,14 @@ class Question {
   final List<int> correctIndices;
   final String explanation;
 
-  /// 이미지 URI 목록
+  /// 문제 본문에 표시할 이미지 URI 목록 (`questions_kor.json` 의 `image` 필드 등)
   /// - `data:image/...;base64,...` (웹/앱 공용)
   /// - `assets/...` (에셋 이미지)
   final List<String> imageUris;
+
+  /// 정답 해설용 이미지 URI 목록 (`questions_kor.json` 의 `explanation_image` 필드).
+  /// 문제 풀이 본문에는 노출하지 않는다 — 해설/리뷰 화면 전용.
+  final List<String> explanationImageUris;
 
   /// 이미지 URI → 캡션(이미지 아래에 표시할 텍스트)
   /// - `assets/questions.json`의 `image_description_area.text`를 표시하는 용도
@@ -73,6 +77,7 @@ class Question {
     required this.correctIndices,
     required this.explanation,
     this.imageUris = const [],
+    this.explanationImageUris = const [],
     this.imageCaptionsByUri = const {},
     this.category,
     this.videoUri,
@@ -168,7 +173,6 @@ class Question {
             .whereType<String>()
             .toList()
         : const <String>[];
-    final imageUris = <String>[...mainImages, ...explanationImages];
 
     final captionsRaw = json['image_explanation'];
     final captionLines = captionsRaw is List
@@ -179,9 +183,10 @@ class Question {
         : const <String>[];
     final captionText =
         captionLines.isEmpty ? '' : captionLines.map((l) => '■ $l').join('\n');
-    final captionAnchor = mainImages.isNotEmpty
-        ? mainImages.first
-        : (explanationImages.isNotEmpty ? explanationImages.first : null);
+    // 캡션은 본문 이미지의 부가 설명이므로 본문 이미지가 있을 때만 앵커링한다.
+    // 본문 이미지가 없을 경우 캡션은 노출되지 않는다 (explanation_image 는 해설
+    // 단계 전용이라 본문에 끌고 들어가지 않음).
+    final captionAnchor = mainImages.isNotEmpty ? mainImages.first : null;
 
     final videoUri = normalizeQuestionVideoUri(json['video']);
 
@@ -200,7 +205,8 @@ class Question {
       options: options,
       correctIndices: correctIndices,
       explanation: explanation,
-      imageUris: imageUris,
+      imageUris: mainImages,
+      explanationImageUris: explanationImages,
       imageCaptionsByUri: {
         if (captionText.isNotEmpty && captionAnchor != null)
           captionAnchor: captionText,

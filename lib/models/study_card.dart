@@ -67,6 +67,7 @@ class StudyCardItem {
     required this.body,
     required this.keyPoints,
     required this.comparisonTables,
+    required this.imageGrid,
     required this.tags,
   });
 
@@ -78,6 +79,7 @@ class StudyCardItem {
   final String body;
   final List<String> keyPoints;
   final List<ComparisonTable> comparisonTables;
+  final ImageGrid? imageGrid;
   final List<String> tags;
 
   factory StudyCardItem.fromJson(Map<String, dynamic> j) {
@@ -101,6 +103,13 @@ class StudyCardItem {
       tables = const [];
     }
 
+    ImageGrid? grid;
+    final gridRaw = j['image_grid'];
+    if (gridRaw is Map) {
+      final g = ImageGrid.fromJson(Map<String, dynamic>.from(gridRaw));
+      if (g.cells.isNotEmpty) grid = g;
+    }
+
     return StudyCardItem(
       number: (j['number'] as num).toInt(),
       title: j['title'] as String,
@@ -112,6 +121,7 @@ class StudyCardItem {
           .map((e) => e.toString())
           .toList(),
       comparisonTables: tables,
+      imageGrid: grid,
       tags: (j['tags'] as List? ?? const [])
           .map((e) => e.toString())
           .toList(),
@@ -134,21 +144,66 @@ class StudyBadge {
 }
 
 class ComparisonTable {
-  const ComparisonTable({required this.headers, required this.rows});
+  const ComparisonTable({
+    required this.headers,
+    required this.rows,
+    this.title = '',
+  });
 
   final List<String> headers;
   final List<List<String>> rows;
+
+  /// 같은 카드 안에 여러 표가 있을 때 각 표를 구분하는 소제목. 비어 있으면
+  /// 렌더 시 노출하지 않는다.
+  final String title;
 
   bool get isEmpty => headers.isEmpty || rows.isEmpty;
 
   factory ComparisonTable.fromJson(Map<String, dynamic> j) {
     return ComparisonTable(
+      title: (j['title'] ?? '').toString(),
       headers: (j['headers'] as List? ?? const [])
           .map((e) => e.toString())
           .toList(),
       rows: (j['rows'] as List? ?? const [])
           .map((r) => (r as List).map((e) => e.toString()).toList())
           .toList(),
+    );
+  }
+}
+
+/// 일러스트 + 캡션 2D 격자. 신호위반·무면허 같은 위반 유형을 시각적으로
+/// 보여줄 때 사용한다. `columns` 만큼 한 줄에 배치하고 셀이 더 있으면
+/// 다음 줄로 넘어간다.
+class ImageGrid {
+  const ImageGrid({required this.columns, required this.cells});
+
+  final int columns;
+  final List<ImageGridCell> cells;
+
+  factory ImageGrid.fromJson(Map<String, dynamic> j) {
+    return ImageGrid(
+      columns: (j['columns'] as num?)?.toInt() ?? 2,
+      cells: (j['cells'] as List? ?? const [])
+          .whereType<Map>()
+          .map((e) =>
+              ImageGridCell.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+    );
+  }
+}
+
+class ImageGridCell {
+  const ImageGridCell({required this.image, required this.caption});
+
+  /// `assets/images/...` 형식의 asset 경로.
+  final String image;
+  final String caption;
+
+  factory ImageGridCell.fromJson(Map<String, dynamic> j) {
+    return ImageGridCell(
+      image: j['image'] as String,
+      caption: (j['caption'] ?? '').toString(),
     );
   }
 }

@@ -60,7 +60,7 @@
             "code": "안전"
           },
           "label": "2차사고 예방",
-          "body": "교통사고가 발생한 후 후속 차량에 의한 2차 사고를 막기 위해 운전자는 신속하게 안전조치를 취하여야 합니다. 차량을 안전한 곳으로 이동시킬 수 있다면 도로 우측 가장자리나 갓길로 이동시키고 비상점등을 작동시켜야 합니다. 특히 고속도로나 자동차전용도로에서는 후방 차량이 인지할 수 있도록 안전삼각대나 불꽃신호를 설치하고 운전자는 가드레일 밖 안전한 곳으로 대피해야 합니다.",
+          "body": "교통사고가 발생한 후 후속 차량에 의한 2차 사고를 막기 위해 운전자는 신속하게 안전조치를 취하여야 합니다. 차량을 안전한 곳으로 이동시킬 수 있다면 도로 우측 가장자리나 갓길로 이동시키고 비상점멸등을 점등하고 트렁크를 개방한 뒤, 운전자는 가드레일 밖 등 안전한 곳으로 대피해야 합니다. 차량의 사고나 고장을 알리는 삼각대는 안전이 보장된 상황에서만 설치해야 하며, 터널이나 고속도로 등 위험구간에서는 무리하게 삼각대를 설치하러 나가는 것이 2차 사고를 유발할 수 있으므로 최소한의 조치 후 신고 및 대피가 우선임을 기억해야 합니다.",
           "key_points": [
             "비상등 작동: 사고 즉시 비상점등을 켜서 후방 차량에 경고",
             "차량 이동: 이동이 가능한 상태라면 신속히 갓길 등 안전지대로 이동",
@@ -250,9 +250,62 @@
             "code": "세부 규정"
           },
           "label": "교통사고처리 특례법",
-          "body": "12대 중과실 교통사고는 교통사고처리 특례법 제3조에 규정되어 있으며, 이는 종합보험 가입 여부와 관계없이 형사처벌된다.",
+          "body": "12대 중과실 교통사고는 교통사고처리 특례법 제3조에 규정되어 있으며, 이는 종합보험 가입 여부와 관계없이 형사처벌됩니다.",
           "key_points": [],
-          "comparison_tables": []
+          "comparison_tables": [],
+          "image_grid": {
+            "columns": 2,
+            "cells": [
+              {
+                "image": "assets/images/study_07_violation_speeding.png",
+                "caption": "속도위반"
+              },
+              {
+                "image": "assets/images/study_07_violation_unlicensed.png",
+                "caption": "무면허운전"
+              },
+              {
+                "image": "assets/images/study_07_violation_sidewalk.png",
+                "caption": "보도 침범"
+              },
+              {
+                "image": "assets/images/study_07_violation_passenger_fall.png",
+                "caption": "승객 추락 방지의무 위반"
+              },
+              {
+                "image": "assets/images/study_07_violation_signal.png",
+                "caption": "신호·지시 위반"
+              },
+              {
+                "image": "assets/images/study_07_violation_overtaking.png",
+                "caption": "앞지르기 방법 위반"
+              },
+              {
+                "image": "assets/images/study_07_violation_school_zone.png",
+                "caption": "어린이보호구역 위반"
+              },
+              {
+                "image": "assets/images/study_07_violation_dui.png",
+                "caption": "음주·약물운전"
+              },
+              {
+                "image": "assets/images/study_07_violation_centerline.png",
+                "caption": "중앙선 침범"
+              },
+              {
+                "image": "assets/images/study_07_violation_railroad.png",
+                "caption": "철길 건널목 통과방법 위반"
+              },
+              {
+                "image": "assets/images/study_07_violation_cargo.png",
+                "caption": "적재물 추락 방지의무 위반"
+              },
+              {
+                "image": "assets/images/study_07_violation_crosswalk.png",
+                "caption": "횡단보도 보행자 보호의무 위반"
+              }
+            ]
+          }
         },
         {
           "number": 5,

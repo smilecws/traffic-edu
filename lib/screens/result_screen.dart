@@ -4,11 +4,13 @@ import '../models/mock_exam_license_kind.dart';
 import '../models/session_result.dart';
 import '../services/global_answer_stats_service.dart';
 import '../theme/app_theme_colors.dart';
+import '../widgets/glass/glass_action_button.dart';
 import '../widgets/glass/glass_app_bar.dart';
 import '../widgets/glass/glass_card.dart';
 import '../widgets/glass/glass_scaffold.dart';
-import 'home_screen.dart';
 import 'question_detail_screen.dart';
+import 'quiz_screen.dart';
+import 'written_exam_menu_screen.dart';
 
 class ResultScreen extends StatelessWidget {
   final int score;
@@ -227,30 +229,70 @@ class ResultScreen extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-            child: SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (_) => const HomeScreen()),
-                    (_) => false,
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ac.primary,
-                  foregroundColor: ac.onPrimary,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+            child: Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 52,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        // 결과 → 필기시험 메뉴. 스택은 [HomeScreen,
+                        // WrittenExamMenuScreen] 로 정리해 이후 ← 한 번에 홈으로
+                        // 빠질 수 있게 한다. 퀴즈 화면 홈 아이콘 동작과 동일.
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const WrittenExamMenuScreen(),
+                          ),
+                          (r) => r.isFirst,
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: ac.gradientIndigo[0],
+                        side: BorderSide(
+                          color: ac.gradientIndigo[0]
+                              .withValues(alpha: 0.45),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text(
+                        '홈으로',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-                child: const Text(
-                  '다시 풀기',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GlassActionButton(
+                    label: '다시 풀기',
+                    gradient: ac.gradientIndigo,
+                    onTap: () {
+                      // 같은 문항 세트로 새 세션을 시작한다. mockExamLicenseKind 가
+                      // 있으면 모의고사(40분 타이머), 없으면 연습 모드. 결과 화면을
+                      // pushReplacement 로 갈아끼워 result→quiz→result 스택이 쌓이지
+                      // 않도록 한다.
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => QuizScreen(
+                            questions: results
+                                .map((r) => r.question)
+                                .toList(growable: false),
+                            showTimerAndScore: mockExamLicenseKind != null,
+                            mockExamLicenseKind: mockExamLicenseKind,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ],

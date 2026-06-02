@@ -32,62 +32,62 @@ class StudyCardService {
     StudyTopicMeta(
       id: 2,
       slug: '02_highway_tunnel_special_env',
-      title: '고속도로·터널·특수환경 운전',
+      title: '도로 종류별 안전운전',
     ),
     StudyTopicMeta(
       id: 3,
       slug: '03_centerline_lane_road_marking',
-      title: '중앙선·차선·노면 표시',
+      title: '도로 구조의 이해',
     ),
     StudyTopicMeta(
       id: 4,
       slug: '04_dui_and_drug_driving',
-      title: '음주·약물 운전 규제',
+      title: '음주운전, 약물·마약운전',
     ),
     StudyTopicMeta(
       id: 5,
       slug: '05_emergency_vehicle_yielding',
-      title: '긴급자동차와 길 터주기',
+      title: '긴급자동차와 길터주기',
     ),
     StudyTopicMeta(
       id: 6,
       slug: '06_vulnerable_pedestrian_protection',
-      title: '교통약자 보호와 보행자 안전',
+      title: '교통약자 및 보호구역의 이해',
     ),
     StudyTopicMeta(
       id: 7,
       slug: '07_accident_response_and_liability',
-      title: '교통사고 조치와 법적 책임',
+      title: '교통사고의 이해',
     ),
     StudyTopicMeta(
       id: 8,
       slug: '08_large_freight_towing_vehicle',
-      title: '대형차·화물차·견인차 운전',
+      title: '차량 종류별 안전운전',
     ),
     StudyTopicMeta(
       id: 9,
       slug: '09_eco_vehicle_autonomous_driving',
-      title: '친환경차와 자율주행',
+      title: '친환경 운전과 자율주행',
     ),
     StudyTopicMeta(
       id: 10,
       slug: '10_vehicle_dynamics_inspection_breakdown',
-      title: '차량 운동특성·점검·고장 대처',
+      title: '차량의 운동특성과 점검',
     ),
     StudyTopicMeta(
       id: 11,
       slug: '11_parking_safe_habit_defensive',
-      title: '주정차·안전습관·방어운전',
+      title: '교통안전수칙',
     ),
     StudyTopicMeta(
       id: 12,
       slug: '12_signal_intersection_roundabout',
-      title: '신호·교차로·회전교차로',
+      title: '신호와 안전표지 교차로 통행방법',
     ),
     StudyTopicMeta(
       id: 13,
       slug: '13_driver_license_and_admin_action',
-      title: '운전면허 제도와 행정처분',
+      title: '운전면허제도',
     ),
     StudyTopicMeta(
       id: 14,
@@ -97,12 +97,12 @@ class StudyCardService {
     StudyTopicMeta(
       id: 15,
       slug: '15_vehicle_definition_and_safety',
-      title: '자동차의 정의와 종별 안전수칙',
+      title: '자동차 등의 이해(사륜자동차)',
     ),
     StudyTopicMeta(
       id: 16,
       slug: '16_motorcycle_and_pm',
-      title: '이륜차와 개인형 이동장치(PM)',
+      title: '자동차등의 이해 (이륜자동차)',
     ),
   ];
 

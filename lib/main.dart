@@ -19,6 +19,7 @@ import 'services/locale_service.dart';
 import 'services/question_service.dart';
 import 'services/theme_mode_service.dart';
 import 'theme/app_theme.dart';
+import 'utils/browser_history_sync.dart';
 
 /// reCAPTCHA v3 site key for Firebase App Check (Web).
 /// 빌드 시 `--dart-define=RECAPTCHA_V3_SITE_KEY=...` 로 주입한다.
@@ -67,6 +68,13 @@ class _QuizAppState extends State<QuizApp> {
   Locale _locale = const Locale('ko');
   ThemeMode _themeMode = ThemeMode.system;
   _AuthState _authState = _AuthState.loading;
+
+  /// Web 에서 시스템(=브라우저) 뒤로가기 버튼이 [Navigator] 와 동기화되도록
+  /// 한다. MaterialApp 가 리빌드돼도 동일 인스턴스를 유지해야 popstate
+  /// 리스너와 depth 카운터가 살아남으므로 [State] 필드로 둔다. 비-web
+  /// 플랫폼에서는 옵저버 내부에서 no-op.
+  final BrowserHistorySyncObserver _historySync =
+      BrowserHistorySyncObserver();
 
   @override
   void initState() {
@@ -154,7 +162,7 @@ class _QuizAppState extends State<QuizApp> {
       setThemeMode: _setThemeMode,
       revokeConsent: _revokeConsent,
       child: MaterialApp(
-        title: '학습',
+        title: '초심찾기 도로교통법',
         debugShowCheckedModeBanner: false,
         locale: _locale,
         themeMode: _themeMode,
@@ -167,6 +175,7 @@ class _QuizAppState extends State<QuizApp> {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
+        navigatorObservers: [_historySync],
         home: _resolveHome(),
       ),
     );
